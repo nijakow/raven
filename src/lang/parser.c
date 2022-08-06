@@ -405,7 +405,44 @@ void parser_set_exprtype(struct parser* parser, struct type* type) {
   parser->exprtype = type;
 }
 
-void parser_reset_exprtype(struct parser* parser) {
+void parser_set_exprtype_to_any(struct parser* parser) {
   parser_set_exprtype(parser,
       typeset_type_any(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_bool(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_bool(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_int(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_int(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_char(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_char(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_string(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_string(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_object(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_object(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_array(struct parser* parser) {
+  parser_set_exprtype_to_any(parser); /* TODO */
+}
+
+void parser_set_exprtype_to_mapping(struct parser* parser) {
+  parser_set_exprtype_to_any(parser); /* TODO */
+}
+
+void parser_reset_exprtype(struct parser* parser) {
+  parser_set_exprtype_to_any(parser);
 }

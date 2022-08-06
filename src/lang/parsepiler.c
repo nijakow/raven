@@ -46,21 +46,27 @@ bool parse_symbol(struct parser* parser, struct symbol** loc) {
 
 bool parse_type(struct parser* parser, struct type** loc) {
   *loc = NULL;
-  if (parser_check(parser, TOKEN_TYPE_KW_VOID)
-      || parser_check(parser, TOKEN_TYPE_KW_BOOL)
-      || parser_check(parser, TOKEN_TYPE_KW_CHAR)
-      || parser_check(parser, TOKEN_TYPE_KW_INT)
-      || parser_check(parser, TOKEN_TYPE_KW_STRING)
+  if (parser_check(parser, TOKEN_TYPE_KW_BOOL))
+    *loc = typeset_type_bool(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_INT))
+    *loc = typeset_type_int(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_CHAR))
+    *loc = typeset_type_char(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_STRING))
+    *loc = typeset_type_string(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_OBJECT))
+    *loc = typeset_type_object(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_VOID)
       || parser_check(parser, TOKEN_TYPE_KW_MAPPING)
-      || parser_check(parser, TOKEN_TYPE_KW_OBJECT)
       || parser_check(parser, TOKEN_TYPE_KW_FUNCTION)
       || parser_check(parser, TOKEN_TYPE_KW_ANY)) {
     *loc = typeset_type_any(raven_types(parser_raven(parser)));
-    /* Parse asterisks */
-    while (parser_check(parser, TOKEN_TYPE_STAR));
-    return true;
+  } else {
+    return false;
   }
-  return false;
+  /* Parse asterisks */
+  while (parser_check(parser, TOKEN_TYPE_STAR));
+  return true;
 }
 
 bool parse_type_and_name(struct parser*  parser,
@@ -106,6 +112,7 @@ bool parsepile_array(struct parser* parser, struct compiler* compiler) {
 
   if (parsepile_args(parser, compiler, &arg_count, TOKEN_TYPE_RCURLY)) {
     compiler_load_array(compiler, arg_count);
+    parser_set_exprtype_to_array(parser); /* TODO: Array type? */
     return true;
   }
   return false;
@@ -116,6 +123,7 @@ bool parsepile_mapping(struct parser* parser, struct compiler* compiler) {
 
   if (parsepile_args(parser, compiler, &arg_count, TOKEN_TYPE_RBRACK)) {
     compiler_load_mapping(compiler, arg_count);
+    parser_set_exprtype_to_mapping(parser); /* TODO: Mapping type? */
     return true;
   }
   return false;
@@ -135,10 +143,12 @@ bool parsepile_simple_expr(struct parser*   parser,
       compiler_push_self(compiler);
       result = parsepile_args(parser, compiler, &argcount, TOKEN_TYPE_RPAREN);
       compiler_send(compiler, symbol, argcount);
+      parser_set_exprtype_to_any(parser);
     } else if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expr(parser, compiler, pr)) {
         result = compiler_store_var(compiler, symbol);
       }
+      /* TODO: Do a typecheck */
     } else if (parser_check(parser, TOKEN_TYPE_INC)) {
       result = compiler_load_var(compiler, symbol);
       compiler_push(compiler);
@@ -147,6 +157,7 @@ bool parsepile_simple_expr(struct parser*   parser,
       compiler_op(compiler, RAVEN_OP_ADD);
       result = result && compiler_store_var(compiler, symbol);
       compiler_pop(compiler);
+      parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
     } else if (parser_check(parser, TOKEN_TYPE_DEC)) {
       result = compiler_load_var(compiler, symbol);
       compiler_push(compiler);
@@ -157,7 +168,9 @@ bool parsepile_simple_expr(struct parser*   parser,
       compiler_pop(compiler);
     } else {
       result = compiler_load_var(compiler, symbol);
+      /* TODO: Extract the type */
     }
+    parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_KW_NEW)) {
     if (parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
       parsepile_expression(parser, compiler);
@@ -179,6 +192,7 @@ bool parsepile_simple_expr(struct parser*   parser,
       compiler_pop(compiler);
       result = true;
     }
+    parser_set_exprtype_to_object(parser);
   } else if (parser_check(parser, TOKEN_TYPE_SCOPE)) {
     if (parse_symbol(parser, &symbol)
      && parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
@@ -186,9 +200,11 @@ bool parsepile_simple_expr(struct parser*   parser,
       result = parsepile_args(parser, compiler, &argcount, TOKEN_TYPE_RPAREN);
       compiler_super_send(compiler, symbol, argcount);
     }
+    parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_STAR)) {
     result = parsepile_expr(parser, compiler, 1);
     compiler_op(compiler, RAVEN_OP_DEREF);
+    parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
     if (parse_type(parser, &type)) {
       /* TODO: Cast */
@@ -201,31 +217,40 @@ bool parsepile_simple_expr(struct parser*   parser,
   } else if (parser_check(parser, TOKEN_TYPE_KW_THIS)) {
     compiler_load_self(compiler);
     result = true;
+    parser_set_exprtype_to_any(parser);
   } else if (parser_check(parser, TOKEN_TYPE_KW_NIL)) {
     compiler_load_constant(compiler, any_nil());
     result = true;
+    parser_set_exprtype_to_any(parser);
   } else if (parser_check(parser, TOKEN_TYPE_KW_TRUE)) {
     compiler_load_constant(compiler, any_from_int(1));
     result = true;
+    parser_set_exprtype_to_bool(parser);
   } else if (parser_check(parser, TOKEN_TYPE_KW_FALSE)) {
     compiler_load_constant(compiler, any_from_int(0));
     result = true;
+    parser_set_exprtype_to_bool(parser);
   } else if (parser_is(parser, TOKEN_TYPE_CHAR)) {
     compiler_load_constant(compiler, any_from_char(parser_as_char(parser)));
     parser_advance(parser);
     result = true;
+    parser_set_exprtype_to_char(parser);
   } else if (parser_is(parser, TOKEN_TYPE_INT)) {
     compiler_load_constant(compiler, any_from_int(parser_as_int(parser)));
     parser_advance(parser);
     result = true;
+    parser_set_exprtype_to_int(parser);
   } else if (parser_is(parser, TOKEN_TYPE_STRING)) {
     compiler_load_constant(compiler, any_from_ptr(parser_as_string(parser)));
     parser_advance(parser);
     result = true;
+    parser_set_exprtype_to_string(parser);
   } else if (parser_check(parser, TOKEN_TYPE_LCURLY)) {
     result = parsepile_array(parser, compiler);
+    parser_set_exprtype_to_array(parser);
   } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
     result = parsepile_mapping(parser, compiler);
+    parser_set_exprtype_to_mapping(parser);
   }
   return result;
 }
@@ -239,6 +264,7 @@ bool parsepile_or(struct parser* parser, struct compiler* compiler) {
   result = parsepile_expr(parser, compiler, 11);
   compiler_place_label(compiler, label);
   compiler_close_label(compiler, label);
+  parser_set_exprtype_to_any(parser); /* TODO: Infer */
   return result;
 }
 
@@ -251,6 +277,7 @@ bool parsepile_and(struct parser* parser, struct compiler* compiler) {
   result = parsepile_expr(parser, compiler, 10);
   compiler_place_label(compiler, label);
   compiler_close_label(compiler, label);
+  parser_set_exprtype_to_any(parser); /* TODO: Infer */
   return result;
 }
 
@@ -275,6 +302,8 @@ bool parsepile_ternary(struct parser* parser, struct compiler* compiler) {
 
   compiler_close_label(compiler, false_part);
   compiler_close_label(compiler, end);
+
+  parser_set_exprtype_to_any(parser); /* TODO: Infer */
 
   return result;
 }
@@ -364,6 +393,8 @@ bool parsepile_op(struct parser*   parser,
     *should_continue = false;
   }
 
+  parser_set_exprtype_to_any(parser); /* TODO: Infer */
+
   return result;
 }
 
@@ -375,6 +406,7 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
     if (!parse_symbol(parser, &symbol))
       return false;
     compiler_load_funcref(compiler, symbol);
+    parser_set_exprtype_to_any(parser); /* TODO: Function type */
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
     return parsepile_expr(parser, compiler, 1);
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
@@ -645,6 +677,7 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
   bool            result;
 
   result = false;
+  parser_reset_exprtype(parser);
   if (parse_type_and_name(parser, &type, &name)) {
     compiler_add_var(compiler, type, name);
     if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {

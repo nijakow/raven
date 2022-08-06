@@ -125,6 +125,14 @@ unsigned int parser_unary_prec(struct parser* parser);
 unsigned int parser_binary_prec(struct parser* parser);
 
 void parser_set_exprtype(struct parser* parser, struct type* type);
+void parser_set_exprtype_to_any(struct parser* parser);
+void parser_set_exprtype_to_bool(struct parser* parser);
+void parser_set_exprtype_to_int(struct parser* parser);
+void parser_set_exprtype_to_char(struct parser* parser);
+void parser_set_exprtype_to_string(struct parser* parser);
+void parser_set_exprtype_to_object(struct parser* parser);
+void parser_set_exprtype_to_array(struct parser* parser);
+void parser_set_exprtype_to_mapping(struct parser* parser);
 void parser_reset_exprtype(struct parser* parser);
 
 static inline struct raven* parser_raven(struct parser* parser) {
