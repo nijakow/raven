@@ -122,6 +122,10 @@ char parser_as_char(struct parser* parser);
 unsigned int parser_unary_prec(struct parser* parser);
 unsigned int parser_binary_prec(struct parser* parser);
 
+static inline struct raven* parser_raven(struct parser* parser) {
+  return parser->raven;
+}
+
 static inline struct log* parser_log(struct parser* parser) {
   return parser->log;
 }

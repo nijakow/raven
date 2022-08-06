@@ -55,6 +55,7 @@ bool parse_type(struct parser* parser, struct type** loc) {
       || parser_check(parser, TOKEN_TYPE_KW_OBJECT)
       || parser_check(parser, TOKEN_TYPE_KW_FUNCTION)
       || parser_check(parser, TOKEN_TYPE_KW_ANY)) {
+    *loc = typeset_type_any(raven_types(parser_raven(parser)));
     /* Parse asterisks */
     while (parser_check(parser, TOKEN_TYPE_STAR));
     return true;

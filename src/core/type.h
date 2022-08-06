@@ -26,4 +26,8 @@ struct typeset {
 void typeset_create(struct typeset* ts);
 void typeset_destroy(struct typeset* ts);
 
+static inline struct type* typeset_type_any(struct typeset* ts) {
+  return &ts->any_type;
+}
+
 #endif
