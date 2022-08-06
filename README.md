@@ -25,6 +25,8 @@ to existing MUD drivers such as [LDMUD](https://github.com/ldmud/ldmud),
 It was written in pure C (no dependencies, but assuming a POSIX-style environment),
 and is considered to be a successor to the _Four_ project.
 
+It is released under the [GNU GPL v2](./LICENSE).
+
 ## Quickstart Info
 
 Getting the MUD to run is relatively simple:
