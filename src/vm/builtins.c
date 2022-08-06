@@ -1,0 +1,493 @@
+#include <stdio.h>
+#include <ctype.h>
+
+#include "../core/objects/object.h"
+#include "../core/objects/array.h"
+#include "../core/objects/mapping.h"
+#include "../core/objects/string.h"
+#include "../core/objects/function.h"
+#include "../core/objects/funcref.h"
+#include "../core/objects/connection.h"
+#include "../core/blueprint.h"
+#include "../fs/file.h"
+#include "../util/wrap.h"
+
+#include "frame.h"
+#include "fiber.h"
+#include "interpreter.h"
+
+#include "builtins.h"
+
+void print_object(struct log* log, any object) {
+  if (any_is_int(object)) {
+    log_printf(log, "%d", any_to_int(object));
+  } else if (any_is_obj(object, OBJ_TYPE_STRING)) {
+    log_printf(log, "%s", string_contents(any_to_ptr(object)));
+  } else if (any_is_obj(object, OBJ_TYPE_OBJECT)) {
+    log_printf(log, "object %p", any_to_ptr(object));
+  } else if (any_is_obj(object, OBJ_TYPE_ARRAY)) {
+    log_printf(log, "array %p (size %u)",
+               any_to_ptr(object),
+               array_size(any_to_ptr(object)));
+  } else if (any_is_obj(object, OBJ_TYPE_FUNCREF)) {
+    log_printf(log, "funcref %p", any_to_ptr(object));
+  } else if (any_is_obj(object, OBJ_TYPE_FUNCTION)) {
+    log_printf(log, "function %p", any_to_ptr(object));
+  } else if (any_is_obj(object, OBJ_TYPE_SYMBOL)) {
+    log_printf(log, "symbol #'%s'", ((struct symbol*) any_to_ptr(object))->name);
+  } else if (any_is_nil(object)) {
+    log_printf(log, "(nil)");
+  } else if (any_is_ptr(object)) {
+    log_printf(log, "%p", any_to_ptr(object));
+  } else if (any_is_char(object)) {
+    log_printf(log, "%c", any_to_char(object));
+  } else {
+    log_printf(log, "???");
+  }
+}
+
+void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 0)
+    fiber_crash(fiber);
+  else {
+    if (fiber_connection(fiber) == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(fiber_connection(fiber)));
+  }
+}
+
+void builtin_print(struct fiber* fiber, any* arg, unsigned int args) {
+  for (unsigned int x = 0; x < args; x++) {
+    print_object(raven_log(fiber_raven(fiber)), arg[x]);
+  }
+}
+
+static void builtin_write_to_hlp(struct fiber*      fiber,
+                                 any*               arg,
+                                 unsigned int       args,
+                                 struct connection* connection) {
+  char buf[1024*8];
+
+  if (connection != NULL) {
+    for (unsigned int x = 0; x < args; x++) {
+      if (any_is_int(arg[x])) {
+        snprintf(buf, sizeof(buf), "%d", any_to_int(arg[x]));
+      } else if (any_is_obj(arg[x], OBJ_TYPE_STRING)) {
+        snprintf(buf, sizeof(buf), "%s", string_contents(any_to_ptr(arg[x])));
+      } else if (any_is_nil(arg[x])) {
+        snprintf(buf, sizeof(buf), "(nil)");
+      } else if (any_is_ptr(arg[x])) {
+        snprintf(buf, sizeof(buf), "%p", any_to_ptr(arg[x]));
+      } else if (any_is_char(arg[x])) {
+        printf("%c", any_to_char(arg[x]));
+      } else {
+        snprintf(buf, sizeof(buf), "???");
+      }
+      connection_output_str(connection, buf);
+    }
+  }
+}
+
+void builtin_write(struct fiber* fiber, any* arg, unsigned int args) {
+  builtin_write_to_hlp(fiber, arg, args, fiber_connection(fiber));
+}
+
+void builtin_write_to(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args < 1 || !any_is_obj(arg[0], OBJ_TYPE_CONNECTION))
+    fiber_crash(fiber);
+  else {
+    builtin_write_to_hlp(fiber, arg + 1, args - 1, any_to_ptr(arg[0]));
+  }
+}
+
+void builtin_input_to(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+    fiber_crash(fiber);
+  else {
+    fiber_set_inputto(fiber, any_to_ptr(arg[0]));
+  }
+}
+
+void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 0)
+    fiber_crash(fiber);
+  else {
+    fiber_wait_for_input(fiber);
+  }
+}
+
+void builtin_the(struct fiber* fiber, any* arg, unsigned int args) {
+  any               self;
+  struct object*    obj;
+  struct blueprint* blue;
+  struct file*      file;
+  struct file*      file2;
+  struct file*      file3;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    self  = frame_self(fiber_top(fiber));
+    blue  = any_get_blueprint(self);
+    file  = blueprint_file(blue);
+    file2 = file_parent(file);
+    if (file2 == NULL) file2 = file;
+    file3 = file_resolve(file2, string_contents(any_to_ptr(arg[0])));
+    if (file2 == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else {
+      obj = file_get_object(file3);
+      fiber_set_accu(fiber, (obj == NULL) ? any_nil() : any_from_ptr(obj));
+    }
+  }
+}
+
+void builtin_initializedp(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber,
+                   any_from_int(object_was_initialized(any_to_ptr(arg[0]))));
+  }
+}
+
+void builtin_initialize(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    object_set_initialized(any_to_ptr(arg[0]));
+  }
+}
+
+void builtin_arrayp(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_ARRAY)));
+  }
+}
+
+void builtin_stringp(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_STRING)));
+  }
+}
+
+void builtin_objectp(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_ARRAY)));
+  }
+}
+
+void builtin_functionp(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_FUNCREF)));
+  }
+}
+
+void builtin_nil_proxy(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->nil_proxy = arg[0];
+  }
+}
+
+void builtin_string_proxy(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->string_proxy = arg[0];
+  }
+}
+
+void builtin_array_proxy(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->array_proxy = arg[0];
+  }
+}
+
+void builtin_mapping_proxy(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->mapping_proxy = arg[0];
+  }
+}
+
+void builtin_symbol_proxy(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->symbol_proxy = arg[0];
+  }
+}
+
+void builtin_clone_object(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_ptr(object_clone(fiber_raven(fiber),
+                                                    any_to_ptr(arg[0]))));
+  }
+}
+
+void builtin_object_move(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    if (any_is_obj(arg[1], OBJ_TYPE_OBJECT))
+      object_move_to(any_to_ptr(arg[0]), any_to_ptr(arg[1]));
+    else if (any_is_nil(arg[1]))
+      object_move_to(any_to_ptr(arg[0]), NULL);
+    else
+      fiber_crash(fiber);
+    fiber_set_accu(fiber, arg[0]);
+  }
+}
+
+void builtin_object_parent(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    if (object_parent(any_to_ptr(arg[0])) == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(object_parent(any_to_ptr(arg[0]))));
+  }
+}
+
+void builtin_object_sibling(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    if (object_sibling(any_to_ptr(arg[0])) == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(object_sibling(any_to_ptr(arg[0]))));
+  }
+}
+
+void builtin_object_children(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    fiber_crash(fiber);
+  else {
+    if (object_children(any_to_ptr(arg[0])) == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(object_children(any_to_ptr(arg[0]))));
+  }
+}
+
+void builtin_substr(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 3
+   || !any_is_obj(arg[0], OBJ_TYPE_STRING)
+   || !any_is_int(arg[1])
+   || !any_is_int(arg[2]))
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber,
+                   any_from_ptr(string_substr(any_to_ptr(arg[0]),
+                                              any_to_int(arg[1]),
+                                              any_to_int(arg[2]),
+                                              fiber_raven(fiber))));
+  }
+}
+
+void builtin_mkarray(struct fiber* fiber, any* arg, unsigned int args) {
+  struct array* array;
+
+  if (args != 1 || !any_is_int(arg[0]))
+    fiber_crash(fiber);
+  else {
+    array = array_new(fiber_raven(fiber), any_to_int(arg[0]));
+    fiber_set_accu(fiber, any_from_ptr(array));
+  }
+}
+
+void builtin_append(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_ARRAY))
+    fiber_crash(fiber);
+  else {
+    array_append(any_to_ptr(arg[0]), arg[1]);
+  }
+}
+
+void builtin_chartostr(struct fiber* fiber, any* arg, unsigned int args) {
+  struct string*  string;
+  char            text[2];
+
+  if (args != 1 || !any_is_char(arg[0]))
+    fiber_crash(fiber);
+  else {
+    text[0] = any_to_char(arg[0]);
+    text[1] = '\0';
+    string  = string_new(fiber_raven(fiber), text);
+    fiber_set_accu(fiber, any_from_ptr(string));
+  }
+}
+
+void builtin_keys(struct fiber* fiber, any* arg, unsigned int args) {
+  struct array* array;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_MAPPING))
+    fiber_crash(fiber);
+  else {
+    array = mapping_keys(any_to_ptr(arg[0]), fiber_raven(fiber));
+    if (array == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(array));
+  }
+}
+
+void builtin_isspace(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_char(arg[0]))
+    fiber_crash(fiber);
+  else {
+    fiber_set_accu(fiber, any_from_int(isspace(any_to_char(arg[0]))));
+  }
+}
+
+void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args) {
+  struct string*        string;
+  struct stringbuilder  sb;
+  char*                 wrapped;
+
+  if (args != 2
+      || !any_is_obj(arg[0], OBJ_TYPE_STRING)
+      || !any_is_int(arg[1]))
+    fiber_crash(fiber);
+  else {
+    stringbuilder_create(&sb);
+    string_wrap_into(string_contents(any_to_ptr(arg[0])),
+                     any_to_int(arg[1]),
+                     &sb);
+    stringbuilder_get(&sb, &wrapped);
+    stringbuilder_destroy(&sb);
+    string = string_new(fiber_raven(fiber), wrapped);
+    free(wrapped);
+    fiber_set_accu(fiber, any_from_ptr(string));
+  }
+}
+
+void builtin_call(struct fiber* fiber, any* arg, unsigned int args) {
+  struct funcref* funcref;
+  unsigned int    index;
+  any             fargs[args - 1];
+
+  if (args < 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+    fiber_crash(fiber);
+  else {
+    funcref = any_to_ptr(arg[0]);
+    for (index = 0; index < args - 1; index++)
+      fargs[index] = arg[index + 1];
+    funcref_enter(funcref, fiber, fargs, args - 1);
+  }
+}
+
+void builtin_this_player(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args == 0)
+    fiber_set_accu(fiber, fiber_vars(fiber)->this_player);
+  else if (args == 1)
+    fiber_vars(fiber)->this_player = arg[0];
+  else
+    fiber_crash(fiber);
+}
+
+void builtin_ls(struct fiber* fiber, any* arg, unsigned int args) {
+  struct array*   files;
+  struct string*  string;
+  struct string*  name;
+  const char*     path;
+  struct file*    file;
+  struct file*    child;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    files  = array_new(fiber_raven(fiber), 0);
+    string = any_to_ptr(arg[0]);
+    path   = string_contents(string);
+    file   = filesystem_resolve(raven_fs(fiber_raven(fiber)), path);
+    if (file != NULL) {
+      for (child = file_children(file);
+           child != NULL;
+           child = file_sibling(child)) {
+        name = string_new(fiber_raven(fiber), file_name(child));
+        array_append(files, any_from_ptr(name));
+      }
+    }
+    fiber_set_accu(fiber, any_from_ptr(files));
+  }
+}
+
+void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
+  struct filesystem*  filesystem;
+  struct file*        file;
+  struct string*      result_str;
+  const char*         base_path;
+  const char*         direction;
+        char*         result_path;
+
+  if (args != 2
+      || !any_is_obj(arg[0], OBJ_TYPE_STRING)
+      || !any_is_obj(arg[1], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    filesystem = raven_fs(fiber_raven(fiber));
+    base_path  = string_contents(any_to_ptr(arg[0]));
+    direction  = string_contents(any_to_ptr(arg[1]));
+    file       = filesystem_resolve(filesystem, base_path);
+
+    if (file == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else {
+      file        = file_resolve(file, direction);
+      if (file == NULL)
+        fiber_set_accu(fiber, any_nil());
+      else {
+        /*
+         * TODO, FIXME, XXX: result_path could be NULL!
+         */
+        result_path = file_path(file);
+        result_str  = string_new(fiber_raven(fiber), result_path);
+        free(result_path);
+        fiber_set_accu(fiber, any_from_ptr(result_str));
+      }
+    }
+  }
+}
+
+void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
+  struct filesystem*  filesystem;
+  struct file*        file;
+  const char*         path;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    filesystem = raven_fs(fiber_raven(fiber));
+    path       = string_contents(any_to_ptr(arg[0]));
+    file       = filesystem_resolve(filesystem, path);
+
+    if (file == NULL)
+      fiber_set_accu(fiber, any_from_int(1));
+    else {
+      if (file_recompile(file, raven_log(fiber_raven(fiber)))) {
+        fiber_set_accu(fiber, any_nil()); /* Success! */
+      } else {
+        fiber_set_accu(fiber, any_from_int(2)); /* Failure! */
+      }
+    }
+  }
+}
