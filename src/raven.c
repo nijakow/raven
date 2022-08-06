@@ -67,7 +67,18 @@ void raven_gc(struct raven* raven) {
 void raven_run(struct raven* raven) {
   unsigned int gc_steps;
 
+  /*
+   * We count the amount of loop iterations until we trigger the
+   * next garbage collection. This variable holds the amount of steps.
+   */
   gc_steps = 0;
+
+  /*
+   * This is the main loop of the MUD. It consists of a call to the
+   * scheduler (which in turn advances all the running game threads),
+   * followed by asking the socket server to update the MUD's
+   * connections and sessions.
+   */
   while (true) {
     if (gc_steps++ % 128 == 0)
       raven_gc(raven);
@@ -99,6 +110,11 @@ static void raven_builtin(struct raven* raven,
 }
 
 void raven_setup_builtins(struct raven* raven) {
+  /*
+   * This is the place where all the builtin functions get installed.
+   * Essentially, we allocate a symbol and set its builtin pointer
+   * to the corresponding function.
+   */
   raven_builtin(raven, "_this_connection", builtin_this_connection);
   raven_builtin(raven, "print", builtin_print);
   raven_builtin(raven, "write", builtin_write);

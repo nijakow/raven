@@ -1,6 +1,16 @@
 #ifndef RAVEN_LANG_VARS_H
 #define RAVEN_LANG_VARS_H
 
+/*
+ * `Vars` represents a scoped list of variables.
+ *
+ * This is useful in many places where variable lookup happens,
+ * examples are parts of the compiler and inside of blueprints.
+ *
+ * It is possible to make an instance of `vars` extend from
+ * another, so that different scopes can be represented easily.
+ */
+
 #include "../core/type.h"
 #include "../core/objects/symbol.h"
 

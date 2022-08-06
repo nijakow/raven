@@ -5,6 +5,19 @@
 #include "vars.h"
 #include "objects/base_obj.h"
 
+
+/*
+ * A blueprint works much like a class in other languages.
+ *
+ * The struct contains a pointer to the file that it is bound to,
+ * a pointer to the blueprint it inherits from, a linked list of
+ * its direct member functions and a list of its local variables.
+ *
+ * Blueprints extend `struct base_obj`, thus technically making
+ * them first-class objects. However, this was only done to ease
+ * garbage collection and is in no way relevant for the language
+ * itself.
+ */
 struct blueprint {
   struct base_obj    _;
   struct file*       file;
