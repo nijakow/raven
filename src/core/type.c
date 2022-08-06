@@ -8,27 +8,35 @@
 #include "type.h"
 
 
-void type_create(struct type* type, struct type* parent) {
-  type->parent = parent;
+void type_create(struct type* type, struct typeset* ts, struct type* parent) {
+  type->typeset = ts;
+  type->parent  = parent;
 }
 
 void type_destroy(struct type* type) {
 }
 
+bool type_is_any(struct type* type) {
+  if (type == NULL) return false;
+  return typeset_type_any(type_typeset(type)) == type;
+}
+
 bool type_match(struct type* type, struct type* test) {
-  if (type == NULL)      return false;
-  else if (test == NULL) return false;
-  else if (type == test) return true;
-  else                   return type_match(type, type_parent(test));
+  if (type == NULL)           return true;
+  else if (type_is_any(type)) return true;
+  else if (test == NULL)      return false;
+  else if (type_is_any(test)) return true;
+  else if (type == test)      return true;
+  else                        return type_match(type, type_parent(test));
 }
 
 
 void typeset_create(struct typeset* ts) {
-  type_create(&ts->any_type, NULL);
-  type_create(&ts->int_type, &ts->any_type);
-  type_create(&ts->char_type, &ts->any_type);
-  type_create(&ts->string_type, &ts->any_type);
-  type_create(&ts->object_type, &ts->any_type);
+  type_create(&ts->any_type, ts, NULL);
+  type_create(&ts->int_type, ts, &ts->any_type);
+  type_create(&ts->char_type, ts, &ts->any_type);
+  type_create(&ts->string_type, ts, &ts->any_type);
+  type_create(&ts->object_type, ts, &ts->any_type);
 }
 
 void typeset_destroy(struct typeset* ts) {

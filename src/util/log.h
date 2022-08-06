@@ -16,6 +16,7 @@ struct log {
 void log_create(struct log* log);
 void log_destroy(struct log* log);
 
+void log_vprintf(struct log* log, const char* format, va_list args);
 void log_printf(struct log* log, const char* format, ...);
 
 #endif

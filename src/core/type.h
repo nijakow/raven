@@ -10,15 +10,22 @@
 
 #include "../defs.h"
 
+struct typeset;
 
 struct type {
-  struct type* parent;
+  struct typeset*  typeset;
+  struct type*     parent;
 };
 
-void type_create(struct type* type, struct type* parent);
+void type_create(struct type* type, struct typeset* ts, struct type* parent);
 void type_destroy(struct type* type);
 
+bool type_is_any(struct type* type);
 bool type_match(struct type* type, struct type* test);
+
+static inline struct typeset* type_typeset(struct type* type) {
+  return type->typeset;
+}
 
 static inline struct type* type_parent(struct type* type) {
   return type->parent;

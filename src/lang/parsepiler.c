@@ -5,6 +5,8 @@
  * See README and LICENSE for further information.
  */
 
+#include "../defs.h"
+
 #include "bytecodes.h"
 #include "codewriter.h"
 #include "compiler.h"
@@ -12,13 +14,19 @@
 #include "parsepiler.h"
 
 
+void parser_error(struct parser* parser, const char* format, ...) {
+  va_list args;
+
+  va_start(args, format);
+  log_vprintf(parser_log(parser), format, args);
+  va_end(args);
+}
+
 bool parsepile_expect(struct parser* parser, enum token_type type) {
   if (parser_check(parser, type))
     return true;
   else {
-    log_printf(parser_log(parser),
-               "Syntax error, expected %s\n",
-               token_type_name(type));
+    parser_error(parser, "Syntax error, expected %s\n", token_type_name(type));
     return false;
   }
 }
@@ -27,9 +35,7 @@ bool parsepile_expect_noadvance(struct parser* parser, enum token_type type) {
   if (parser_is(parser, type))
     return true;
   else {
-    log_printf(parser_log(parser),
-               "Syntax error, expected %s\n",
-               token_type_name(type));
+    parser_error(parser, "Syntax error, expected %s\n", token_type_name(type));
     return false;
   }
 }
@@ -73,6 +79,30 @@ bool parse_type_and_name(struct parser*  parser,
                          struct type**   type,
                          struct symbol** name) {
   return parse_type(parser, type) && parse_symbol(parser, name);
+}
+
+bool parsepile_load_var(struct parser*   parser,
+                         struct compiler* compiler,
+                         struct symbol*   name) {
+  struct type*  type;
+  bool          result;
+
+  result = compiler_load_var_with_type(compiler, name, &type);
+  if (result) parser_set_exprtype(parser, type);
+  return true;
+}
+
+bool parsepile_store_var(struct parser*   parser,
+                         struct compiler* compiler,
+                         struct symbol*   name) {
+  struct type*  type;
+  bool          result;
+
+  result = compiler_store_var_with_type(compiler, name, &type);
+  if (result && !type_match(type, parser_get_exprtype(parser))) {
+    parser_error(parser, "Warning: possible type mismatch!\n");
+  }
+  return true;
 }
 
 bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr);
@@ -146,7 +176,7 @@ bool parsepile_simple_expr(struct parser*   parser,
       parser_set_exprtype_to_any(parser);
     } else if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expr(parser, compiler, pr)) {
-        result = compiler_store_var(compiler, symbol);
+        result = parsepile_store_var(parser, compiler, symbol);
       }
       /* TODO: Do a typecheck */
     } else if (parser_check(parser, TOKEN_TYPE_INC)) {
@@ -167,8 +197,7 @@ bool parsepile_simple_expr(struct parser*   parser,
       result = result && compiler_store_var(compiler, symbol);
       compiler_pop(compiler);
     } else {
-      result = compiler_load_var(compiler, symbol);
-      /* TODO: Extract the type */
+      result = parsepile_load_var(parser, compiler, symbol);
     }
     parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_KW_NEW)) {

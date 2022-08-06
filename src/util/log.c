@@ -15,12 +15,17 @@ void log_destroy(struct log* log) {
   /* TODO */
 }
 
-void log_printf(struct log* log, const char* format, ...) {
-  va_list  args;
-  char     buffer[1024*16];
+void log_vprintf(struct log* log, const char* format, va_list args) {
+  char  buffer[1024*16];
 
-  va_start(args, format);
   vsnprintf(buffer, sizeof(buffer), format, args);
   printf("[LOG]: %s", buffer);
+}
+
+void log_printf(struct log* log, const char* format, ...) {
+  va_list  args;
+
+  va_start(args, format);
+  log_vprintf(log, format, args);
   va_end(args);
 }
