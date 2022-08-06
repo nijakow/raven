@@ -356,6 +356,7 @@ bool parsepile_op(struct parser*   parser,
       result = parsepile_args(parser, compiler, &args, TOKEN_TYPE_RPAREN);
       compiler_send(compiler, symbol, args);
     }
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
     compiler_push(compiler);
     parsepile_expression(parser, compiler);
@@ -368,6 +369,7 @@ bool parsepile_op(struct parser*   parser,
     } else {
       compiler_op(compiler, RAVEN_OP_INDEX);
     }
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 13 && parser_check(parser, TOKEN_TYPE_QUESTION)) {
     result = parsepile_ternary(parser, compiler);
   } else if (pr >= 12 && parser_check(parser, TOKEN_TYPE_OR)) {
@@ -378,51 +380,60 @@ bool parsepile_op(struct parser*   parser,
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_EQ);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 7 && parser_check(parser, TOKEN_TYPE_NOT_EQUALS)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_INEQ);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 6 && parser_check(parser, TOKEN_TYPE_LESS)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_LESS);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 6 && parser_check(parser, TOKEN_TYPE_LEQ)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_LEQ);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 6 && parser_check(parser, TOKEN_TYPE_GREATER)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_GREATER);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 6 && parser_check(parser, TOKEN_TYPE_GEQ)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 6);
     compiler_op(compiler, RAVEN_OP_GEQ);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 4 && parser_check(parser, TOKEN_TYPE_PLUS)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 3);
     compiler_op(compiler, RAVEN_OP_ADD);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 4 && parser_check(parser, TOKEN_TYPE_MINUS)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 3);
     compiler_op(compiler, RAVEN_OP_SUB);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 3 && parser_check(parser, TOKEN_TYPE_STAR)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 2);
     compiler_op(compiler, RAVEN_OP_MUL);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 3 && parser_check(parser, TOKEN_TYPE_SLASH)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 2);
     compiler_op(compiler, RAVEN_OP_DIV);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else if (pr >= 3 && parser_check(parser, TOKEN_TYPE_PERCENT)) {
     compiler_push(compiler);
     result = parsepile_expr(parser, compiler, 2);
     compiler_op(compiler, RAVEN_OP_MOD);
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
   } else {
     *should_continue = false;
   }
-
-  parser_set_exprtype_to_any(parser); /* TODO: Infer */
 
   return result;
 }
@@ -711,8 +722,7 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
     compiler_add_var(compiler, type, name);
     if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expression(parser, compiler)) {
-        compiler_store_var(compiler, name);
-        result = true;
+        result = parsepile_store_var(parser, compiler, name);
       }
     } else {
       result = true;

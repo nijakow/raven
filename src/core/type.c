@@ -22,12 +22,14 @@ bool type_is_any(struct type* type) {
 }
 
 bool type_match(struct type* type, struct type* test) {
-  if (type == NULL)           return true;
-  else if (type_is_any(type)) return true;
-  else if (test == NULL)      return false;
+       if (type_is_any(type)) return true;
   else if (type_is_any(test)) return true;
-  else if (type == test)      return true;
-  else                        return type_match(type, type_parent(test));
+
+  while (test != NULL) {
+    if (type == test) return true;
+    test = type_parent(test);
+  }
+  return false;
 }
 
 
