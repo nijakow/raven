@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Raven MUD.
+ * Copyright (c) 2022  Eric Nijakowski
+ *
+ * See README and LICENSE for further information.
+ */
+
 #include "bytecodes.h"
 #include "../core/objects/function.h"
 #include "../util/memory.h"

@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Raven MUD.
+ * Copyright (c) 2022  Eric Nijakowski
+ *
+ * See README and LICENSE for further information.
+ */
+
 #ifndef RAVEN_OBJECTS_OBJECT_H
 #define RAVEN_OBJECTS_OBJECT_H
 
