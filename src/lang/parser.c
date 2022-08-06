@@ -91,6 +91,7 @@ void parser_create(struct parser* parser,
   parser->log         = log;
   parser->token_type  = TOKEN_TYPE_EOF;
   parser->buffer_fill = 0;
+  parser_reset_exprtype(parser);
   parser_advance(parser);
 }
 
@@ -398,4 +399,13 @@ struct string* parser_as_string(struct parser* parser) {
 
 char parser_as_char(struct parser* parser) {
   return parser->buffer[0];
+}
+
+void parser_set_exprtype(struct parser* parser, struct type* type) {
+  parser->exprtype = type;
+}
+
+void parser_reset_exprtype(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_any(raven_types(parser_raven(parser))));
 }

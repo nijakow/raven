@@ -10,6 +10,7 @@
 
 #include "../defs.h"
 #include "../raven.h"
+#include "../core/type.h"
 #include "../util/log.h"
 
 #include "reader.h"
@@ -96,6 +97,7 @@ struct parser {
   t_reader*       reader;
   struct log*     log;
   enum token_type token_type;
+  struct type*    exprtype;
   int             integer;
   unsigned int    buffer_fill;
   char            buffer[PARSER_BUFFER_SIZE];
@@ -122,12 +124,19 @@ char parser_as_char(struct parser* parser);
 unsigned int parser_unary_prec(struct parser* parser);
 unsigned int parser_binary_prec(struct parser* parser);
 
+void parser_set_exprtype(struct parser* parser, struct type* type);
+void parser_reset_exprtype(struct parser* parser);
+
 static inline struct raven* parser_raven(struct parser* parser) {
   return parser->raven;
 }
 
 static inline struct log* parser_log(struct parser* parser) {
   return parser->log;
+}
+
+static inline struct type* parser_get_exprtype(struct parser* parser) {
+  return parser->exprtype;
 }
 
 #endif
