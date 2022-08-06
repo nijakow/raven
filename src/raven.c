@@ -31,6 +31,7 @@ static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
 void raven_create(struct raven* raven) {
   raven->objects = NULL;
   raven->symbols = NULL;
+  typeset_create(&raven->types);
   log_create(&raven->log);
   scheduler_create(&raven->scheduler, raven);
   server_create(&raven->server, raven, 4242);

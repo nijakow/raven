@@ -10,6 +10,7 @@
 
 #include "defs.h"
 #include "core/any.h"
+#include "core/type.h"
 #include "fs/filesystem.h"
 #include "server/server.h"
 #include "util/log.h"
@@ -28,6 +29,7 @@ struct raven_vars {
 struct raven {
   struct base_obj*   objects;
   struct symbol*     symbols;
+  struct typeset     types;
   struct log         log;
   struct scheduler   scheduler;
   struct server      server;
@@ -53,6 +55,10 @@ void raven_setup_builtins(struct raven* raven);
 
 static inline struct base_obj* raven_objects(struct raven* raven) {
   return raven->objects;
+}
+
+static inline struct typeset* raven_types(struct raven* raven) {
+  return &raven->types;
 }
 
 static inline struct log* raven_log(struct raven* raven) {
