@@ -81,14 +81,15 @@ bool compiler_load_funcref(struct compiler* compiler, struct symbol* name) {
   return true;
 }
 
-bool compiler_load_var(struct compiler* compiler, struct symbol* name) {
-  struct type*  type;
+bool compiler_load_var_with_type(struct compiler* compiler,
+                                 struct symbol*   name,
+                                 struct type**    type) {
   unsigned int  index;
 
-  if (vars_find(&compiler->vars, name, &type, &index)) {
+  if (vars_find(&compiler->vars, name, type, &index)) {
     codewriter_load_local(compiler->cw, index);
     return true;
-  } else if (vars_find(blueprint_vars(compiler->bp), name, &type, &index)) {
+  } else if (vars_find(blueprint_vars(compiler->bp), name, type, &index)) {
     codewriter_load_member(compiler->cw, index);
     return true;
   } else {
@@ -96,19 +97,28 @@ bool compiler_load_var(struct compiler* compiler, struct symbol* name) {
   }
 }
 
-bool compiler_store_var(struct compiler* compiler, struct symbol* name) {
-  struct type*  type;
+bool compiler_load_var(struct compiler* compiler, struct symbol* name) {
+  return compiler_load_var_with_type(compiler, name, NULL);
+}
+
+bool compiler_store_var_with_type(struct compiler* compiler,
+                                  struct symbol*   name,
+                                  struct type**    type) {
   unsigned int  index;
 
-  if (vars_find(&compiler->vars, name, &type, &index)) {
+  if (vars_find(&compiler->vars, name, type, &index)) {
     codewriter_store_local(compiler->cw, index);
     return true;
-  } else if (vars_find(blueprint_vars(compiler->bp), name, &type, &index)) {
+  } else if (vars_find(blueprint_vars(compiler->bp), name, type, &index)) {
     codewriter_store_member(compiler->cw, index);
     return true;
   } else {
     return false;
   }
+}
+
+bool compiler_store_var(struct compiler* compiler, struct symbol* name) {
+  return compiler_store_var_with_type(compiler, name, NULL);
 }
 
 void compiler_push_self(struct compiler* compiler) {

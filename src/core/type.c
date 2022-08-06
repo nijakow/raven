@@ -15,6 +15,12 @@ void type_create(struct type* type, struct type* parent) {
 void type_destroy(struct type* type) {
 }
 
+bool type_match(struct type* type, struct type* test) {
+  if (type == NULL)      return false;
+  else if (test == NULL) return false;
+  else if (type == test) return true;
+  else                   return type_match(type, type_parent(test));
+}
 
 
 void typeset_create(struct typeset* ts) {

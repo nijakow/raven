@@ -18,6 +18,12 @@ struct type {
 void type_create(struct type* type, struct type* parent);
 void type_destroy(struct type* type);
 
+bool type_match(struct type* type, struct type* test);
+
+static inline struct type* type_parent(struct type* type) {
+  return type->parent;
+}
+
 
 struct typeset {
   struct type  any_type;

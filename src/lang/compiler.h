@@ -47,7 +47,13 @@ bool compiler_load_constant(struct compiler* compiler, any value);
 bool compiler_load_array(struct compiler* compiler, unsigned int size);
 bool compiler_load_mapping(struct compiler* compiler, unsigned int size);
 bool compiler_load_funcref(struct compiler* compiler, struct symbol* name);
+bool compiler_load_var_with_type(struct compiler* compiler,
+                                 struct symbol*   name,
+                                 struct type**    type);
 bool compiler_load_var(struct compiler* compiler, struct symbol* name);
+bool compiler_store_var_with_type(struct compiler* compiler,
+                                  struct symbol*   name,
+                                  struct type**    type);
 bool compiler_store_var(struct compiler* compiler, struct symbol* name);
 
 void compiler_push_self(struct compiler* compiler);

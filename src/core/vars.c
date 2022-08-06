@@ -64,8 +64,10 @@ bool vars_find(struct vars*   vars,
      */
     for (i = 0; i < vars->fill; i++) {
       if (vars->vars[i].name == name) {
-        *type_loc  = vars->vars[i].type;
-        *index_loc = vars_count(vars->parent) + i;
+        if (type_loc != NULL)
+          *type_loc  = vars->vars[i].type;
+        if (index_loc != NULL)
+          *index_loc = vars_count(vars->parent) + i;
         return true;
       }
     }
