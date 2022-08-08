@@ -12,8 +12,8 @@
 
 struct obj_info ARRAY_INFO = {
   .type = OBJ_TYPE_ARRAY,
-  .mark = array_mark,
-  .del  = array_del
+  .mark = (mark_func) array_mark,
+  .del  = (del_func)  array_del
 };
 
 struct array* array_new(struct raven* raven, unsigned int size) {
@@ -35,7 +35,7 @@ struct array* array_new(struct raven* raven, unsigned int size) {
   return array;
 }
 
-void array_mark(struct gc* gc, void* array) {
+void array_mark(struct gc* gc, struct array* array) {
   struct array*  arr;
   unsigned int   i;
 
@@ -45,11 +45,9 @@ void array_mark(struct gc* gc, void* array) {
   base_obj_mark(gc, &arr->_);
 }
 
-void array_del(void* array) {
-  struct array* arr;
-
-  arr = array;
-  base_obj_del(&arr->_);
+void array_del(struct array* array) {
+  memory_free(array->elements);
+  base_obj_del(&array->_);
 }
 
 

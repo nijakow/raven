@@ -19,8 +19,8 @@ struct array {
 };
 
 struct array* array_new(struct raven* raven, unsigned int size);
-void          array_mark(struct gc* gc, void* array);
-void          array_del(void* array);
+void          array_mark(struct gc* gc, struct array* array);
+void          array_del(struct array* array);
 
 struct array* array_join(struct raven* raven,
                          struct array* a,
