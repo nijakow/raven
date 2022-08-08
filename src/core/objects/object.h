@@ -8,8 +8,9 @@
 #ifndef RAVEN_OBJECTS_OBJECT_H
 #define RAVEN_OBJECTS_OBJECT_H
 
-#include "base_obj.h"
+#include "../../defs.h"
 #include "../any.h"
+#include "../base_obj.h"
 
 struct object {
   struct base_obj    _;

@@ -8,8 +8,9 @@
 #ifndef RAVEN_OBJECTS_SYMBOL_H
 #define RAVEN_OBJECTS_SYMBOL_H
 
-#include "base_obj.h"
+#include "../../defs.h"
 #include "../../vm/builtins.h"
+#include "../base_obj.h"
 
 struct symbol {
   struct base_obj  _;

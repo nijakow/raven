@@ -8,7 +8,8 @@
 #ifndef RAVEN_OBJECTS_STRING_H
 #define RAVEN_OBJECTS_STRING_H
 
-#include "base_obj.h"
+#include "../../defs.h"
+#include "../base_obj.h"
 
 struct string {
   struct base_obj  _;

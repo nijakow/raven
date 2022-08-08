@@ -9,8 +9,8 @@
 #define RAVEN_CORE_BLUEPRINT_H
 
 #include "../defs.h"
+#include "base_obj.h"
 #include "vars.h"
-#include "objects/base_obj.h"
 
 
 /*

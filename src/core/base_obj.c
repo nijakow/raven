@@ -5,8 +5,8 @@
  * See README and LICENSE for further information.
  */
 
-#include "../../gc/gc.h"
-#include "../../util/memory.h"
+#include "../gc/gc.h"
+#include "../util/memory.h"
 
 #include "base_obj.h"
 

@@ -8,8 +8,9 @@
 #ifndef RAVEN_CORE_FUNCTION_H
 #define RAVEN_CORE_FUNCTION_H
 
+#include "../../defs.h"
 #include "../any.h"
-#include "base_obj.h"
+#include "../base_obj.h"
 
 struct function {
   struct base_obj    _;

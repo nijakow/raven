@@ -8,8 +8,9 @@
 #ifndef RAVEN_CORE_OBJECTS_MAPPING_H
 #define RAVEN_CORE_OBJECTS_MAPPING_H
 
+#include "../../defs.h"
 #include "../any.h"
-#include "base_obj.h"
+#include "../base_obj.h"
 
 struct mapping_entry {
   struct mapping_entry*  next;

@@ -9,8 +9,8 @@
 #define RAVEN_GC_GC_H
 
 #include "../defs.h"
-#include "../core/objects/base_obj.h"
 #include "../core/any.h"
+#include "../core/base_obj.h"
 
 struct gc {
   struct raven*     raven;

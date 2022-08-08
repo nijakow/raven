@@ -10,7 +10,7 @@
 
 #include "../../defs.h"
 #include "../any.h"
-#include "base_obj.h"
+#include "../base_obj.h"
 
 struct funcref {
   struct base_obj  _;

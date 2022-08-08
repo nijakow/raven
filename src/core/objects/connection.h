@@ -9,10 +9,9 @@
 #define RAVEN_SERVER_CONNECTION_H
 
 #include "../../defs.h"
-
-#include "base_obj.h"
-
 #include "../../util/ringbuffer.h"
+
+#include "../base_obj.h"
 
 
 struct connection {

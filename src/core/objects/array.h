@@ -9,7 +9,7 @@
 #define RAVEN_CORE_OBJECTS_ARRAY_H
 
 #include "../any.h"
-#include "base_obj.h"
+#include "../base_obj.h"
 
 struct array {
   struct base_obj  _;

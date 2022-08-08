@@ -5,11 +5,12 @@
  * See README and LICENSE for further information.
  */
 
-#include "blueprint.h"
-#include "objects/base_obj.h"
 #include "objects/object.h"
 #include "objects/array.h"
 #include "objects/string.h"
+
+#include "base_obj.h"
+#include "blueprint.h"
 
 #include "any.h"
 

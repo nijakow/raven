@@ -8,8 +8,8 @@
 #ifndef RAVEN_OBJECTS_BASE_OBJ_H
 #define RAVEN_OBJECTS_BASE_OBJ_H
 
-#include "../../defs.h"
-#include "../../raven.h"
+#include "../defs.h"
+#include "../raven.h"
 
 typedef void (*mark_func)(struct gc*, void*);
 typedef void (*del_func)(void*);
