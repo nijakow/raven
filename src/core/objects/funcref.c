@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../defs.h"
+#include "../../raven.h"
+
 #include "../../vm/fiber.h"
 #include "../../vm/interpreter.h"
 
@@ -22,7 +25,9 @@ struct funcref* funcref_new(struct raven*  raven,
                             struct symbol* msg) {
   struct funcref*  funcref;
 
-  funcref = base_obj_new(raven, &FUNCREF_INFO, sizeof(struct funcref));
+  funcref = base_obj_new(raven_objects(raven),
+                         &FUNCREF_INFO,
+                         sizeof(struct funcref));
 
   if (funcref != NULL) {
     funcref->receiver = receiver;

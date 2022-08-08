@@ -23,8 +23,8 @@ struct symbol {
 void symbol_mark(struct gc* gc, struct symbol* symbol);
 void symbol_del(struct symbol* symbol);
 
-struct symbol* symbol_find_in(struct raven* raven, const char* name);
-struct symbol* symbol_gensym(struct raven* raven);
+struct symbol* symbol_find_in(struct object_table* table, const char* name);
+struct symbol* symbol_gensym(struct object_table* table);
 
 static inline const char* symbol_name(struct symbol* symbol) {
   return symbol->name;

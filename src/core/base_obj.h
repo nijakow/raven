@@ -9,7 +9,7 @@
 #define RAVEN_OBJECTS_BASE_OBJ_H
 
 #include "../defs.h"
-#include "../raven.h"
+#include "object_table.h"
 
 typedef void (*mark_func)(struct gc*, void*);
 typedef void (*del_func)(void*);
@@ -33,7 +33,9 @@ struct base_obj {
   enum gc_tag      gc_tag;
 };
 
-void* base_obj_new(struct raven* raven, struct obj_info* info, size_t size);
+void* base_obj_new(struct object_table* table,
+                   struct obj_info*     info,
+                   size_t               size);
 void  base_obj_mark(struct gc* gc, struct base_obj* obj);
 void  base_obj_dispatch_mark(struct gc* gc, struct base_obj* obj);
 void  base_obj_mark_children(struct gc* gc, struct base_obj* obj);

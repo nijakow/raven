@@ -5,8 +5,9 @@
  * See README and LICENSE for further information.
  */
 
-#include "objects/function.h"
+#include "../raven.h"
 #include "../fs/file.h"
+#include "objects/function.h"
 
 #include "blueprint.h"
 
@@ -30,7 +31,7 @@ static void blueprint_destroy(struct blueprint* blue) {
 struct blueprint* blueprint_new(struct raven* raven, struct file* file) {
   struct blueprint* blueprint;
 
-  blueprint = base_obj_new(filesystem_raven(file_fs(file)),
+  blueprint = base_obj_new(raven_objects(filesystem_raven(file_fs(file))),
                            &BLUEPRINT_INFO,
                            sizeof(struct blueprint));
 

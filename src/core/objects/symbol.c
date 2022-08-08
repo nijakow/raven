@@ -6,6 +6,8 @@
  */
 
 #include "../../defs.h"
+#include "../../raven.h"
+
 #include "../object_table.h"
 
 #include "symbol.h"
@@ -17,23 +19,24 @@ struct obj_info SYMBOL_INFO = {
 };
 
 
-static struct symbol* symbol_new(struct raven* raven, const char* name) {
+static struct symbol* symbol_new(struct object_table* table, const char* name) {
   size_t          name_len;
   struct symbol*  symbol;
 
   name_len = strlen(name);
-  symbol   = base_obj_new(raven, &SYMBOL_INFO,
+  symbol   = base_obj_new(table,
+                          &SYMBOL_INFO,
                           sizeof(struct symbol)
                         + sizeof(char) * (name_len + 1));
 
   if (symbol != NULL) {
     strncpy(symbol->name, name, name_len + 1);
-    if (raven_objects(raven)->symbols != NULL)
-      raven_objects(raven)->symbols->prev = &symbol->next;
-    symbol->next    =  raven_objects(raven)->symbols;
-    symbol->prev    = &raven_objects(raven)->symbols;
+    if (table->symbols != NULL)
+      table->symbols->prev = &symbol->next;
+    symbol->next    =  table->symbols;
+    symbol->prev    = &table->symbols;
     symbol->builtin =  NULL;
-    raven_objects(raven)->symbols  =  symbol;
+    table->symbols  =  symbol;
   }
 
   return symbol;
@@ -47,10 +50,10 @@ void symbol_del(struct symbol* symbol) {
   base_obj_del(&symbol->_);
 }
 
-struct symbol* symbol_find_in(struct raven* raven, const char* name) {
+struct symbol* symbol_find_in(struct object_table* table, const char* name) {
   struct symbol*  symbol;
 
-  for (symbol = raven_objects(raven)->symbols;
+  for (symbol = table->symbols;
        symbol != NULL;
        symbol = symbol->next) {
     if (strcmp(symbol->name, name) == 0) {
@@ -58,13 +61,13 @@ struct symbol* symbol_find_in(struct raven* raven, const char* name) {
     }
   }
 
-  return symbol_new(raven, name);
+  return symbol_new(table, name);
 }
 
-struct symbol* symbol_gensym(struct raven* raven) {
+struct symbol* symbol_gensym(struct object_table* table) {
   /*
    * TODO: This function should not put the symbol into the linked list!
    *       It should also not generate a name that can be looked up.
    */
-  return symbol_new(raven, "__gensym");
+  return symbol_new(table, "__gensym");
 }

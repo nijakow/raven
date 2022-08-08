@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../defs.h"
+#include "../../raven.h"
+
 #include "../../util/memory.h"
 
 #include "array.h"
@@ -21,7 +24,9 @@ struct obj_info MAPPING_INFO = {
 struct mapping* mapping_new(struct raven* raven) {
   struct mapping* mapping;
 
-  mapping = base_obj_new(raven, &MAPPING_INFO, sizeof(struct mapping));
+  mapping = base_obj_new(raven_objects(raven),
+                         &MAPPING_INFO,
+                         sizeof(struct mapping));
 
   if (mapping != NULL) {
     mapping->entries = NULL;

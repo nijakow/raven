@@ -6,6 +6,8 @@
  */
 
 #include "../../defs.h"
+#include "../../raven.h"
+
 #include "../../util/stringbuilder.h"
 #include "../../util/memory.h"
 
@@ -37,7 +39,9 @@ char* strjoin(const char* s1, const char* s2) {
 struct string* string_new(struct raven* raven, const char* contents) {
   struct string*  string;
 
-  string = base_obj_new(raven, &STRING_INFO, sizeof(struct string));
+  string = base_obj_new(raven_objects(raven),
+                        &STRING_INFO,
+                        sizeof(struct string));
 
   if (string != NULL) {
     string->contents = strdup(contents);
@@ -68,7 +72,9 @@ struct string* string_append(struct raven*  raven,
                              struct string* b) {
   struct string*  string;
 
-  string = base_obj_new(raven, &STRING_INFO, sizeof(struct string));
+  string = base_obj_new(raven_objects(raven),
+                        &STRING_INFO,
+                        sizeof(struct string));
 
   if (string != NULL) {
     string->contents = strjoin(a->contents, b->contents);

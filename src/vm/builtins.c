@@ -6,6 +6,7 @@
  */
 
 #include "../defs.h"
+#include "../raven.h"
 
 #include "../core/objects/object.h"
 #include "../core/objects/array.h"
@@ -16,6 +17,7 @@
 #include "../core/objects/connection.h"
 #include "../core/blueprint.h"
 #include "../fs/file.h"
+#include "../util/log.h"
 #include "../util/wrap.h"
 
 #include "frame.h"

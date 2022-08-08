@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../defs.h"
+#include "../../raven.h"
+
 #include "../blueprint.h"
 #include "../../lang/bytecodes.h"
 
@@ -27,7 +30,8 @@ struct function* function_new(struct raven* raven,
   struct function*  function;
   unsigned int      index;
 
-  function = base_obj_new(raven, &FUNCTION_INFO,
+  function = base_obj_new(raven_objects(raven),
+                          &FUNCTION_INFO,
                           sizeof(struct function)
                             + sizeof(t_bc) * bytecode_count
                             + sizeof(any) * constant_count);

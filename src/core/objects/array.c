@@ -5,6 +5,7 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../raven.h"
 #include "../../util/memory.h"
 
 #include "array.h"
@@ -19,7 +20,7 @@ struct array* array_new(struct raven* raven, unsigned int size) {
   struct array*  array;
   unsigned int   i;
 
-  array = base_obj_new(raven, &ARRAY_INFO,
+  array = base_obj_new(raven_objects(raven), &ARRAY_INFO,
                        sizeof(struct array) + size * sizeof(any));
 
   if (array != NULL) {

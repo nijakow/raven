@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../defs.h"
+#include "../../raven.h"
+
 #include "../blueprint.h"
 
 #include "object.h"
@@ -42,7 +45,8 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
 
   instance_size = blueprint_get_instance_size(blueprint);
 
-  object = base_obj_new(raven, &OBJECT_INFO,
+  object = base_obj_new(raven_objects(raven),
+                        &OBJECT_INFO,
                         sizeof(struct object) + sizeof(any) * instance_size);
 
   if (object != NULL) {

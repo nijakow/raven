@@ -6,6 +6,7 @@
  */
 
 #include "../../defs.h"
+#include "../../raven.h"
 
 #include "../../server/server.h"
 #include "../../vm/fiber.h"
@@ -50,7 +51,9 @@ struct connection* connection_new(struct raven*  raven,
                                   int            socket) {
   struct connection*  connection;
 
-  connection = base_obj_new(raven, &CONNECTION_INFO, sizeof(struct connection));
+  connection = base_obj_new(raven_objects(raven),
+                            &CONNECTION_INFO,
+                            sizeof(struct connection));
 
   if (connection != NULL) {
     connection_create(connection, server, socket);

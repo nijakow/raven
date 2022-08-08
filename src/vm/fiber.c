@@ -7,6 +7,7 @@
 
 #include "../defs.h"
 #include "../core/objects/function.h"
+#include "../gc/gc.h"
 
 #include "scheduler.h"
 #include "frame.h"

@@ -10,17 +10,19 @@
 
 #include "base_obj.h"
 
-void* base_obj_new(struct raven* raven, struct obj_info* info, size_t size) {
+void* base_obj_new(struct object_table* table,
+                   struct obj_info*     info,
+                   size_t               size) {
   struct base_obj* obj;
 
   obj = memory_alloc(size);
 
   if (obj != NULL) {
     obj->info      = info;
-    obj->next      = raven_objects(raven)->objects;
+    obj->next      = table->objects;
     obj->forward   = NULL;
     obj->gc_tag    = GC_TAG_WHITE;
-    raven_objects(raven)->objects = obj;
+    table->objects = obj;
   }
 
   return obj;
