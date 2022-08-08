@@ -7,6 +7,7 @@
 
 #include "../core/objects/array.h"
 #include "../core/objects/mapping.h"
+#include "../core/objects/object.h"
 #include "../core/objects/string.h"
 #include "../raven.h"
 
@@ -14,15 +15,15 @@
 
 #include "op.h"
 
-bool raven_op_eq(struct fiber* fiber, any a, any b) {
+bool fiber_op_eq(struct fiber* fiber, any a, any b) {
   return any_eq(a, b);
 }
 
-bool raven_op_ineq(struct fiber* fiber, any a, any b) {
-  return !raven_op_eq(fiber, a, b);
+bool fiber_op_ineq(struct fiber* fiber, any a, any b) {
+  return !fiber_op_eq(fiber, a, b);
 }
 
-bool raven_op_less(struct fiber* fiber, any a, any b) {
+bool fiber_op_less(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_to_int(a) < any_to_int(b);
   else if (any_is_char(a) && any_is_char(b))
@@ -31,7 +32,7 @@ bool raven_op_less(struct fiber* fiber, any a, any b) {
     return false;
 }
 
-bool raven_op_leq(struct fiber* fiber, any a, any b) {
+bool fiber_op_leq(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_to_int(a) <= any_to_int(b);
   else if (any_is_char(a) && any_is_char(b))
@@ -40,7 +41,7 @@ bool raven_op_leq(struct fiber* fiber, any a, any b) {
     return false;
 }
 
-bool raven_op_greater(struct fiber* fiber, any a, any b) {
+bool fiber_op_greater(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_to_int(a) > any_to_int(b);
   else if (any_is_char(a) && any_is_char(b))
@@ -49,7 +50,7 @@ bool raven_op_greater(struct fiber* fiber, any a, any b) {
     return false;
 }
 
-bool raven_op_geq(struct fiber* fiber, any a, any b) {
+bool fiber_op_geq(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_to_int(a) >= any_to_int(b);
   else if (any_is_char(a) && any_is_char(b))
@@ -59,7 +60,7 @@ bool raven_op_geq(struct fiber* fiber, any a, any b) {
 }
 
 
-any raven_op_add(struct fiber* fiber, any a, any b) {
+any fiber_op_add(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) + any_to_int(b));
   else if (any_is_int(a) && any_is_char(b))
@@ -84,7 +85,7 @@ any raven_op_add(struct fiber* fiber, any a, any b) {
     return any_nil();
 }
 
-any raven_op_sub(struct fiber* fiber, any a, any b) {
+any fiber_op_sub(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) - any_to_int(b));
   else if (any_is_int(a) && any_is_char(b))
@@ -97,35 +98,35 @@ any raven_op_sub(struct fiber* fiber, any a, any b) {
     return any_nil();
 }
 
-any raven_op_mul(struct fiber* fiber, any a, any b) {
+any fiber_op_mul(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) * any_to_int(b));
   else
     return any_nil();
 }
 
-any raven_op_div(struct fiber* fiber, any a, any b) {
+any fiber_op_div(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) / any_to_int(b));
   else
     return any_nil();
 }
 
-any raven_op_mod(struct fiber* fiber, any a, any b) {
+any fiber_op_mod(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) % any_to_int(b));
   else
     return any_nil();
 }
 
-any raven_op_negate(struct fiber* fiber, any a) {
+any fiber_op_negate(struct fiber* fiber, any a) {
   if (any_is_int(a))
     return any_from_int(-any_to_int(a));
   else
     return any_nil();
 }
 
-any raven_op_index(struct fiber* fiber, any a, any b) {
+any fiber_op_index(struct fiber* fiber, any a, any b) {
   any  result;
 
   if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_int(b)) {
@@ -140,7 +141,7 @@ any raven_op_index(struct fiber* fiber, any a, any b) {
   }
 }
 
-any raven_op_index_assign(struct fiber* fiber, any a, any b, any c) {
+any fiber_op_index_assign(struct fiber* fiber, any a, any b, any c) {
   if (any_is_obj(a, OBJ_TYPE_ARRAY) && any_is_int(b)) {
     array_put(any_to_ptr(a), any_to_int(b), c);
     return c;
@@ -152,10 +153,30 @@ any raven_op_index_assign(struct fiber* fiber, any a, any b, any c) {
   }
 }
 
-any raven_op_deref(struct fiber* fiber, any a) {
+any fiber_op_deref(struct fiber* fiber, any a) {
   return any_nil();
 }
 
-any raven_op_sizeof(struct fiber* fiber, any a) {
+any fiber_op_sizeof(struct fiber* fiber, any a) {
   return any_from_int(any_op_sizeof(a));
+}
+
+any fiber_op_new(struct fiber* fiber, any a) {
+  struct blueprint* blueprint;
+  struct string*    string;
+  struct object*    object;
+
+  if (!any_is_obj(a, OBJ_TYPE_STRING))
+    return any_nil();
+  else {
+    string    = any_to_ptr(a);
+    blueprint = raven_get_blueprint(fiber_raven(fiber),
+                                    string_contents(string));
+    if (blueprint != NULL) {
+      object = object_new(fiber_raven(fiber), blueprint);
+      if (object != NULL)
+        return any_from_ptr(object);
+    }
+  }
+  return any_nil();
 }

@@ -7,9 +7,6 @@
 
 #include <stdio.h>
 
-#include "../raven.h"
-#include "fiber.h"
-#include "frame.h"
 #include "../lang/bytecodes.h"
 #include "../core/objects/array.h"
 #include "../core/objects/function.h"
@@ -19,6 +16,11 @@
 #include "../core/objects/string.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"
+#include "../raven.h"
+
+#include "fiber.h"
+#include "frame.h"
+#include "op.h"
 
 #include "interpreter.h"
 
@@ -106,81 +108,6 @@ void fiber_super_send(struct fiber*      fiber,
   }
 }
 
-any fiber_op_plus(struct fiber* fiber, any a, any b) {
-  if (any_is_int(a) && any_is_int(b))
-    return any_from_int(any_to_int(a) + any_to_int(b));
-  else if (any_is_int(a) && any_is_char(b))
-    return any_from_char(any_to_int(a) + any_to_char(b));
-  else if (any_is_char(a) && any_is_int(b))
-    return any_from_char(any_to_char(a) + any_to_int(b));
-  else if (any_is_char(a) && any_is_char(b))
-    return any_from_char(any_to_char(a) + any_to_char(b));
-  else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_obj(b, OBJ_TYPE_STRING))
-    return any_from_ptr(string_append(fiber_raven(fiber),
-                                      any_to_ptr(a),
-                                      any_to_ptr(b)));
-  else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_nil(b))
-    return a;
-  else if (any_is_nil(a) && any_is_obj(b, OBJ_TYPE_STRING))
-    return b;
-  else if (any_is_obj(a, OBJ_TYPE_ARRAY) && any_is_obj(b, OBJ_TYPE_ARRAY))
-    return any_from_ptr(array_join(fiber_raven(fiber),
-                                   any_to_ptr(a),
-                                   any_to_ptr(b)));
-  else
-    fiber_crash(fiber);
-  return any_nil();
-}
-
-any fiber_op_index(struct fiber* fiber, any arr, any index) {
-  any  result;
-
-  if (any_is_obj(arr, OBJ_TYPE_STRING) && any_is_int(index)) {
-    return any_from_char(string_at(any_to_ptr(arr), any_to_int(index)));
-  } else if (any_is_obj(arr, OBJ_TYPE_ARRAY) && any_is_int(index)) {
-    return array_get(any_to_ptr(arr), any_to_int(index));
-  } else if (any_is_obj(arr, OBJ_TYPE_MAPPING)) {
-    mapping_get(any_to_ptr(arr), index, &result);
-    return result;
-  } else {
-    fiber_crash(fiber);
-    return any_nil();
-  }
-}
-
-any fiber_op_index_assign(struct fiber* fiber, any arr, any index, any value) {
-  if (any_is_obj(arr, OBJ_TYPE_ARRAY) && any_is_int(index)) {
-    array_put(any_to_ptr(arr), any_to_int(index), value);
-    return arr;
-  } else if (any_is_obj(arr, OBJ_TYPE_MAPPING)) {
-    mapping_put(any_to_ptr(arr), index, value);
-    return arr;
-  } else {
-    fiber_crash(fiber);
-    return any_nil();
-  }
-}
-
-any fiber_op_new(struct fiber* fiber, any arg) {
-  struct blueprint* blueprint;
-  struct string*    string;
-  struct object*    object;
-
-  if (!any_is_obj(arg, OBJ_TYPE_STRING))
-    return any_nil();
-  else {
-    string    = any_to_ptr(arg);
-    blueprint = raven_get_blueprint(fiber_raven(fiber),
-                                    string_contents(string));
-    if (blueprint != NULL) {
-      object = object_new(fiber_raven(fiber), blueprint);
-      if (object != NULL)
-        return any_from_ptr(object);
-    }
-  }
-  return any_nil();
-}
-
 void fiber_op(struct fiber* fiber, enum raven_op op) {
   any  a;
   any  b;
@@ -197,44 +124,52 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
                                         fiber_get_accu(fiber))));
     break;
   case RAVEN_OP_ADD:
-    fiber_set_accu(fiber, fiber_op_plus(fiber,
-                                        fiber_pop(fiber),
-                                        fiber_get_accu(fiber)));
+    fiber_set_accu(fiber, fiber_op_add(fiber,
+                                       fiber_pop(fiber),
+                                       fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_SUB:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     - any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, fiber_op_sub(fiber,
+                                       fiber_pop(fiber),
+                                       fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_MUL:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     * any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, fiber_op_mul(fiber,
+                                       fiber_pop(fiber),
+                                       fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_DIV:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     / any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, fiber_op_div(fiber,
+                                       fiber_pop(fiber),
+                                       fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_MOD:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     % any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, fiber_op_mod(fiber,
+                                       fiber_pop(fiber),
+                                       fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_LESS:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     < any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, any_from_int(fiber_op_less(fiber,
+                                                     fiber_pop(fiber),
+                                                     fiber_get_accu(fiber))));
     break;
   case RAVEN_OP_LEQ:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                    <= any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, any_from_int(fiber_op_leq(fiber,
+                                                    fiber_pop(fiber),
+                                                    fiber_get_accu(fiber))));
     break;
   case RAVEN_OP_GREATER:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                     > any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, any_from_int(fiber_op_greater(fiber,
+                                                        fiber_pop(fiber),
+                                                        fiber_get_accu(fiber))));
     break;
   case RAVEN_OP_GEQ:
-    fiber_set_accu(fiber, any_from_int(any_to_int(fiber_pop(fiber))
-                                    >= any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, any_from_int(fiber_op_geq(fiber,
+                                                    fiber_pop(fiber),
+                                                    fiber_get_accu(fiber))));
     break;
   case RAVEN_OP_NEGATE:
-    fiber_set_accu(fiber, any_from_int(-any_to_int(fiber_get_accu(fiber))));
+    fiber_set_accu(fiber, fiber_op_negate(fiber, fiber_get_accu(fiber)));
     break;
   case RAVEN_OP_INDEX:
     fiber_set_accu(fiber, fiber_op_index(fiber,
