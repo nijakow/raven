@@ -569,6 +569,40 @@ bool parsepile_while(struct parser* parser, struct compiler* compiler) {
   return result;
 }
 
+bool parsepile_do_while(struct parser* parser, struct compiler* compiler) {
+  t_compiler_label head;
+  t_compiler_label end;
+  struct compiler  subcompiler;
+  bool             result;
+
+  compiler_create_sub(&subcompiler, compiler);
+
+  head = compiler_open_continue_label(&subcompiler);
+  end  = compiler_open_break_label(&subcompiler);
+
+  result = false;
+
+  compiler_place_label(&subcompiler, head);
+
+  if (parsepile_instruction(parser, &subcompiler)) {
+    if (parsepile_expect(parser, TOKEN_TYPE_KW_WHILE)) {
+      if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+        compiler_jump_if(&subcompiler, head);
+        result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+      }
+    }
+  }
+
+  compiler_place_label(&subcompiler, end);
+
+  compiler_close_label(&subcompiler, head);
+  compiler_close_label(&subcompiler, end);
+
+  compiler_destroy(&subcompiler);
+
+  return result;
+}
+
 bool parsepile_for_init(struct parser* parser, struct compiler* compiler) {
   struct symbol* symbol;
   struct type*   type;
@@ -732,6 +766,8 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
     result = parsepile_if(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_KW_WHILE)) {
     result = parsepile_while(parser, compiler);
+  } else if (parser_check(parser, TOKEN_TYPE_KW_DO)) {
+    result = parsepile_do_while(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_KW_FOR)) {
     result = parsepile_for(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_KW_BREAK)) {
