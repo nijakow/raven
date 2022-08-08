@@ -5,14 +5,14 @@
  * See README and LICENSE for further information.
  */
 
-#include <string.h>
-#include <unistd.h>
-
-#include "string.h"
-#include "../../vm/fiber.h"
-#include "connection.h"
+#include "../../defs.h"
 
 #include "../../server/server.h"
+#include "../../vm/fiber.h"
+
+#include "string.h"
+
+#include "connection.h"
 
 
 struct obj_info CONNECTION_INFO = {

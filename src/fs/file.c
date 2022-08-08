@@ -5,17 +5,15 @@
  * See README and LICENSE for further information.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <dirent.h>
-
-#include "filesystem.h"
+#include "../defs.h"
 #include "../core/objects/object.h"
 #include "../core/blueprint.h"
 #include "../lang/parser.h"
 #include "../lang/parsepiler.h"
 #include "../util/stringbuilder.h"
 #include "../util/memory.h"
+
+#include "filesystem.h"
 
 #include "file.h"
 

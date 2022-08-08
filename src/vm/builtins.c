@@ -5,8 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include <stdio.h>
-#include <ctype.h>
+#include "../defs.h"
 
 #include "../core/objects/object.h"
 #include "../core/objects/array.h"

@@ -8,6 +8,10 @@
 #ifndef RAVEN_DEFS_H
 #define RAVEN_DEFS_H
 
+/*
+ * All external include headers. No other headers are used
+ * in the system.
+ */
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -15,6 +19,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <arpa/inet.h>
 
 /*
  * Every object in the system gets an obj_type, so that we can

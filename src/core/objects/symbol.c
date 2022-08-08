@@ -5,7 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include <string.h>
+#include "../../defs.h"
 
 #include "symbol.h"
 

@@ -5,7 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include <stdlib.h>
+#include "../defs.h"
 
 #include "memory.h"
 

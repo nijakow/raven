@@ -5,11 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
+#include "../defs.h"
 #include "../raven.h"
 #include "../core/objects/connection.h"
 #include "../vm/scheduler.h"

@@ -5,8 +5,9 @@
  * See README and LICENSE for further information.
  */
 
-#include <stdio.h>
+#include "../defs.h"
 
+#include "../raven.h"
 #include "../lang/bytecodes.h"
 #include "../core/objects/array.h"
 #include "../core/objects/function.h"
@@ -16,7 +17,6 @@
 #include "../core/objects/string.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"
-#include "../raven.h"
 
 #include "fiber.h"
 #include "frame.h"

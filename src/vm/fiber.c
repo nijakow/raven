@@ -5,11 +5,11 @@
  * See README and LICENSE for further information.
  */
 
-#include <stdio.h>
+#include "../defs.h"
+#include "../core/objects/function.h"
 
 #include "scheduler.h"
 #include "frame.h"
-#include "../core/objects/function.h"
 
 #include "fiber.h"
 
