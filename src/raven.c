@@ -34,7 +34,7 @@ void raven_create(struct raven* raven) {
   typeset_create(&raven->types);
   log_create(&raven->log);
   scheduler_create(&raven->scheduler, raven);
-  server_create(&raven->server, raven, 4242);
+  server_create(&raven->server, raven);
   filesystem_create(&raven->fs, raven);
   raven_setup_builtins(raven);
   raven_create_vars(&raven->vars);
@@ -119,6 +119,16 @@ void raven_gc(struct raven* raven) {
   gc_create(&gc, raven);
   gc_run(&gc);
   gc_destroy(&gc);
+}
+
+/*
+ * Assign a port to Raven's server.
+ */
+void raven_serve_on(struct raven* raven, int port) {
+  if (server_serve_on(raven_server(raven), port))
+    log_printf(raven_log(raven), "Now serving on port %d...\n", port);
+  else
+    log_printf(raven_log(raven), "NOT serving on port %d!\n", port);
 }
 
 /*

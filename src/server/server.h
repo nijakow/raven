@@ -16,11 +16,11 @@ struct server {
   int                server_socket;
 };
 
-void server_create(struct server* server, struct raven* raven, int port);
+void server_create(struct server* server, struct raven* raven);
 void server_destroy(struct server* server);
 
+bool server_serve_on(struct server* server, int port);
 void server_accept(struct server* server);
-
 void server_tick(struct server* server);
 
 static inline struct raven* server_raven(struct server* server) {

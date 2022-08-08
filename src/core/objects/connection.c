@@ -70,6 +70,10 @@ void connection_del(struct connection* connection) {
 
 
 void connection_detach_from_server(struct connection* connection) {
+  if (connection->next != NULL) connection->next->prev = connection->prev;
+  if (connection->prev != NULL)      *connection->prev = connection->next;
+  connection->prev   = NULL;
+  connection->next   = NULL;
   connection->server = NULL;
 }
 

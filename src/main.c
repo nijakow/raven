@@ -27,6 +27,7 @@ void raven_main(struct raven* raven, int argc, char *argv[]) {
   }
 
   if (raven_boot(raven, mudlib_path)) {
+    raven_serve_on(raven, 4242);
     raven_run(raven);
   }
 }
@@ -36,6 +37,5 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, raven_signal_handler);
   raven_main(&THE_RAVEN, argc, argv);
   raven_destroy(&THE_RAVEN);
-
   return 0;
 }

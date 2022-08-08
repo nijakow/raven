@@ -48,11 +48,10 @@ bool server_open_socket(int port, int* socket_loc) {
 }
 
 
-void server_create(struct server* server, struct raven* raven, int port) {
+void server_create(struct server* server, struct raven* raven) {
   server->raven         = raven;
   server->connections   = NULL;
-  if (!server_open_socket(port, &server->server_socket))
-    server->server_socket = -1;
+  server->server_socket = -1;
 }
 
 void server_destroy(struct server* server) {
@@ -60,6 +59,10 @@ void server_destroy(struct server* server) {
     connection_detach_from_server(server->connections);
 }
 
+bool server_serve_on(struct server* server, int port) {
+  if (server->server_socket != -1) return false;
+  return server_open_socket(port, &server->server_socket);
+}
 
 void server_accept(struct server* server) {
   int                 fd;
