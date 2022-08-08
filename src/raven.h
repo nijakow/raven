@@ -42,15 +42,19 @@ struct raven {
   struct server      server;
   struct filesystem  fs;
   struct raven_vars  vars;
+  bool               was_interrupted;
 };
 
 void raven_create(struct raven* raven);
 void raven_destroy(struct raven* raven);
 
-bool raven_boot(struct raven* raven, const char* mudlib);
-
 void raven_mark(struct gc* gc, struct raven* raven);
 
+void raven_interrupt(struct raven* raven);
+void raven_loop(struct raven* raven);
+
+bool raven_boot(struct raven* raven, const char* mudlib);
+void raven_shutdown(struct raven* raven);
 void raven_run(struct raven* raven);
 
 struct symbol* raven_find_symbol(struct raven* raven, const char* name);
@@ -86,6 +90,10 @@ static inline struct filesystem* raven_fs(struct raven* raven) {
 
 static inline struct raven_vars* raven_vars(struct raven* raven) {
   return &raven->vars;
+}
+
+static inline bool raven_was_interrupted(struct raven* raven) {
+  return raven->was_interrupted;
 }
 
 #endif

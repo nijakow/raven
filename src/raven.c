@@ -38,6 +38,7 @@ void raven_create(struct raven* raven) {
   filesystem_create(&raven->fs, raven);
   raven_setup_builtins(raven);
   raven_create_vars(&raven->vars);
+  raven->was_interrupted = false;
 }
 
 /*
@@ -78,6 +79,14 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
 }
 
 /*
+ * Shut down Raven. This will (in the future) save the state of
+ * the system to disk, and gracefully stop all threads.
+ */
+void raven_shutdown(struct raven* raven) {
+  log_printf(raven_log(raven), "Shutting down Raven...\n");
+}
+
+/*
  * Mark all of Raven's LPC vars during a garbage collection.
  */
 static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
@@ -113,9 +122,23 @@ void raven_gc(struct raven* raven) {
 }
 
 /*
+ * Raven's interrupt function.
+ */
+void raven_interrupt(struct raven* raven) {
+  raven->was_interrupted = true;
+}
+
+/*
+ * Reset Raven's interrupt variable.
+ */
+void raven_uninterrupt(struct raven* raven) {
+  raven->was_interrupted = false;
+}
+
+/*
  * The main loop.
  */
-void raven_run(struct raven* raven) {
+void raven_loop(struct raven* raven) {
   unsigned int gc_steps;
 
   /*
@@ -125,17 +148,30 @@ void raven_run(struct raven* raven) {
   gc_steps = 0;
 
   /*
+   * Clear the interrupt flag, so that the loop won't break early.
+   */
+  raven_uninterrupt(raven);
+
+  /*
    * This is the main loop of the MUD. It consists of a call to the
    * scheduler (which in turn advances all the running game threads),
    * followed by asking the socket server to update the MUD's
    * connections and sessions.
    */
-  while (true) {
+  while (!raven_was_interrupted(raven)) {
     if (gc_steps++ % 128 == 0)
       raven_gc(raven);
     scheduler_run(raven_scheduler(raven));
     server_tick(raven_server(raven));
   }
+}
+
+/*
+ * Run Raven, and then shut down.
+ */
+void raven_run(struct raven* raven) {
+  raven_loop(raven);
+  raven_shutdown(raven);
 }
 
 /*

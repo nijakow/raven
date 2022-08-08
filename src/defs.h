@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <signal.h>
 #include <dirent.h>
 #include <sys/socket.h>
 #include <sys/select.h>
