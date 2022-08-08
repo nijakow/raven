@@ -19,7 +19,7 @@ void log_vprintf(struct log* log, const char* format, va_list args) {
   char  buffer[1024*16];
 
   vsnprintf(buffer, sizeof(buffer), format, args);
-  printf("[LOG]: %s", buffer);
+  printf("%s", buffer);
 }
 
 void log_printf(struct log* log, const char* format, ...) {
