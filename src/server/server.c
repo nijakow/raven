@@ -98,6 +98,7 @@ void server_tick(struct server* server) {
   size_t              bytes;
   struct connection*  connection;
   fd_set              readable;
+  struct timeval      tv;
   char                buffer[1024];
 
   FD_ZERO(&readable);
@@ -114,7 +115,10 @@ void server_tick(struct server* server) {
       maxfd = connection_socket(connection);
   }
 
-  retval = select(maxfd + 1, &readable, NULL, NULL, NULL);
+  tv.tv_sec  = 0;
+  tv.tv_usec = 125000;
+
+  retval = select(maxfd + 1, &readable, NULL, NULL, &tv);
 
   if (retval > 0) {
     if (FD_ISSET(server_serversocket(server), &readable))
