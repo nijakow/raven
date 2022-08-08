@@ -25,3 +25,12 @@ void object_table_mark(struct gc* gc, struct object_table* table) {
   for (symbol = table->symbols; symbol != NULL; symbol = symbol->next)
     gc_mark_ptr(gc, symbol);
 }
+
+struct symbol* object_table_find_symbol(struct object_table* table,
+                                        const char* name) {
+  return symbol_find_in(table, name);
+}
+
+struct symbol* object_table_gensym(struct object_table* table) {
+  return symbol_gensym(table);
+}

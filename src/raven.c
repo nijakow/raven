@@ -184,14 +184,14 @@ void raven_run(struct raven* raven) {
  * Look up a symbol by its name inside of Raven's symbol table.
  */
 struct symbol* raven_find_symbol(struct raven* raven, const char* name) {
-  return symbol_find_in(raven, name);
+  return object_table_find_symbol(raven_objects(raven), name);
 }
 
 /*
  * Generate a new, globally unique symbol.
  */
 struct symbol* raven_gensym(struct raven* raven) {
-  return symbol_gensym(raven);
+  return object_table_gensym(raven_objects(raven));
 }
 
 /*

@@ -21,4 +21,8 @@ void object_table_destroy(struct object_table* table);
 
 void object_table_mark(struct gc* gc, struct object_table* table);
 
+struct symbol* object_table_find_symbol(struct object_table* table,
+                                        const char* name);
+struct symbol* object_table_gensym(struct object_table* table);
+
 #endif
