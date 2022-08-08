@@ -9,6 +9,7 @@
 #include "../../raven.h"
 
 #include "../../server/server.h"
+#include "../../util/memory.h"
 #include "../../vm/fiber.h"
 
 #include "string.h"
@@ -106,6 +107,7 @@ void connection_input(struct connection* connection, char* b, unsigned int n) {
         fiber_push_input(connection_fiber(connection), string);
       }
     }
+    memory_free(str);
   }
 }
 
