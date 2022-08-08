@@ -9,6 +9,8 @@
 
 #include "core/objects/symbol.h"
 #include "vm/builtins.h"
+#include "vm/fiber.h"
+#include "vm/interpreter.h"
 #include "vm/scheduler.h"
 
 
@@ -53,9 +55,26 @@ void raven_destroy(struct raven* raven) {
  * Load a Raven mudlib, and prepare all important objects.
  */
 bool raven_boot(struct raven* raven, const char* mudlib) {
+  struct object*  object;
+  struct fiber*   fiber;
+  bool            result;
+
+  result = false;
+
   filesystem_set_anchor(&raven->fs, mudlib);
   filesystem_load(&raven->fs);
-  return true;
+
+  object = raven_get_object(raven, "/secure/master.c");
+  if (object != NULL) {
+    fiber = scheduler_new_fiber(raven_scheduler(raven));
+    if (fiber != NULL) {
+      fiber_push(fiber, any_from_ptr(object));
+      fiber_send(fiber, raven_find_symbol(raven, "main"), 0);
+      result = true;
+    }
+  }
+
+  return result;
 }
 
 /*
