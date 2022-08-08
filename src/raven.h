@@ -11,6 +11,7 @@
 #include "defs.h"
 #include "core/any.h"
 #include "core/type.h"
+#include "core/object_table.h"
 #include "fs/filesystem.h"
 #include "server/server.h"
 #include "util/log.h"
@@ -34,15 +35,14 @@ struct raven_vars {
  * This struct contains everything.
  */
 struct raven {
-  struct base_obj*   objects;
-  struct symbol*     symbols;
-  struct typeset     types;
-  struct log         log;
-  struct scheduler   scheduler;
-  struct server      server;
-  struct filesystem  fs;
-  struct raven_vars  vars;
-  bool               was_interrupted;
+  struct object_table  objects;
+  struct typeset       types;
+  struct log           log;
+  struct scheduler     scheduler;
+  struct server        server;
+  struct filesystem    fs;
+  struct raven_vars    vars;
+  bool                 was_interrupted;
 };
 
 void raven_create(struct raven* raven);
@@ -66,8 +66,8 @@ struct object* raven_get_object(struct raven* raven, const char* path);
 
 void raven_setup_builtins(struct raven* raven);
 
-static inline struct base_obj* raven_objects(struct raven* raven) {
-  return raven->objects;
+static inline struct object_table* raven_objects(struct raven* raven) {
+  return &raven->objects;
 }
 
 static inline struct typeset* raven_types(struct raven* raven) {

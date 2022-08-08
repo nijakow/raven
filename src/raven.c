@@ -29,15 +29,14 @@ static void raven_create_vars(struct raven_vars* vars) {
  * Create a new instance of Raven.
  */
 void raven_create(struct raven* raven) {
-  raven->objects = NULL;
-  raven->symbols = NULL;
-  typeset_create(&raven->types);
-  log_create(&raven->log);
-  scheduler_create(&raven->scheduler, raven);
-  server_create(&raven->server, raven);
-  filesystem_create(&raven->fs, raven);
+  object_table_create(raven_objects(raven), raven);
+  typeset_create(raven_types(raven));
+  log_create(raven_log(raven));
+  scheduler_create(raven_scheduler(raven), raven);
+  server_create(raven_server(raven), raven);
+  filesystem_create(raven_fs(raven), raven);
   raven_setup_builtins(raven);
-  raven_create_vars(&raven->vars);
+  raven_create_vars(raven_vars(raven));
   raven->was_interrupted = false;
 }
 
@@ -45,11 +44,11 @@ void raven_create(struct raven* raven) {
  * Destroy an instance of Raven.
  */
 void raven_destroy(struct raven* raven) {
-  /* TODO: Collect all objects */
-  filesystem_destroy(&raven->fs);
-  server_destroy(&raven->server);
-  scheduler_destroy(&raven->scheduler);
-  log_destroy(&raven->log);
+  filesystem_destroy(raven_fs(raven));
+  server_destroy(raven_server(raven));
+  scheduler_destroy(raven_scheduler(raven));
+  log_destroy(raven_log(raven));
+  object_table_destroy(raven_objects(raven));
 }
 
 /*
@@ -101,10 +100,7 @@ static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
  * Mark the Raven state during a garbage collection.
  */
 void raven_mark(struct gc* gc, struct raven* raven) {
-  struct symbol*  symbol;
-
-  for (symbol = raven->symbols; symbol != NULL; symbol = symbol->next)
-    gc_mark_ptr(gc, symbol);
+  object_table_mark(gc, raven_objects(raven));
   raven_mark_vars(gc, raven_vars(raven));
   scheduler_mark(gc, raven_scheduler(raven));
   filesystem_mark(gc, raven_fs(raven));

@@ -6,6 +6,7 @@
  */
 
 #include "../../defs.h"
+#include "../object_table.h"
 
 #include "symbol.h"
 
@@ -27,12 +28,12 @@ static struct symbol* symbol_new(struct raven* raven, const char* name) {
 
   if (symbol != NULL) {
     strncpy(symbol->name, name, name_len + 1);
-    if (raven->symbols != NULL)
-      raven->symbols->prev = &symbol->next;
-    symbol->next    =  raven->symbols;
-    symbol->prev    = &raven->symbols;
+    if (raven_objects(raven)->symbols != NULL)
+      raven_objects(raven)->symbols->prev = &symbol->next;
+    symbol->next    =  raven_objects(raven)->symbols;
+    symbol->prev    = &raven_objects(raven)->symbols;
     symbol->builtin =  NULL;
-    raven->symbols  =  symbol;
+    raven_objects(raven)->symbols  =  symbol;
   }
 
   return symbol;
@@ -49,7 +50,7 @@ void symbol_del(struct symbol* symbol) {
 struct symbol* symbol_find_in(struct raven* raven, const char* name) {
   struct symbol*  symbol;
 
-  for (symbol = raven->symbols;
+  for (symbol = raven_objects(raven)->symbols;
        symbol != NULL;
        symbol = symbol->next) {
     if (strcmp(symbol->name, name) == 0) {

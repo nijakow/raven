@@ -17,10 +17,10 @@ void* base_obj_new(struct raven* raven, struct obj_info* info, size_t size) {
 
   if (obj != NULL) {
     obj->info      = info;
-    obj->next      = raven->objects;
+    obj->next      = raven_objects(raven)->objects;
     obj->forward   = NULL;
     obj->gc_tag    = GC_TAG_WHITE;
-    raven->objects = obj;
+    raven_objects(raven)->objects = obj;
   }
 
   return obj;

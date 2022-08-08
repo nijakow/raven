@@ -60,10 +60,12 @@ struct raven;
 
 struct log;
 
+struct base_obj;
+struct object_table;
+
 struct type;
 struct blueprint;
 
-struct base_obj;
 struct symbol;
 struct string;
 struct function;

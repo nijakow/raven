@@ -6,6 +6,7 @@
  */
 
 #include "../raven.h"
+#include "../core/object_table.h"
 #include "gc.h"
 
 static struct base_obj* gc_pop(struct gc* gc) {
@@ -62,7 +63,7 @@ void gc_collect(struct gc* gc) {
   struct base_obj**  ptr;
   struct base_obj*   obj;
 
-  ptr = &gc_raven(gc)->objects;
+  ptr = &raven_objects(gc_raven(gc))->objects;
   while (*ptr != NULL) {
     obj = *ptr;
     if (base_obj_is_marked(obj)) {
