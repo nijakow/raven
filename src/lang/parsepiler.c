@@ -579,8 +579,7 @@ bool parsepile_for_init(struct parser* parser, struct compiler* compiler) {
     compiler_add_var(compiler, type, symbol);
     if (parsepile_expect(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expression(parser, compiler)) {
-        compiler_store_var(compiler, symbol);
-        result = true;
+        result = parsepile_store_var(parser, compiler, symbol);
       }
     }
   } else {
@@ -661,8 +660,7 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
          // TODO: Iresult is false, result may be true
        } else if (parsepile_expect(parser, TOKEN_TYPE_ASSIGNMENT)) {
          if (parsepile_expression(parser, compiler)) {
-           compiler_store_var(compiler, symbol);
-           iresult = true;
+           iresult = parsepile_store_var(parser, compiler, symbol);
          }
        }
      } else {
