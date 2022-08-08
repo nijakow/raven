@@ -17,7 +17,10 @@
 #include "vm/scheduler.h"
 #include "gc/gc.h"
 
-
+/*
+ * All variables of type `any` that are associated with the state of
+ * the MUD.
+ */
 struct raven_vars {
   any  nil_proxy;
   any  string_proxy;
@@ -26,6 +29,10 @@ struct raven_vars {
   any  symbol_proxy;
 };
 
+/*
+ * The Master Struct.
+ * This struct contains everything.
+ */
 struct raven {
   struct base_obj*   objects;
   struct symbol*     symbols;

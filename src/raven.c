@@ -12,6 +12,9 @@
 #include "vm/scheduler.h"
 
 
+/*
+ * Make all of Raven's LPC vars point to `nil`.
+ */
 static void raven_create_vars(struct raven_vars* vars) {
   vars->nil_proxy     = any_nil();
   vars->string_proxy  = any_nil();
@@ -20,14 +23,9 @@ static void raven_create_vars(struct raven_vars* vars) {
   vars->symbol_proxy  = any_nil();
 }
 
-static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
-  gc_mark_any(gc, vars->nil_proxy);
-  gc_mark_any(gc, vars->string_proxy);
-  gc_mark_any(gc, vars->array_proxy);
-  gc_mark_any(gc, vars->mapping_proxy);
-  gc_mark_any(gc, vars->symbol_proxy);
-}
-
+/*
+ * Create a new instance of Raven.
+ */
 void raven_create(struct raven* raven) {
   raven->objects = NULL;
   raven->symbols = NULL;
@@ -40,6 +38,9 @@ void raven_create(struct raven* raven) {
   raven_create_vars(&raven->vars);
 }
 
+/*
+ * Destroy an instance of Raven.
+ */
 void raven_destroy(struct raven* raven) {
   /* TODO: Collect all objects */
   filesystem_destroy(&raven->fs);
@@ -48,12 +49,29 @@ void raven_destroy(struct raven* raven) {
   log_destroy(&raven->log);
 }
 
+/*
+ * Load a Raven mudlib, and prepare all important objects.
+ */
 bool raven_boot(struct raven* raven, const char* mudlib) {
   filesystem_set_anchor(&raven->fs, mudlib);
   filesystem_load(&raven->fs);
   return true;
 }
 
+/*
+ * Mark all of Raven's LPC vars during a garbage collection.
+ */
+static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
+  gc_mark_any(gc, vars->nil_proxy);
+  gc_mark_any(gc, vars->string_proxy);
+  gc_mark_any(gc, vars->array_proxy);
+  gc_mark_any(gc, vars->mapping_proxy);
+  gc_mark_any(gc, vars->symbol_proxy);
+}
+
+/*
+ * Mark the Raven state during a garbage collection.
+ */
 void raven_mark(struct gc* gc, struct raven* raven) {
   struct symbol*  symbol;
 
@@ -64,6 +82,9 @@ void raven_mark(struct gc* gc, struct raven* raven) {
   filesystem_mark(gc, raven_fs(raven));
 }
 
+/*
+ * Start a garbage collection on a Raven instance.
+ */
 void raven_gc(struct raven* raven) {
   struct gc  gc;
 
@@ -72,6 +93,9 @@ void raven_gc(struct raven* raven) {
   gc_destroy(&gc);
 }
 
+/*
+ * The main loop.
+ */
 void raven_run(struct raven* raven) {
   unsigned int gc_steps;
 
@@ -95,28 +119,47 @@ void raven_run(struct raven* raven) {
   }
 }
 
+/*
+ * Look up a symbol by its name inside of Raven's symbol table.
+ */
 struct symbol* raven_find_symbol(struct raven* raven, const char* name) {
   return symbol_find_in(raven, name);
 }
 
+/*
+ * Generate a new, globally unique symbol.
+ */
 struct symbol* raven_gensym(struct raven* raven) {
   return symbol_gensym(raven);
 }
 
+/*
+ * Resolve a blueprint by its path.
+ */
 struct blueprint* raven_get_blueprint(struct raven* raven, const char* path) {
   return filesystem_get_blueprint(raven_fs(raven), path);
 }
 
+/*
+ * Resolve an object by its path.
+ */
 struct object* raven_get_object(struct raven* raven, const char* path) {
   return filesystem_get_object(raven_fs(raven), path);
 }
 
+/*
+ * Declare a new builtin.
+ * Used only inside of `raven_setup_builtins(...)`.
+ */
 static void raven_builtin(struct raven* raven,
                           const char*   name,
                           builtin_func  builtin) {
   symbol_set_builtin(raven_find_symbol(raven, name), builtin);
 }
 
+/*
+ * Set up all the builtin functions.
+ */
 void raven_setup_builtins(struct raven* raven) {
   /*
    * This is the place where all the builtin functions get installed.
