@@ -43,4 +43,4 @@ includes = include_directories('src')
 
 cc = meson.get_compiler('c')
 
-executable('raven.exe', sources: src, include_directories: includes)
+executable('raven.exe', sources: src, include_directories: includes, install: true)
