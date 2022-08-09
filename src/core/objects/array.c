@@ -25,11 +25,15 @@ struct array* array_new(struct raven* raven, unsigned int size) {
 
   if (array != NULL) {
     array->elements = memory_alloc(sizeof(any) * size);
-    /* TODO: What if elements is NULL? */
-    array->fill  = size;
-    array->alloc = size;
-    for (i = 0; i < size; i++)
-      array->elements[i] = any_nil();
+    if (array->elements == NULL) {
+      array->fill  = 0;
+      array->alloc = 0;
+    } else {
+      array->fill  = size;
+      array->alloc = size;
+      for (i = 0; i < size; i++)
+        array->elements[i] = any_nil();
+    }
   }
 
   return array;
