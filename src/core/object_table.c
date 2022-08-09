@@ -16,7 +16,13 @@ void object_table_create(struct object_table* table, struct raven* raven) {
 }
 
 void object_table_destroy(struct object_table* table) {
-  /* TODO */
+  struct base_obj*  current;
+
+  while (table->objects != NULL) {
+    current        = table->objects;
+    table->objects = current->next;
+    base_obj_dispatch_del(current);
+  }
 }
 
 void object_table_mark(struct gc* gc, struct object_table* table) {

@@ -25,6 +25,8 @@ static void blueprint_create(struct blueprint* blue, struct file* file) {
 }
 
 static void blueprint_destroy(struct blueprint* blue) {
+  while (blue->methods != NULL)
+    function_unlink(blue->methods);
   vars_destroy(&blue->vars);
 }
 

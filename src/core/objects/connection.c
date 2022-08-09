@@ -44,7 +44,8 @@ static void connection_destroy(struct connection* connection) {
   ringbuffer_destroy(&connection->in_buffer);
   if (connection->next != NULL)
     connection->next->prev = connection->prev;
-  *(connection->prev) = connection->next;
+  if (connection->prev != NULL)
+    *(connection->prev) = connection->next;
 }
 
 struct connection* connection_new(struct raven*  raven,

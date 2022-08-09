@@ -16,6 +16,7 @@ struct function {
   struct base_obj    _;
   struct blueprint*  blueprint;
   struct symbol*     name;
+  struct function**  prev_method;
   struct function*   next_method;
   unsigned int       locals;
   bool               varargs;
@@ -33,8 +34,11 @@ struct function* function_new(struct raven* raven,
                               t_bc*         bytecodes,
                               unsigned int  constant_count,
                               any*          constants);
-void function_mark(struct gc* gc, void* function);
-void function_del(void* function);
+void function_mark(struct gc* gc, struct function* function);
+void function_del(struct function* function);
+
+void function_unlink(struct function* function);
+void function_link(struct function* function, struct function** list);
 
 void function_in_blueprint(struct function*  function,
                            struct blueprint* blueprint,

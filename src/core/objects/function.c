@@ -15,8 +15,8 @@
 
 struct obj_info FUNCTION_INFO = {
   .type = OBJ_TYPE_FUNCTION,
-  .mark = function_mark,
-  .del  = function_del
+  .mark = (mark_func) function_mark,
+  .del  = (del_func)  function_del
 };
 
 
@@ -38,6 +38,7 @@ struct function* function_new(struct raven* raven,
 
   if (function != NULL) {
     function->blueprint      =          NULL;
+    function->prev_method    =          NULL;
     function->next_method    =          NULL;
     function->locals         =          locals;
     function->varargs        =          varargs;
@@ -56,7 +57,7 @@ struct function* function_new(struct raven* raven,
   return function;
 }
 
-void function_mark(struct gc* gc, void* function) {
+void function_mark(struct gc* gc, struct function* function) {
   struct function* func;
   unsigned int     i;
 
@@ -68,11 +69,27 @@ void function_mark(struct gc* gc, void* function) {
   base_obj_mark(gc, &func->_);
 }
 
-void function_del(void* function) {
-  struct function* func;
+void function_del(struct function* function) {
+  function_unlink(function);
+  base_obj_del(&function->_);
+}
 
-  func = function;
-  base_obj_del(&func->_);
+void function_unlink(struct function* function) {
+  if (function->blueprint != NULL) {
+    if (function->prev_method != NULL)
+      *function->prev_method = function->next_method;
+    if (function->next_method != NULL)
+      function->next_method->prev_method = function->prev_method;
+    function->blueprint = NULL;
+  }
+}
+
+void function_link(struct function* function, struct function** list) {
+  if (*list != NULL)
+    (*list)->prev_method = &function->next_method;
+  function->prev_method =  list;
+  function->next_method = *list;
+  *list = function;
 }
 
 
@@ -80,10 +97,9 @@ void function_in_blueprint(struct function*  function,
                            struct blueprint* blueprint,
                            struct symbol*    name) {
   if (function->blueprint == NULL) {
-    function->blueprint   = blueprint;
-    function->name        = name;
-    function->next_method = blueprint->methods;
-    blueprint->methods    = function;
+    function->blueprint = blueprint;
+    function->name      = name;
+    function_link(function, &blueprint->methods);
   }
 }
 
