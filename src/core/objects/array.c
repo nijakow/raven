@@ -21,7 +21,7 @@ struct array* array_new(struct raven* raven, unsigned int size) {
   unsigned int   i;
 
   array = base_obj_new(raven_objects(raven), &ARRAY_INFO,
-                       sizeof(struct array) + size * sizeof(any));
+                       sizeof(struct array));
 
   if (array != NULL) {
     array->elements = memory_alloc(sizeof(any) * size);
@@ -88,14 +88,14 @@ static bool array_make_space(struct array* array) {
   if (new_elements == NULL)
     return false;
 
-  for (index = 0; index < array->fill; index++) {
-    for (index = 0; index < array->fill; index++)
-      new_elements[index] = array->elements[index];
-    if (array->elements != NULL)
-      memory_free(array->elements);
-    array->elements = new_elements;
-    array->alloc    = new_alloc;
-  }
+  for (index = 0; index < array->fill; index++)
+    new_elements[index] = array->elements[index];
+  for (index = array->fill; index < new_alloc; index++)
+    new_elements[index] = any_nil();
+  if (array->elements != NULL)
+    memory_free(array->elements);
+  array->elements = new_elements;
+  array->alloc    = new_alloc;
 
   return true;
 }

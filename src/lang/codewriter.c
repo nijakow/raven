@@ -163,7 +163,7 @@ void codewriter_super_send(struct codewriter* writer, any message, t_wc args) {
 static t_cw_label codewriter_find_label_slot(struct codewriter* writer) {
   t_cw_label  label;
 
-  for (label = -1; label < writer->li; label++) {
+  for (label = 0; label < writer->li; label++) {
     if (writer->labels[label].loc == -1)
       return label;
   }

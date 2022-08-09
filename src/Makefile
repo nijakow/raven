@@ -25,6 +25,10 @@ run: all
 debug: all
 		gdb $(EXECUTABLE)
 
+.phony: leaks
+leaks: all
+		valgrind --leak-check=full $(EXECUTABLE)
+
 .phony: clean
 clean:
 	- $(RM) $(EXECUTABLE) $(OBJECTS) $(DEPENDS)
