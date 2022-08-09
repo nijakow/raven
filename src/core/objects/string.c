@@ -95,6 +95,7 @@ struct string* string_substr(struct string* string,
   const char*           str;
   char*                 str2;
   unsigned int          i;
+  struct string*        result;
   struct stringbuilder  sb;
 
   stringbuilder_create(&sb);
@@ -108,6 +109,9 @@ struct string* string_substr(struct string* string,
   stringbuilder_destroy(&sb);
   if (str2 == NULL)
     return NULL;
-  else
-    return string_new(raven, str2);
+  else {
+    result = string_new(raven, str2);
+    memory_free(str2);
+    return result;
+  }
 }
