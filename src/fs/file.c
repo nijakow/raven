@@ -189,7 +189,6 @@ bool file_recompile(struct file* file, struct log* log) {
   if (!file_open(file, &f, "r"))
     return false;
 
-  /* TODO: Use a resizable buffer */
   stringbuilder_create(&sb);
   while (1) {
     bytes_read = fread(buffer, sizeof(char), sizeof(buffer) - 1, f);
