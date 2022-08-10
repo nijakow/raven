@@ -83,10 +83,30 @@ bool parse_type(struct parser* parser, struct type** loc) {
   return true;
 }
 
+bool parse_colon_type(struct parser* parser, struct type** loc) {
+  if (parser_check(parser, TOKEN_TYPE_COLON))
+    return parse_type(parser, loc);
+  else {
+    *loc = typeset_type_any(raven_types(parser_raven(parser)));
+    return true;
+  }
+}
+
 bool parse_type_and_name(struct parser*  parser,
                          struct type**   type,
                          struct symbol** name) {
   return parse_type(parser, type) && parse_symbol(parser, name);
+}
+
+bool parse_fancy_vardecl(struct parser*  parser,
+                         struct type**   type,
+                         struct symbol** name) {
+  if (parse_type(parser, type))
+    return parse_symbol(parser, name);
+  else
+    return parser_check(parser, TOKEN_TYPE_KW_LET)
+        && parse_symbol(parser, name)
+        && parse_colon_type(parser, type);
 }
 
 bool parsepile_load_var(struct parser*   parser,
@@ -638,7 +658,7 @@ bool parsepile_for_init(struct parser* parser, struct compiler* compiler) {
   bool           result;
 
   result = false;
-  if (parse_type_and_name(parser, &type, &symbol)) {
+  if (parse_fancy_vardecl(parser, &type, &symbol)) {
     compiler_add_var(compiler, type, symbol);
     if (parsepile_expect(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expression(parser, compiler)) {
@@ -675,10 +695,8 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
   result = false;
 
   if (parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
-     //&& parsepile_for_init(parser, &subcompiler)
-
      iresult = false;
-     if (parse_type_and_name(parser, &type, &symbol)) {
+     if (parse_fancy_vardecl(parser, &type, &symbol)) {
        compiler_add_var(compiler, type, symbol);
        if (parser_check(parser, TOKEN_TYPE_COLON)) {
          /*
@@ -779,7 +797,7 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
 
   result = false;
   parser_reset_exprtype(parser);
-  if (parse_type_and_name(parser, &type, &name)) {
+  if (parse_fancy_vardecl(parser, &type, &name)) {
     compiler_add_var(compiler, type, name);
     if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
       if (parsepile_expression(parser, compiler)) {
