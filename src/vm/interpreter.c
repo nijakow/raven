@@ -373,10 +373,14 @@ void fiber_interpret(struct fiber* fiber) {
       if (RAVEN_DEBUG_MODE) printf("RETURN\n");
       fiber_pop_frame(fiber);
       break;
-    case RAVEN_BYTECODE_CAST:
-      fiber_set_accu(fiber, fiber_op_cast(fiber,
-                                          fiber_get_accu(fiber),
-                                          next_type(fiber)));
+    case RAVEN_BYTECODE_TYPECHECK:
+      if (!fiber_op_typecheck(fiber, fiber_get_accu(fiber), next_type(fiber)))
+        fiber_crash(fiber);
+      break;
+    case RAVEN_BYTECODE_TYPECAST:
+      fiber_set_accu(fiber, fiber_op_typecast(fiber,
+                                              fiber_get_accu(fiber),
+                                              next_type(fiber)));
       break;
     default:
       fiber_crash(fiber); /* TODO: Error message */

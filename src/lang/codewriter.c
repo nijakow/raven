@@ -252,7 +252,12 @@ void codewriter_return(struct codewriter* writer) {
   codewriter_write(writer, RAVEN_BYTECODE_RETURN);
 }
 
-void codewriter_cast(struct codewriter* writer, struct type* type) {
-  codewriter_write(writer, RAVEN_BYTECODE_CAST);
+void codewriter_typecheck(struct codewriter* writer, struct type* type) {
+  codewriter_write(writer, RAVEN_BYTECODE_TYPECHECK);
+  codewriter_write_type(writer, type);
+}
+
+void codewriter_typecast(struct codewriter* writer, struct type* type) {
+  codewriter_write(writer, RAVEN_BYTECODE_TYPECAST);
   codewriter_write_type(writer, type);
 }

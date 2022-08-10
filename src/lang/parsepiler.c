@@ -240,7 +240,7 @@ bool parsepile_simple_expr(struct parser*   parser,
     if (parse_type(parser, &type)) {
       result = parsepile_expect(parser, TOKEN_TYPE_RPAREN)
             && parsepile_expr(parser, compiler, pr);
-      compiler_cast(compiler, type);
+      compiler_typecast(compiler, type);
       parser_set_exprtype(parser, type);
     } else {
       result = parsepile_expression(parser, compiler)

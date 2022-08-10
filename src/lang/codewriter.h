@@ -75,6 +75,7 @@ void       codewriter_jump_if_not(struct codewriter* writer, t_cw_label label);
 
 void       codewriter_return(struct codewriter* writer);
 
-void       codewriter_cast(struct codewriter* writer, struct type* type);
+void       codewriter_typecheck(struct codewriter* writer, struct type* type);
+void       codewriter_typecast(struct codewriter* writer, struct type* type);
 
 #endif

@@ -71,7 +71,8 @@ void compiler_super_send(struct compiler* compiler,
 
 void compiler_return(struct compiler* compiler);
 
-void compiler_cast(struct compiler* compiler, struct type* type);
+void compiler_typecheck(struct compiler* compiler, struct type* type);
+void compiler_typecast(struct compiler* compiler, struct type* type);
 
 t_compiler_label compiler_open_label(struct compiler* compiler);
 t_compiler_label compiler_open_break_label(struct compiler* compiler);

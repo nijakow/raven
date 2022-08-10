@@ -153,8 +153,12 @@ void compiler_return(struct compiler* compiler) {
   codewriter_return(compiler->cw);
 }
 
-void compiler_cast(struct compiler* compiler, struct type* type) {
-  codewriter_cast(compiler->cw, type);
+void compiler_typecheck(struct compiler* compiler, struct type* type) {
+  codewriter_typecheck(compiler->cw, type);
+}
+
+void compiler_typecast(struct compiler* compiler, struct type* type) {
+  codewriter_typecast(compiler->cw, type);
 }
 
 t_compiler_label compiler_open_label(struct compiler* compiler) {
