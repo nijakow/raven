@@ -15,7 +15,7 @@
 
 
 /*
- * Make all of Raven"s LPC vars point to `nil`.
+ * Make all of Raven's LPC vars point to `nil`.
  */
 static void raven_create_vars(struct raven_vars* vars) {
   vars->nil_proxy     = any_nil();
@@ -86,7 +86,7 @@ void raven_shutdown(struct raven* raven) {
 }
 
 /*
- * Mark all of Raven"s LPC vars during a garbage collection.
+ * Mark all of Raven's LPC vars during a garbage collection.
  */
 static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
   gc_mark_any(gc, vars->nil_proxy);
@@ -118,7 +118,7 @@ void raven_gc(struct raven* raven) {
 }
 
 /*
- * Assign a port to Raven"s server.
+ * Assign a port to Raven's server.
  */
 void raven_serve_on(struct raven* raven, int port) {
   if (server_serve_on(raven_server(raven), port))
@@ -128,14 +128,14 @@ void raven_serve_on(struct raven* raven, int port) {
 }
 
 /*
- * Raven"s interrupt function.
+ * Raven's interrupt function.
  */
 void raven_interrupt(struct raven* raven) {
   raven->was_interrupted = true;
 }
 
 /*
- * Reset Raven"s interrupt variable.
+ * Reset Raven's interrupt variable.
  */
 void raven_uninterrupt(struct raven* raven) {
   raven->was_interrupted = false;
@@ -166,14 +166,14 @@ void raven_loop(struct raven* raven) {
   gc_steps = 0;
 
   /*
-   * Clear the interrupt flag, so that the loop won"t break early.
+   * Clear the interrupt flag, so that the loop won't break early.
    */
   raven_uninterrupt(raven);
 
   /*
    * This is the main loop of the MUD. It consists of a call to the
    * scheduler (which in turn advances all the running game threads),
-   * followed by asking the socket server to update the MUD"s
+   * followed by asking the socket server to update the MUD's
    * connections and sessions.
    */
   while (!raven_was_interrupted(raven)) {
@@ -194,7 +194,7 @@ void raven_run(struct raven* raven) {
 }
 
 /*
- * Look up a symbol by its name inside of Raven"s symbol table.
+ * Look up a symbol by its name inside of Raven's symbol table.
  */
 struct symbol* raven_find_symbol(struct raven* raven, const char* name) {
   return object_table_find_symbol(raven_objects(raven), name);
