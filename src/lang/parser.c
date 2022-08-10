@@ -93,6 +93,7 @@ void parser_create(struct parser* parser,
   parser->token_type  = TOKEN_TYPE_EOF;
   parser->buffer_fill = 0;
   parser_reset_exprtype(parser);
+  parser_reset_returntype(parser);
   parser_advance(parser);
 }
 
@@ -402,6 +403,14 @@ struct string* parser_as_string(struct parser* parser) {
 
 char parser_as_char(struct parser* parser) {
   return parser->buffer[0];
+}
+
+void parser_set_returntype(struct parser* parser, struct type* type) {
+  parser->returntype = type;
+}
+
+void parser_reset_returntype(struct parser* parser) {
+  parser->returntype = NULL;
 }
 
 void parser_set_exprtype(struct parser* parser, struct type* type) {

@@ -107,6 +107,26 @@ bool parsepile_store_var(struct parser*   parser,
   return true;
 }
 
+bool parsepile_return_with_typecheck(struct parser*   parser,
+                                     struct compiler* compiler) {
+  struct type*  return_type;
+  struct type*  expr_type;
+
+  return_type = parser_get_returntype(parser);
+  expr_type   = parser_get_exprtype(parser);
+
+  if (return_type != NULL) {
+    if (!type_match(return_type, expr_type)) {
+      parser_error(parser, "Warning: possible return type mismatch!\n");
+      return false;
+    }
+    compiler_typecast(compiler, return_type);
+  }
+  compiler_return(compiler);
+
+  return true;
+}
+
 bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr);
 bool parsepile_expression(struct parser* parser, struct compiler* compiler);
 bool parsepile_instruction(struct parser* parser, struct compiler* compiler);
@@ -739,8 +759,8 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
 
 bool parsepile_return(struct parser* parser, struct compiler* compiler) {
   if (parsepile_expression(parser, compiler)) {
-    compiler_return(compiler);
-    return parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+    return parsepile_return_with_typecheck(parser, compiler)
+        && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
   }
   return false;
 }
@@ -831,6 +851,8 @@ bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
       /*
        * We're parsing a function
        */
+      parser_set_returntype(parser, type);
+
       codewriter_create(&codewriter, parser->raven);  /* This is very hacky! */
       compiler_create(&compiler, &codewriter, into);
 
