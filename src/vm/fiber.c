@@ -9,8 +9,11 @@
 #include "../raven.h"
 #include "../core/objects/function.h"
 #include "../core/objects/symbol.h"
+#include "../core/blueprint.h"
+#include "../fs/file.h"
 #include "../gc/gc.h"
 #include "../util/log.h"
+#include "../util/memory.h"
 
 #include "scheduler.h"
 #include "frame.h"
@@ -145,15 +148,27 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
   struct frame*      frame;
   struct function*   function;
   struct symbol*     fname;
-  const char*        name;
+  struct blueprint*  blueprint;
+  struct file*       file;
+  const  char*       name;
+         char*       path;
 
   log_printf(log, "Backtrace:\n");
   frame = fiber_top(fiber);
   while (frame != NULL) {
     function  = frame_function(frame);
     fname     = function_name(function);
-    name      = symbol_name(fname);
-    log_printf(log, "   - %s\n", name);
+    name      = (char*) symbol_name(fname);
+    path      = NULL;
+    blueprint = function_blueprint(function);
+    if (blueprint != NULL) {
+      file = blueprint_file(blueprint);
+      if (file != NULL) {
+        path = file_path(file);
+      }
+    }
+    log_printf(log, "   - %s@<%s>\n", name, (path == NULL) ? "unknown" : path);
+    if (path != NULL) memory_free(path);
     frame = frame_prev(frame);
   }
 }
