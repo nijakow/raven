@@ -61,6 +61,8 @@ void fiber_do_crash(struct fiber* fiber, const char* file, int line);
 
 #define fiber_crash(fiber) fiber_do_crash(fiber, __FILE__, __LINE__)
 
+void fiber_print_backtrace(struct fiber* fiber, struct log* log);
+
 void fiber_push_input(struct fiber* fiber, struct string* text);
 
 static inline struct raven* fiber_raven(struct fiber* fiber) {

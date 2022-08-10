@@ -6,8 +6,11 @@
  */
 
 #include "../defs.h"
+#include "../raven.h"
 #include "../core/objects/function.h"
+#include "../core/objects/symbol.h"
 #include "../gc/gc.h"
+#include "../util/log.h"
 
 #include "scheduler.h"
 #include "frame.h"
@@ -134,7 +137,25 @@ void fiber_reactivate_with_value(struct fiber* fiber, any value) {
 
 void fiber_do_crash(struct fiber* fiber, const char* file, int line) {
   fiber->state = FIBER_STATE_CRASHED;
-  printf("Crash! %s %d\n", file, line);
+  log_printf(raven_log(fiber_raven(fiber)), "Crash! %s %d\n", file, line);
+  fiber_print_backtrace(fiber, raven_log(fiber_raven(fiber)));
+}
+
+void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
+  struct frame*      frame;
+  struct function*   function;
+  struct symbol*     fname;
+  const char*        name;
+
+  log_printf(log, "Backtrace:\n");
+  frame = fiber_top(fiber);
+  while (frame != NULL) {
+    function  = frame_function(frame);
+    fname     = function_name(function);
+    name      = symbol_name(fname);
+    log_printf(log, "   - %s\n", name);
+    frame = frame_prev(frame);
+  }
 }
 
 void fiber_push_input(struct fiber* fiber, struct string* text) {

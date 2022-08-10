@@ -20,6 +20,14 @@ struct frame {
 
 void frame_mark(struct gc* gc, struct frame* frame);
 
+static inline struct frame* frame_prev(struct frame* frame) {
+  return frame->prev;
+}
+
+static inline struct function* frame_function(struct frame* frame) {
+  return frame->function;
+}
+
 static inline any frame_self(struct frame* frame) {
   return frame->locals[0];
 }
