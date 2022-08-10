@@ -61,6 +61,8 @@ struct typeset {
   struct type  char_type;
   struct type  string_type;
   struct type  object_type;
+  struct type  funcref_type;
+  struct type  mapping_type;
 };
 
 void typeset_create(struct typeset* ts);
@@ -92,6 +94,14 @@ static inline struct type* typeset_type_string(struct typeset* ts) {
 
 static inline struct type* typeset_type_object(struct typeset* ts) {
   return &ts->object_type;
+}
+
+static inline struct type* typeset_type_funcref(struct typeset* ts) {
+  return &ts->funcref_type;
+}
+
+static inline struct type* typeset_type_mapping(struct typeset* ts) {
+  return &ts->mapping_type;
 }
 
 #endif

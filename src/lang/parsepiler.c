@@ -66,12 +66,12 @@ bool parse_type(struct parser* parser, struct type** loc) {
     *loc = typeset_type_string(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_OBJECT))
     *loc = typeset_type_object(raven_types(parser_raven(parser)));
-  else if (parser_check(parser, TOKEN_TYPE_KW_MAPPING)
-        || parser_check(parser, TOKEN_TYPE_KW_FUNCTION)) {
-    *loc = typeset_type_any(raven_types(parser_raven(parser)));
-  } else {
+  else if (parser_check(parser, TOKEN_TYPE_KW_FUNCTION))
+    *loc = typeset_type_funcref(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_MAPPING))
+    *loc = typeset_type_mapping(raven_types(parser_raven(parser)));
+  else
     return false;
-  }
   /* Parse asterisks */
   while (parser_check(parser, TOKEN_TYPE_STAR)) {
     /*

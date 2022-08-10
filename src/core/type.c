@@ -87,6 +87,21 @@ static bool type_cast_func_object(struct type* type, any* value) {
   return type_check_func_object(type, *value);
 }
 
+static bool type_check_func_funcref(struct type* type, any value) {
+  return any_is_obj(value, OBJ_TYPE_FUNCREF) || any_is_nil(value);
+}
+
+static bool type_cast_func_funcref(struct type* type, any* value) {
+  return type_check_func_funcref(type, *value);
+}
+
+static bool type_check_func_mapping(struct type* type, any value) {
+  return any_is_obj(value, OBJ_TYPE_MAPPING) || any_is_nil(value);
+}
+
+static bool type_cast_func_mapping(struct type* type, any* value) {
+  return type_check_func_mapping(type, *value);
+}
 
 void type_create(struct type*    type,
                  struct typeset* ts,
@@ -134,9 +149,13 @@ void typeset_create(struct typeset* ts) {
   type_create(&ts->char_type, ts, &ts->any_type, type_check_func_char, type_cast_func_char);
   type_create(&ts->string_type, ts, &ts->any_type, type_check_func_string, type_cast_func_string);
   type_create(&ts->object_type, ts, &ts->any_type, type_check_func_object, type_cast_func_object);
+  type_create(&ts->funcref_type, ts, &ts->any_type, type_check_func_funcref, type_cast_func_funcref);
+  type_create(&ts->mapping_type, ts, &ts->any_type, type_check_func_mapping, type_cast_func_mapping);
 }
 
 void typeset_destroy(struct typeset* ts) {
+  type_destroy(&ts->mapping_type);
+  type_destroy(&ts->funcref_type);
   type_destroy(&ts->object_type);
   type_destroy(&ts->string_type);
   type_destroy(&ts->char_type);
