@@ -15,22 +15,26 @@ struct type;
 struct typeset;
 
 typedef bool (*type_check_func)(struct type*, any value);
+typedef bool (*type_cast_func)(struct type*, any* value);
 
 struct type {
   struct typeset*  typeset;
   struct type*     parent;
   type_check_func  check_func;
+  type_cast_func   cast_func;
 };
 
 void type_create(struct type*     type,
                  struct typeset*  ts,
                  struct type*     parent,
-                 type_check_func  func);
+                 type_check_func  check,
+                 type_cast_func   cast);
 void type_destroy(struct type* type);
 
 bool type_is_any(struct type* type);
 bool type_match(struct type* type, struct type* test);
 bool type_check(struct type* type, any value);
+bool type_cast(struct type* type, any* value);
 
 static inline struct typeset* type_typeset(struct type* type) {
   return type->typeset;
@@ -42,6 +46,10 @@ static inline struct type* type_parent(struct type* type) {
 
 static inline type_check_func type_type_check_func(struct type* type) {
   return type->check_func;
+}
+
+static inline type_cast_func type_type_cast_func(struct type* type) {
+  return type->cast_func;
 }
 
 

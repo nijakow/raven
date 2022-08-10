@@ -187,8 +187,7 @@ bool fiber_op_typecheck(struct fiber* fiber, any a, struct type* type) {
 }
 
 any fiber_op_cast(struct fiber* fiber, any a, struct type* type) {
-  /* TODO */
-  if (fiber_op_typecheck(fiber, a, type))
-    return a;
-  return any_nil(); /* TODO: Error */
+  if (!type_cast(type, &a))
+    fiber_crash(fiber);
+  return a;
 }
