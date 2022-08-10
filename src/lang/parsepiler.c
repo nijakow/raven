@@ -118,10 +118,10 @@ bool parsepile_return_with_typecheck(struct parser*   parser,
   if (return_type != NULL) {
     if (!type_match(return_type, expr_type)) {
       parser_error(parser, "Warning: possible return type mismatch!\n");
-      return false;
     }
-    compiler_typecast(compiler, return_type);
+    //compiler_typecast(compiler, return_type);
   }
+
   compiler_return(compiler);
 
   return true;

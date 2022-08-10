@@ -109,7 +109,7 @@ bool type_is_any(struct type* type) {
 
 bool type_match(struct type* type, struct type* test) {
        if (type_is_any(type)) return true;
-  else if (type_is_any(test)) return true;
+  else if (type_is_any(test)) return true; /* TODO: Add a strict mode */
 
   while (test != NULL) {
     if (type == test) return true;

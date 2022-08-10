@@ -153,7 +153,7 @@ static inline struct type* parser_get_exprtype(struct parser* parser) {
 }
 
 static inline struct type* parser_get_returntype(struct parser* parser) {
-  return parser->exprtype;
+  return parser->returntype;
 }
 
 #endif
