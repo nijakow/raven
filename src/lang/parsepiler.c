@@ -833,6 +833,8 @@ bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
       if (!parse_type_and_name(parser, &type, &name))
         return false;
       compiler_add_arg(compiler, type, name);
+      compiler_load_var(compiler, name);
+      compiler_typecheck(compiler, type);
       if (parser_check(parser, TOKEN_TYPE_RPAREN))
         return true;
       if (!parsepile_expect(parser, TOKEN_TYPE_COMMA))
