@@ -19,6 +19,7 @@ void codewriter_create(struct codewriter* writer, struct raven* raven) {
   writer->fill       = 0;
   writer->bytecodes  = memory_alloc(writer->alloc * sizeof(t_bc));
   writer->ci         = 0;
+  writer->ti         = 0;
   writer->li         = 0;
 }
 
@@ -35,8 +36,8 @@ struct function* codewriter_finish(struct codewriter* writer) {
                       writer->bytecodes,
                       writer->ci,
                       writer->constants,
-                      0, /* TODO: Types */
-                      NULL);
+                      writer->ti,
+                      writer->types);
 }
 
 void codewriter_report_locals(struct codewriter* writer, unsigned int locals) {
@@ -85,8 +86,14 @@ void codewriter_write_wc(struct codewriter* writer, t_wc wc) {
 
 t_wc codewriter_write_constant(struct codewriter* writer, any c) {
   codewriter_write_wc(writer, (t_wc) writer->ci);
-  writer->constants[writer->ci++] = c;
-  return writer->ci - 1;
+  writer->constants[writer->ci] = c;
+  return writer->ci++;
+}
+
+t_wc codewriter_write_type(struct codewriter* writer, struct type* type) {
+  codewriter_write_wc(writer, (t_wc) writer->ti);
+  writer->types[writer->ti] = type;
+  return writer->ti++;
 }
 
 void codewriter_load_self(struct codewriter* writer) {

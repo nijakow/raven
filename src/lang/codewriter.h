@@ -13,7 +13,8 @@
 
 #define CW_MAX_BYTECODES (16*1024)
 #define CW_MAX_CONSTANTS (1024)
-#define CW_MAX_LABELS (64)
+#define CW_MAX_TYPES     (1024)
+#define CW_MAX_LABELS    (64)
 
 typedef t_wc t_cw_label;
 
@@ -30,8 +31,10 @@ struct codewriter {
   size_t         fill;
   t_bc*          bytecodes;
   size_t         ci;
+  size_t         ti;
   t_cw_label     li;
   any            constants[CW_MAX_CONSTANTS];
+  struct type*   types[CW_MAX_TYPES];
   struct label   labels[CW_MAX_LABELS];
 };
 
