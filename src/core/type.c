@@ -72,7 +72,7 @@ static bool type_cast_func_char(struct type* type, any* value) {
 }
 
 static bool type_check_func_string(struct type* type, any value) {
-  return any_is_obj(value, OBJ_TYPE_STRING);
+  return any_is_obj(value, OBJ_TYPE_STRING) || any_is_nil(value);
 }
 
 static bool type_cast_func_string(struct type* type, any* value) {
@@ -80,7 +80,7 @@ static bool type_cast_func_string(struct type* type, any* value) {
 }
 
 static bool type_check_func_object(struct type* type, any value) {
-  return any_is_obj(value, OBJ_TYPE_OBJECT);
+  return any_is_obj(value, OBJ_TYPE_OBJECT) || any_is_nil(value);
 }
 
 static bool type_cast_func_object(struct type* type, any* value) {
