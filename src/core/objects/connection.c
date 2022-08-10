@@ -39,13 +39,8 @@ static void connection_create(struct connection* connection,
 }
 
 static void connection_destroy(struct connection* connection) {
-  if (connection->socket >= 0)
-    close(connection->socket);
+  connection_close(connection);
   ringbuffer_destroy(&connection->in_buffer);
-  if (connection->next != NULL)
-    connection->next->prev = connection->prev;
-  if (connection->prev != NULL)
-    *(connection->prev) = connection->next;
 }
 
 struct connection* connection_new(struct raven*  raven,
@@ -83,11 +78,15 @@ void connection_detach_from_server(struct connection* connection) {
 }
 
 void connection_close(struct connection* connection) {
-  /* TODO */
+  if (connection->socket >= 0) {
+    close(connection->socket);
+    connection->socket = -1;
+  }
+  connection_detach_from_server(connection);
 }
 
 void connection_endofinput(struct connection* connection) {
-  /* TODO */
+  connection_close(connection);
 }
 
 void connection_input(struct connection* connection, char* b, unsigned int n) {
