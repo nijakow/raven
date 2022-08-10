@@ -55,7 +55,7 @@ primitives are still missing. They will be added in the future.
 A typical MUD server acts like a virtual UNIX computer. A mudlib represents
 the file system that the server starts out with.
 
-To set up a mudlib for Raven, create a this directory structure:
+To set up a mudlib for Raven, create this directory structure:
 
 ```
   + mudlib/
@@ -75,7 +75,7 @@ you now start the server, it will try to run the `main()` function inside of
 
 In order to set up an interactive server, configure your files like this:
 
-```
+```c
 /* mudlib/secure/master.c */
 
 void connect() {
@@ -101,7 +101,7 @@ void main() {
 
 ```
 
-```
+```c
 /* mudlib/std/base.c */
 
 /*
