@@ -236,9 +236,10 @@ bool parsepile_simple_expr(struct parser*   parser,
     parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
     if (parse_type(parser, &type)) {
-      /* TODO: Cast */
       result = parsepile_expect(parser, TOKEN_TYPE_RPAREN)
             && parsepile_expr(parser, compiler, pr);
+      compiler_cast(compiler, type);
+      parser_set_exprtype(parser, type);
     } else {
       result = parsepile_expression(parser, compiler)
             && parsepile_expect(parser, TOKEN_TYPE_RPAREN);

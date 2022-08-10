@@ -180,3 +180,15 @@ any fiber_op_new(struct fiber* fiber, any a) {
   }
   return any_nil();
 }
+
+bool fiber_op_typecheck(struct fiber* fiber, any a, struct type* type) {
+  /* TODO */
+  return type_is_any(type);
+}
+
+any fiber_op_cast(struct fiber* fiber, any a, struct type* type) {
+  /* TODO */
+  if (fiber_op_typecheck(fiber, a, type))
+    return a;
+  return any_nil(); /* TODO: Error */
+}

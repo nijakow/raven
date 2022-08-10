@@ -251,3 +251,8 @@ void codewriter_jump_if_not(struct codewriter* writer, t_cw_label label) {
 void codewriter_return(struct codewriter* writer) {
   codewriter_write(writer, RAVEN_BYTECODE_RETURN);
 }
+
+void codewriter_cast(struct codewriter* writer, struct type* type) {
+  codewriter_write(writer, RAVEN_BYTECODE_CAST);
+  codewriter_write_type(writer, type);
+}

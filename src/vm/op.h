@@ -33,4 +33,7 @@ any fiber_op_deref(struct fiber* fiber, any a);
 any fiber_op_sizeof(struct fiber* fiber, any a);
 any fiber_op_new(struct fiber* fiber, any a);
 
+bool fiber_op_typecheck(struct fiber* fiber, any a, struct type* type);
+any fiber_op_cast(struct fiber* fiber, any a, struct type* type);
+
 #endif

@@ -40,6 +40,10 @@ static inline any next_constant(struct fiber* fiber) {
   return function_const_at(fiber_top(fiber)->function, next_wc(fiber));
 }
 
+static inline struct type* next_type(struct fiber* fiber) {
+  return function_type_at(fiber_top(fiber)->function, next_wc(fiber));
+}
+
 
 void fiber_builtin(struct fiber*  fiber,
                    struct symbol* message,
@@ -368,6 +372,11 @@ void fiber_interpret(struct fiber* fiber) {
     case RAVEN_BYTECODE_RETURN:
       if (RAVEN_DEBUG_MODE) printf("RETURN\n");
       fiber_pop_frame(fiber);
+      break;
+    case RAVEN_BYTECODE_CAST:
+      fiber_set_accu(fiber, fiber_op_cast(fiber,
+                                          fiber_get_accu(fiber),
+                                          next_type(fiber)));
       break;
     default:
       fiber_crash(fiber); /* TODO: Error message */
