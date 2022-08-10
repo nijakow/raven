@@ -73,7 +73,13 @@ bool parse_type(struct parser* parser, struct type** loc) {
     return false;
   }
   /* Parse asterisks */
-  while (parser_check(parser, TOKEN_TYPE_STAR));
+  while (parser_check(parser, TOKEN_TYPE_STAR)) {
+    /*
+     * For now, we don't have array types yet, so we default
+     * to `any`.
+     */
+    *loc = typeset_type_any(raven_types(parser_raven(parser)));
+  }
   return true;
 }
 
@@ -119,7 +125,7 @@ bool parsepile_return_with_typecheck(struct parser*   parser,
     if (!type_match(return_type, expr_type)) {
       parser_error(parser, "Warning: possible return type mismatch!\n");
     }
-    //compiler_typecast(compiler, return_type);
+    compiler_typecast(compiler, return_type);
   }
 
   compiler_return(compiler);
