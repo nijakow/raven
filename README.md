@@ -49,3 +49,71 @@ game.
 
 However, things like a persistent database, user accounts and some language
 primitives are still missing. They will be added in the future.
+
+## What is a mudlib and how do I add one?
+
+A typical MUD server acts like a virtual UNIX computer. A mudlib represents
+the file system that the server starts out with.
+
+To set up a mudlib for Raven, create a this directory structure:
+
+```
+  + mudlib/
+     |
+     +- secure/
+     |   |
+     |   +- master.c
+     |
+     +- std/
+         |
+         +- base.c
+```
+
+Then set the variable `$RAVEN_MUDLIB` to point to your `mudlib/` directory. If
+you now start the server, it will try to run the `main()` function inside of
+`mudlib/secure/master.c`.
+
+In order to set up an interactive server, configure your files like this:
+
+```
+/* mudlib/secure/master.c */
+
+void connect() {
+  /*
+   * This function is called when a new player connects.
+   */
+  write("Hello, world!\n");
+  write("What's your name? ");
+  string name = input_line();
+  write("Hi, ", name, "!\n");
+  while (true) {
+    write("> ");
+    write("You said: ", input_line(), "\n");
+  }
+}
+
+void main() {
+  /*
+   * This function is called on startup.
+   */
+  print("The server is now running!\n");
+}
+
+```
+
+```
+/* mudlib/std/base.c */
+
+/*
+ * This is the file that every object automatically inherits from.
+ */
+
+inherit;   /* This statement is important! */
+
+void create() {
+  /*
+   * The default constructor. Can be left empty.
+   */
+}
+
+```
