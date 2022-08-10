@@ -46,7 +46,14 @@ static bool type_check_func_int(struct type* type, any value) {
 }
 
 static bool type_cast_func_int(struct type* type, any* value) {
-  return type_check_func_int(type, *value);
+  if (type_check_func_int(type, *value))
+    return true;
+  else if (any_is_char(*value)) {
+    *value = any_from_int(any_to_char(*value));
+    return true;
+  }
+  else
+    return false;
 }
 
 static bool type_check_func_char(struct type* type, any value) {
@@ -54,7 +61,14 @@ static bool type_check_func_char(struct type* type, any value) {
 }
 
 static bool type_cast_func_char(struct type* type, any* value) {
-  return type_check_func_char(type, *value);
+  if (type_check_func_char(type, *value))
+    return true;
+  else if (any_is_int(*value)) {
+    *value = any_from_char(any_to_int(*value));
+    return true;
+  }
+  else
+    return false;
 }
 
 static bool type_check_func_string(struct type* type, any value) {
