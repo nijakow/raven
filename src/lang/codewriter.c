@@ -34,7 +34,9 @@ struct function* codewriter_finish(struct codewriter* writer) {
                       writer->fill,
                       writer->bytecodes,
                       writer->ci,
-                      writer->constants);
+                      writer->constants,
+                      0, /* TODO: Types */
+                      NULL);
 }
 
 void codewriter_report_locals(struct codewriter* writer, unsigned int locals) {

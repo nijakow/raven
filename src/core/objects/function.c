@@ -26,7 +26,9 @@ struct function* function_new(struct raven* raven,
                               unsigned int  bytecode_count,
                               t_bc*         bytecodes,
                               unsigned int  constant_count,
-                              any*          constants) {
+                              any*          constants,
+                              unsigned int  type_count,
+                              struct type** types) {
   struct function*  function;
   unsigned int      index;
 
@@ -34,7 +36,8 @@ struct function* function_new(struct raven* raven,
                           &FUNCTION_INFO,
                           sizeof(struct function)
                             + sizeof(t_bc) * bytecode_count
-                            + sizeof(any) * constant_count);
+                            + sizeof(any) * constant_count
+                            + sizeof(struct type*) * type_count);
 
   if (function != NULL) {
     function->blueprint      =          NULL;
@@ -47,11 +50,17 @@ struct function* function_new(struct raven* raven,
     function->constant_count =          constant_count;
     function->constants      =
       (void*) &function->payload[bytecode_count * sizeof(t_bc)];
+    function->type_count     =          type_count;
+    function->types          =
+      (void*) &function->payload[bytecode_count * sizeof(t_bc)
+                               + constant_count * sizeof(any)];
 
     for (index = 0; index < bytecode_count; index++)
       function->bytecodes[index] = bytecodes[index];
     for (index = 0; index < constant_count; index++)
       function->constants[index] = constants[index];
+    for (index = 0; index < type_count; index++)
+      function->types[index] = types[index];
   }
 
   return function;

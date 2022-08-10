@@ -24,6 +24,8 @@ struct function {
   t_bc*              bytecodes;
   unsigned int       constant_count;
   any*               constants;
+  unsigned int       type_count;
+  struct type**      types;
   char               payload[];
 };
 
@@ -33,7 +35,9 @@ struct function* function_new(struct raven* raven,
                               unsigned int  bytecode_count,
                               t_bc*         bytecodes,
                               unsigned int  constant_count,
-                              any*          constants);
+                              any*          constants,
+                              unsigned int  type_count,
+                              struct type** types);
 void function_mark(struct gc* gc, struct function* function);
 void function_del(struct function* function);
 
@@ -63,6 +67,11 @@ static inline t_wc function_wc_at(struct function* func, unsigned int index) {
 
 static inline any function_const_at(struct function* func, unsigned int index) {
   return func->constants[index];
+}
+
+static inline struct type* function_type_at(struct function* func,
+                                            unsigned int     index) {
+  return func->types[index];
 }
 
 static inline unsigned int function_bytecode_count(struct function* func) {
