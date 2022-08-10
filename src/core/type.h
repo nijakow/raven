@@ -9,19 +9,28 @@
 #define RAVEN_CORE_TYPE_H
 
 #include "../defs.h"
+#include "any.h"
 
+struct type;
 struct typeset;
+
+typedef bool (*type_check_func)(struct type*, any value);
 
 struct type {
   struct typeset*  typeset;
   struct type*     parent;
+  type_check_func  check_func;
 };
 
-void type_create(struct type* type, struct typeset* ts, struct type* parent);
+void type_create(struct type*     type,
+                 struct typeset*  ts,
+                 struct type*     parent,
+                 type_check_func  func);
 void type_destroy(struct type* type);
 
 bool type_is_any(struct type* type);
 bool type_match(struct type* type, struct type* test);
+bool type_check(struct type* type, any value);
 
 static inline struct typeset* type_typeset(struct type* type) {
   return type->typeset;
@@ -31,8 +40,13 @@ static inline struct type* type_parent(struct type* type) {
   return type->parent;
 }
 
+static inline type_check_func type_type_check_func(struct type* type) {
+  return type->check_func;
+}
+
 
 struct typeset {
+  struct type  void_type;
   struct type  any_type;
 
   struct type  int_type;
@@ -43,6 +57,10 @@ struct typeset {
 
 void typeset_create(struct typeset* ts);
 void typeset_destroy(struct typeset* ts);
+
+static inline struct type* typeset_type_void(struct typeset* ts) {
+  return &ts->void_type;
+}
 
 static inline struct type* typeset_type_any(struct typeset* ts) {
   return &ts->any_type;

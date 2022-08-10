@@ -52,7 +52,11 @@ bool parse_symbol(struct parser* parser, struct symbol** loc) {
 
 bool parse_type(struct parser* parser, struct type** loc) {
   *loc = NULL;
-  if (parser_check(parser, TOKEN_TYPE_KW_BOOL))
+  if (parser_check(parser, TOKEN_TYPE_KW_VOID))
+    *loc = typeset_type_void(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_ANY))
+    *loc = typeset_type_any(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_BOOL))
     *loc = typeset_type_bool(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_INT))
     *loc = typeset_type_int(raven_types(parser_raven(parser)));
@@ -62,10 +66,8 @@ bool parse_type(struct parser* parser, struct type** loc) {
     *loc = typeset_type_string(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_OBJECT))
     *loc = typeset_type_object(raven_types(parser_raven(parser)));
-  else if (parser_check(parser, TOKEN_TYPE_KW_VOID)
-      || parser_check(parser, TOKEN_TYPE_KW_MAPPING)
-      || parser_check(parser, TOKEN_TYPE_KW_FUNCTION)
-      || parser_check(parser, TOKEN_TYPE_KW_ANY)) {
+  else if (parser_check(parser, TOKEN_TYPE_KW_MAPPING)
+        || parser_check(parser, TOKEN_TYPE_KW_FUNCTION)) {
     *loc = typeset_type_any(raven_types(parser_raven(parser)));
   } else {
     return false;

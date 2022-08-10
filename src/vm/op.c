@@ -9,6 +9,7 @@
 #include "../core/objects/mapping.h"
 #include "../core/objects/object.h"
 #include "../core/objects/string.h"
+#include "../core/type.h"
 #include "../raven.h"
 
 #include "fiber.h"
@@ -182,8 +183,7 @@ any fiber_op_new(struct fiber* fiber, any a) {
 }
 
 bool fiber_op_typecheck(struct fiber* fiber, any a, struct type* type) {
-  /* TODO */
-  return type_is_any(type);
+  return type_check(type, a);
 }
 
 any fiber_op_cast(struct fiber* fiber, any a, struct type* type) {
