@@ -9,6 +9,7 @@
 #define RAVEN_FS_FILE_H
 
 #include "../defs.h"
+#include "../util/stringbuilder.h"
 
 struct file {
   struct filesystem*  fs;
@@ -39,6 +40,7 @@ struct file* file_resolve(struct file* file, const char* name);
 
 char* file_path(struct file* file);
 
+bool file_cat(struct file* file, struct stringbuilder* into);
 bool file_recompile(struct file* file, struct log* log);
 struct blueprint* file_get_blueprint(struct file* file);
 struct object* file_get_object(struct file* file);

@@ -173,6 +173,24 @@ static bool file_open(struct file* file, FILE** fp, const char* mode) {
   return *fp != NULL;
 }
 
+bool file_cat(struct file* file, struct stringbuilder* into) {
+  FILE*   f;
+  size_t  byte;
+  size_t  bytes_read;
+  char    buffer[1024];
+
+  if (!file_open(file, &f, "r"))
+    return false;
+  while (1) {
+    bytes_read = fread(buffer, sizeof(char), sizeof(buffer) - 1, f);
+    if (bytes_read == 0) break;
+    for (byte = 0; byte < bytes_read; byte++)
+      stringbuilder_append_char(into, buffer[byte]);
+  }
+  fclose(f);
+  return true;
+}
+
 bool file_recompile(struct file* file, struct log* log) {
   struct raven*         raven;
   struct parser         parser;
