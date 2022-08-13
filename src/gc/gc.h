@@ -8,6 +8,16 @@
 #ifndef RAVEN_GC_GC_H
 #define RAVEN_GC_GC_H
 
+/*
+ * Raven's garbage collector is a very lightweight stop-the-world,
+ * mark-and-sweep algorithm.
+ *
+ * The interface exposes functionality to create and destroy
+ * instances of the default garbage collector, to invoke it
+ * and to mark either direct object pointers or `any`
+ * datatypes.
+ */
+
 #include "../defs.h"
 #include "../core/any.h"
 #include "../core/base_obj.h"
