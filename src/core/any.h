@@ -61,7 +61,7 @@ typedef struct {
 } any;
 
 /*
- * Check if an `any` hold a specific type.
+ * Check if an `any` holds a specific type.
  */
 static inline bool any_is(any a, enum any_type type) {
   return a.type == type;
