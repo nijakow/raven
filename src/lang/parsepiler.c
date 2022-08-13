@@ -5,6 +5,119 @@
  * See README and LICENSE for further information.
  */
 
+/*
+ * This file is probably one of the longest in this project, as it
+ * implements the entire parser and compiler of the LPC language used
+ * for this MUD.
+ *
+ * Contrary to other projects like e.g. LDMUD I decided against
+ * using bison or yacc, for various reasons:
+ *
+ *  - Writing a parser and compiler for LPC is relatively easy.
+ *  - Adding a build dependency binds my project to the availability
+ *    of another program that is not entirely under my control. It
+ *    also forces everyone who's trying to compile Raven to install
+ *    more external software. We can do better than that.
+ *  - Yacc and bison are more complex than Raven itself, therefore
+ *    increasing the "invisible lines of code" behind Raven drastically.
+ *  - Pure C is easier to read and takes less time to adjust to.
+ *
+ * However, I must say that the design of the parsepiler is not as
+ * elegant as I want it to be. A lot of functionality was crammed
+ * into the `parser` structure, which acts as the invisible statekeeper
+ * of the parsepilation process. At this point it shouldn't be called
+ * a `parser` anymore, but I thought that the name `parsepiler` blew up
+ * a lot of lines to beyond the 80-column limit, while neither improving
+ * readability nor providing any increased sense of simplicity.
+ *
+ * This is the way the parsepiler works:
+ * Most functions in this file have two arguments, a `struct parser`,
+ * and a `struct compiler`. The `parser` is responsible for breaking
+ * the input down into tokens, and giving us an interface to examine
+ * and convert the current token into any type we need, while the
+ * `compiler` keeps track of the current scope we're in (i.e. what
+ * variables are available at the moment) and receives the bytecodes
+ * that we want to generate - which then get forwarded to an object
+ * that records them for later conversion into a function instance.
+ *
+ * The parsepiler starts out with a `parser` that is holding the data
+ * of the first token in the LPC file:
+ *
+ *     inherit "/std/object.c";
+ *     ^
+ *     |
+ *     +- The parser points to this token!
+ *
+ *
+ * We can then "check" on the token type of the currently visible
+ * token:
+ *
+ *     if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
+ *       // The first token is the keyword "inherit"
+ *     } else if (parser_check(parser, TOKEN_TYPE_IDENT)) {
+ *       // The first token is an identifier (like `x`)
+ *     } else {
+ *       // Something different...
+ *     }
+ *
+ * If the token is of the specified type, the `parser_check(...)`
+ * function returns `true` and causes the parser to advance to the
+ * next token (although there are ways to just get the type without
+ * advancing to the next token - this is especially useful if the
+ * token has some sort of attached data, like the value of a number
+ * token that needs to be fetched before advancing).
+ *
+ * These statements can then be grouped into more complex "check"
+ * functions that instead of checking for individual keywords check
+ * for entire language constructs.
+ *
+ * In LPC, most of these language constructs have a direct equivalent
+ * in bytecode. Therefore, while checking for certain keywords and
+ * details of such a construct (e.g. whether an `if` statement also
+ * contains an `else` branch) we can also emit the related bytecode
+ * in the meantime. Therefore, a "check" is often followed by a
+ * command to the `compiler` structure, telling it which instruction
+ * to append next.
+ *
+ * The functions responsible for all of this usually return a `bool`,
+ * describing whether their execution was successful:
+ *
+ *     {
+ *       bool  result;
+ *
+ *       result = false
+ *       if (parsepile_block(parser, compiler)) {
+ *         // etc. ...
+ *         result = true;
+ *       }
+ *       return result;
+ *     }
+ *
+ * The reason for that is that C doesn't have a builtin mechanism for
+ * throwing an exception when a syntax error comes up. Therefore,
+ * every function is required to communicate success or failure of
+ * its execution through its return value.
+ * I am of course aware that `setjmp(...)` and `longjmp(...)` exist.
+ * However, I consider them to be an ugly solution since they allow
+ * the CPU to jump directly up in the callstack and therefore skip
+ * some (or all) destructor functions that are still pending.
+ * Other languages like C++ take care of that in their exception
+ * system, but since C has no concept of destructors this is a bug
+ * waiting to happen.
+ *
+ * Also, a note about the type system:
+ * The parsepiler supports typechecking some expressions. Since every
+ * variable also has a pointer to its type the parsepiler can compare
+ * the expected type to the type of the expression that was just
+ * parsed and compiled. It uses a special pointer inside of the
+ * `parser` structure for this. When an expression gets parsed, its
+ * (sometimes inferred) return type is stored in the parser. When
+ * the compiled value then gets assigned to a variable, its type
+ * is compared to the variable's type, and if there's a clear mismatch
+ * a warning will be sent to the compilation log (which is also stored
+ * in the `parser`).
+ */
+
 #include "../defs.h"
 
 #include "bytecodes.h"
