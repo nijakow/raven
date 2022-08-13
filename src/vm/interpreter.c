@@ -451,6 +451,7 @@ static void fiber_load_funcref(struct fiber* fiber, any name) {
 void fiber_interpret(struct fiber* fiber) {
   struct symbol*    message;
   struct base_obj*  obj;
+  unsigned int      args;
 
   /*
    * As long as the fiber wants to keep running...
@@ -598,17 +599,19 @@ void fiber_interpret(struct fiber* fiber) {
      * Send a message to an object.
      */
     case RAVEN_BYTECODE_SEND:
+      args    = (unsigned int) next_bc(fiber);
       message = any_to_ptr(next_constant(fiber));
       if (RAVEN_DEBUG_MODE) printf("SEND %s\n", symbol_name(message));
-      fiber_send(fiber, message, (unsigned int) next_wc(fiber));
+      fiber_send(fiber, message, args);
       break;
     /*
      * Invoke a method from our superclass.
      */
     case RAVEN_BYTECODE_SUPER_SEND:
       if (RAVEN_DEBUG_MODE) printf("SUPER_SEND\n");
+      args    = (unsigned int) next_bc(fiber);
       message = any_to_ptr(next_constant(fiber));
-      fiber_super_send(fiber, message, (unsigned int) next_wc(fiber),
+      fiber_super_send(fiber, message, args,
                        function_blueprint(fiber_top(fiber)->function));
       break;
     /*

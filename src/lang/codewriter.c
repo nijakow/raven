@@ -76,6 +76,10 @@ void codewriter_write(struct codewriter* writer, t_bc bc) {
   writer->bytecodes[writer->fill++] = bc;
 }
 
+void codewriter_write_bc(struct codewriter* writer, t_bc bc) {
+  codewriter_write(writer, bc);
+}
+
 void codewriter_write_wc(struct codewriter* writer, t_wc wc) {
   if (writer->fill + sizeof(t_wc) - 1 >= writer->alloc)
     if (!codewriter_resize(writer))
@@ -157,16 +161,16 @@ void codewriter_op(struct codewriter* writer, t_wc op) {
   codewriter_write_wc(writer, op);
 }
 
-void codewriter_send(struct codewriter* writer, any message, t_wc args) {
+void codewriter_send(struct codewriter* writer, any message, t_bc args) {
   codewriter_write(writer, RAVEN_BYTECODE_SEND);
+  codewriter_write_bc(writer, args);
   codewriter_write_constant(writer, message);
-  codewriter_write_wc(writer, args);
 }
 
-void codewriter_super_send(struct codewriter* writer, any message, t_wc args) {
+void codewriter_super_send(struct codewriter* writer, any message, t_bc args) {
   codewriter_write(writer, RAVEN_BYTECODE_SUPER_SEND);
+  codewriter_write_bc(writer, args);
   codewriter_write_constant(writer, message);
-  codewriter_write_wc(writer, args);
 }
 
 static t_cw_label codewriter_find_label_slot(struct codewriter* writer) {

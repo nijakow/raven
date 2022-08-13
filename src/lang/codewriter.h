@@ -63,8 +63,8 @@ void codewriter_push_self(struct codewriter* writer);
 void codewriter_push(struct codewriter* writer);
 void codewriter_pop(struct codewriter* writer);
 
-void codewriter_send(struct codewriter* writer, any message, t_wc args);
-void codewriter_super_send(struct codewriter* writer, any message, t_wc args);
+void codewriter_send(struct codewriter* writer, any message, t_bc args);
+void codewriter_super_send(struct codewriter* writer, any message, t_bc args);
 
 t_cw_label codewriter_open_label(struct codewriter* writer);
 void       codewriter_place_label(struct codewriter* writer, t_cw_label label);

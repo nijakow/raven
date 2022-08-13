@@ -129,6 +129,7 @@ static inline any next_constant(struct function* func, unsigned int* ip) {
 
 void function_disassemble(struct function* function, struct log* log) {
   unsigned int  ip;
+  unsigned int  args;
 
   ip = 0;
 
@@ -179,14 +180,16 @@ void function_disassemble(struct function* function, struct log* log) {
       log_printf(log, "OP %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_SEND:
-      log_printf(log, "SEND %d %d",
-                      next_wc(function, &ip),
-                      next_wc(function, &ip));
+      args = (unsigned int) next_bc(function, &ip);
+      log_printf(log, "SEND %u %s",
+                      args,
+                      symbol_name(any_to_ptr(next_constant(function, &ip))));
       break;
     case RAVEN_BYTECODE_SUPER_SEND:
-      log_printf(log, "SUPER_SEND %d %d",
-                      next_wc(function, &ip),
-                      next_wc(function, &ip));
+      args = (unsigned int) next_bc(function, &ip);
+      log_printf(log, "SUPER_SEND %u %s",
+                      args,
+                      symbol_name(any_to_ptr(next_constant(function, &ip))));
       break;
     case RAVEN_BYTECODE_JUMP:
       log_printf(log, "JUMP %d", next_wc(function, &ip));
