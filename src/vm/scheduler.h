@@ -8,10 +8,26 @@
 #ifndef RAVEN_VM_SCHEDULER_H
 #define RAVEN_VM_SCHEDULER_H
 
+/*
+ * The Scheduler manages all the fibers in the system.
+ * Every fiber gets inserted into a linked list.
+ */
+
 #include "../defs.h"
 
+/*
+ * The actual `scheduler` definition.
+ */
 struct scheduler {
+  /*
+   * A backpointer to the Raven instance.
+   */
   struct raven*  raven;
+
+  /*
+   * A linked list of all the fibers registered for
+   * this scheduler.
+   */
   struct fiber*  fibers;
 };
 
