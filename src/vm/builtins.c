@@ -476,6 +476,32 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_cat(struct fiber* fiber, any* arg, unsigned int args) {
+  struct filesystem*    filesystem;
+  struct file*          file;
+  const char*           path;
+  struct string*        result;
+  struct stringbuilder  sb;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    filesystem = raven_fs(fiber_raven(fiber));
+    path       = string_contents(any_to_ptr(arg[0]));
+    file       = filesystem_resolve(filesystem, path);
+
+    if (file == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else {
+      stringbuilder_create(&sb);
+      file_cat(file, &sb);
+      result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
+      stringbuilder_destroy(&sb);
+      fiber_set_accu(fiber, any_from_ptr(result));
+    }
+  }
+}
+
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
   struct filesystem*  filesystem;
   struct file*        file;

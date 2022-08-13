@@ -18,6 +18,8 @@ struct string {
 };
 
 struct string* string_new(struct raven* raven, const char* contents);
+struct string* string_new_from_stringbuilder(struct raven*         raven,
+                                             struct stringbuilder* sb);
 void           string_mark(struct gc* gc, void* string);
 void           string_del(void* string);
 

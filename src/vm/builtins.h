@@ -58,6 +58,7 @@ void builtin_this_player(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_ls(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_cat(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args);
 
 #endif

@@ -83,4 +83,6 @@ struct gc;
 
 void gc_mark_ptr(struct gc* gc, void* ptr);
 
+struct stringbuilder;
+
 #endif

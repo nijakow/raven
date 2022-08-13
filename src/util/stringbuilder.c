@@ -56,11 +56,12 @@ void stringbuilder_append_str(struct stringbuilder* sb, const char* str) {
     stringbuilder_append_char(sb, str[i]);
 }
 
-void stringbuilder_get(struct stringbuilder* sb, char** loc) {
+bool stringbuilder_get(struct stringbuilder* sb, char** loc) {
   if (sb->data == NULL)
     *loc = strdup("");
   else
     *loc = strdup(sb->data);
+  return (*loc != NULL);
 }
 
 void stringbuilder_clear(struct stringbuilder* sb) {
