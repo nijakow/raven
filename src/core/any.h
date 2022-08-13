@@ -56,7 +56,7 @@ union any_value {
  * The tagged union.
  */
 typedef struct {
-  enum any_type   type;
+  enum  any_type  type;
   union any_value value;
 } any;
 
