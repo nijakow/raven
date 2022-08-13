@@ -12,6 +12,7 @@
 #include "../any.h"
 #include "../base_obj.h"
 
+
 struct function {
   struct base_obj    _;
   struct blueprint*  blueprint;
@@ -47,6 +48,8 @@ void function_link(struct function* function, struct function** list);
 void function_in_blueprint(struct function*  function,
                            struct blueprint* blueprint,
                            struct symbol*    name);
+
+void function_disassemble(struct function* function, struct log* log);
 
 
 static inline struct symbol* function_name(struct function* func) {

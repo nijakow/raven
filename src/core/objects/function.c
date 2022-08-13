@@ -112,7 +112,7 @@ void function_in_blueprint(struct function*  function,
   }
 }
 
-/*
+
 static inline t_bc next_bc(struct function* function, unsigned int* ip) {
   *ip += sizeof(t_bc);
   return function_bc_at(function, *ip - sizeof(t_bc));
@@ -127,79 +127,90 @@ static inline any next_constant(struct function* func, unsigned int* ip) {
   return function_const_at(func, next_wc(func, ip));
 }
 
-void function_disassemble(struct function* function) {
+void function_disassemble(struct function* function, struct log* log) {
   unsigned int  ip;
 
+  ip = 0;
+
   while (ip < function_bytecode_count(function)) {
-    printf("%4u\n", ip);
+    log_printf(log, "%4u ", ip);
 
     switch (next_bc(function, &ip)) {
     case RAVEN_BYTECODE_NOOP:
-      printf("NOOP");
+      log_printf(log, "NOOP");
       break;
     case RAVEN_BYTECODE_LOAD_SELF:
-      printf("LOAD_SELF");
+      log_printf(log, "LOAD_SELF");
       break;
     case RAVEN_BYTECODE_LOAD_CONST:
-      printf("LOAD_CONST %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_CONST %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_LOAD_ARRAY:
-      printf("LOAD_ARRAY %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_ARRAY %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_LOAD_MAPPING:
-      printf("LOAD_MAPPING %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_MAPPING %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_LOAD_FUNCREF:
-      printf("LOAD_FUNCREF %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_FUNCREF %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_LOAD_LOCAL:
-      printf("LOAD_LOCAL %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_LOCAL %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_LOAD_MEMBER:
-      printf("LOAD_MEMBER %d", next_wc(function, &ip));
+      log_printf(log, "LOAD_MEMBER %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_STORE_LOCAL:
-      printf("STORE_LOCAL %d", next_wc(function, &ip));
+      log_printf(log, "STORE_LOCAL %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_STORE_MEMBER:
-      printf("STORE_MEMBER %d", next_wc(function, &ip));
+      log_printf(log, "STORE_MEMBER %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_PUSH_SELF:
-      printf("PUSH_SELF");
+      log_printf(log, "PUSH_SELF");
       break;
     case RAVEN_BYTECODE_PUSH:
-      printf("PUSH");
+      log_printf(log, "PUSH");
       break;
     case RAVEN_BYTECODE_POP:
-      printf("POP");
+      log_printf(log, "POP");
       break;
     case RAVEN_BYTECODE_OP:
-      printf("OP %d", next_wc(function, &ip));
+      log_printf(log, "OP %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_SEND:
-      printf("SEND %d %d", next_wc(function, &ip), next_wc(function, &ip));
+      log_printf(log, "SEND %d %d",
+                      next_wc(function, &ip),
+                      next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_SUPER_SEND:
-      printf("SUPER_SEND");
+      log_printf(log, "SUPER_SEND %d %d",
+                      next_wc(function, &ip),
+                      next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_JUMP:
-      printf("JUMP");
+      log_printf(log, "JUMP %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_JUMP_IF:
-      printf("JUMP_IF");
+      log_printf(log, "JUMP_IF %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_JUMP_IF_NOT:
-      printf("JUMP_IF_NOT");
+      log_printf(log, "JUMP_IF_NOT %d", next_wc(function, &ip));
       break;
     case RAVEN_BYTECODE_RETURN:
-      printf("RETURN");
+      log_printf(log, "RETURN");
+      break;
+    case RAVEN_BYTECODE_TYPECHECK:
+      log_printf(log, "TYPECHECK %d", next_wc(function, &ip));
+      break;
+    case RAVEN_BYTECODE_TYPECAST:
+      log_printf(log, "TYPECHECK %d", next_wc(function, &ip));
       break;
     default:
-      printf("???\n");
+      log_printf(log, "???\n");
       return;
     }
 
-    printf("\n");
+    log_printf(log, "\n");
   }
 }
-*/

@@ -17,6 +17,7 @@
 #include "../core/objects/string.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"
+#include "../util/log.h"
 
 #include "fiber.h"
 #include "frame.h"
