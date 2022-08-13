@@ -18,7 +18,7 @@
 ## What is Raven?
 
 _Raven_ is a game engine for [Multi User Dungeons](https://en.wikipedia.org/wiki/MUD).
-It was created by [@nijakow](https://github.com/nijakow) as an alternative
+It was created by [nijakow](https://github.com/nijakow) as an alternative
 to existing MUD drivers such as [LDMUD](https://github.com/ldmud/ldmud),
 [DGD](https://github.com/dworkin/dgd) and others.
 
