@@ -28,6 +28,19 @@
 #include <arpa/inet.h>
 
 /*
+ * I don't like #define-switches, but this one helps a lot when
+ * you need to get detailed information about what the system
+ * is doing.
+ *
+ * Enabling this will cause the server to print all kinds of
+ * details about what's happening deep inside of its data
+ * structures.
+ */
+#ifndef RAVEN_DEBUG_MODE
+#  define RAVEN_DEBUG_MODE 0
+#endif
+
+/*
  * Every object in the system gets an obj_type, so that we can
  * distinguish what type of object a variable is pointing to.
  */
