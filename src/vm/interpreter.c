@@ -24,10 +24,16 @@
 
 #include "interpreter.h"
 
+/*
+ * Fetch the next bytecode in a fiber.
+ */
 static inline t_bc next_bc(struct fiber* fiber) {
   return function_bc_at(fiber_top(fiber)->function, fiber_top(fiber)->ip++);
 }
 
+/*
+ * Fetch the next wordcode in a fiber.
+ */
 static inline t_wc next_wc(struct fiber* fiber) {
   t_wc  wc;
 
@@ -36,42 +42,96 @@ static inline t_wc next_wc(struct fiber* fiber) {
   return wc;
 }
 
+/*
+ * Fetch the next constant in a fiber.
+ */
 static inline any next_constant(struct fiber* fiber) {
   return function_const_at(fiber_top(fiber)->function, next_wc(fiber));
 }
 
+/*
+ * Fetch the next type object in a fiber.
+ */
 static inline struct type* next_type(struct fiber* fiber) {
   return function_type_at(fiber_top(fiber)->function, next_wc(fiber));
 }
 
 
+/*
+ * Run a builtin in a fiber.
+ *
+ * This function receives the fiber to operate on,
+ * the symbol describing the builtin, and the number
+ * of arguments on the stack.
+ */
 void fiber_builtin(struct fiber*  fiber,
                    struct symbol* message,
                    unsigned int   args) {
   unsigned int  index;
   builtin_func  blt;
 
+  /*
+   * Receive a pointer to the builtin.
+   */
   blt = symbol_builtin(message);
+
+  /*
+   * In case of error, we crash.
+   */
   if (blt == NULL)
     fiber_crash(fiber); /* TODO: Error message */
   else {
+    /*
+     * We now have the function pointer, and the arguments, which
+     * are still stored on the stack. Let's grab them and stuff
+     * them into an array.
+     */
     any arglist[args + 1];
     for (index = 0; index <= args; index++)
       arglist[index] = fiber_stack_peek(fiber, args)[index];
     fiber_drop(fiber, args + 1);
+
+    /*
+     * Energize!
+     *   - Jean-Luc Picard
+     */
     blt(fiber, &arglist[1], args);
   }
 }
 
 
+/*
+ * Send a message to an object.
+ *
+ * We take the same arguments as `fiber_builtin`.
+ * The stack layout looks like this:
+ *
+ *         +----------------------+
+ *  Top -> | argN                 |
+ *         | ...                  |
+ *         | arg1                 |
+ *         | arg0                 |
+ *         | receiver             |
+ *         +----------------------+
+ */
 void fiber_send(struct fiber*  fiber,
                 struct symbol* message,
                 unsigned int   args) {
   any               new_self;
   struct function*  function;
 
+  /*
+   * Grab the receiver.
+   */
   new_self = *fiber_stack_peek(fiber, args);
 
+  /*
+   * Raven does have a proxy system. If we're sending
+   * a message to something that doesn't look like
+   * a scripted object (anything that's not an instantiated
+   * LPC file), we extract the method to call from a
+   * different object - its proxy.
+   */
   if (any_is_obj(new_self, OBJ_TYPE_OBJECT)) {
     /* Do nothing */
   } else if (any_is_nil(new_self)) {
@@ -86,14 +146,37 @@ void fiber_send(struct fiber*  fiber,
     new_self = raven_vars(fiber_raven(fiber))->symbol_proxy;
   }
 
+  /*
+   * Extract the function to call.
+   */
   function = any_resolve_func(new_self, message);
 
+  /*
+   * Call the function. Or, if it wasn't found, a builtin.
+   *
+   * We only needed the extracted receiver to look up the
+   * function, invoking it will automatically establish
+   * the stack frame.
+   */
   if (function == NULL)
     fiber_builtin(fiber, message, args);
   else
     fiber_push_frame(fiber, function, args);
 }
 
+/*
+ * Send a message to a receiver, just like `fiber_send(...)`.
+ * But this time, we provide a blueprint as another argument,
+ * which will be checked for a parent. Then, the message is
+ * sent to this specific parent.
+ *
+ * This function is used when it comes to evaluating
+ * expressions such as
+ *
+ *    ::create();
+ *
+ * where it delegates the message to the parent blueprint.
+ */
 void fiber_super_send(struct fiber*      fiber,
                       struct symbol*     message,
                       unsigned int       args,
@@ -112,6 +195,12 @@ void fiber_super_send(struct fiber*      fiber,
   }
 }
 
+/*
+ * Execute a `raven_op` operation code on a fiber's configuration.
+ *
+ * This function is just a very basic dispatch loop. Most of the
+ * referenced functions can be found in `op.c`.
+ */
 void fiber_op(struct fiber* fiber, enum raven_op op) {
   any  a;
   any  b;
@@ -203,15 +292,54 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
   }
 }
 
+/*
+ * Gobble some values from the stack into an array.
+ *
+ * When an array gets created in an expression like
+ *
+ *     {
+ *       string* greetings = { "hi", "hello", "hey" };
+ *     }
+ *
+ * what's happening is that the strings "hi", "hello"
+ * and "hey" get pushed onto the stack, the first array
+ * value being the first one to get pushed:
+ *
+ *        +-----------------+
+ *  Top-> | "hey"           |
+ *        | "hello"         |
+ *        | "hi"            |
+ *        +-----------------+
+ *
+ * This function pops `size` values from the stack, and
+ * puts them into an array.
+ */
 static void fiber_load_array(struct fiber* fiber, unsigned int size) {
   struct array*  array;
 
+  /*
+   * Create the array. (Duh!)
+   */
   array = array_new(fiber_raven(fiber), size);
 
+  /*
+   * We use black magic to drive the loop!
+   * Essentially, it's just
+   *
+   *     ((size--) > 0)
+   *
+   * but in pretty.
+   */
   while (size --> 0) {
+    /*
+     * No magic here.
+     */
     array_put(array, size, fiber_pop(fiber));
   }
 
+  /*
+   * Store the array away...
+   */
   fiber_set_accu(fiber, any_from_ptr(array));
 }
 
