@@ -54,13 +54,13 @@ void blueprint_mark(struct gc* gc, struct blueprint* blue) {
 
   if (blue == NULL) return;
 
-  for (func = blue->methods; func != NULL; func = func->next_method) {
+  for (func = blue->methods; func != NULL; func = func->next_method)
     gc_mark_ptr(gc, func);
-  }
 
   vars_mark(gc, &blue->vars);
-
   gc_mark_ptr(gc, blue->parent);
+
+  base_obj_mark(gc, &blue->_);
 }
 
 unsigned int blueprint_get_instance_size(struct blueprint* bp) {
