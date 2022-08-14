@@ -60,6 +60,7 @@ void codewriter_store_member(struct codewriter* writer, t_wc index);
 void codewriter_op(struct codewriter* writer, t_wc op);
 
 void codewriter_push_self(struct codewriter* writer);
+void codewriter_push_constant(struct codewriter* writer, any value);
 void codewriter_push(struct codewriter* writer);
 void codewriter_pop(struct codewriter* writer);
 

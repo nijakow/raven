@@ -17,9 +17,10 @@ void compiler_create(struct compiler*   compiler,
                      struct codewriter* codewriter,
                      struct blueprint*  blueprint) {
   compiler_create_base(compiler);
-  compiler->parent = NULL;
-  compiler->cw     = codewriter;
-  compiler->bp     = blueprint;
+  compiler->parent       = NULL;
+  compiler->cw           = codewriter;
+  compiler->bp           = blueprint;
+  compiler->mapping_vars = NULL;
 }
 
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent) {
@@ -36,6 +37,11 @@ void compiler_destroy(struct compiler* compiler) {
 
 struct function* compiler_finish(struct compiler* compiler) {
   return codewriter_finish(compiler->cw);
+}
+
+void compiler_set_mapping_vars(struct compiler* compiler,
+                               struct mapping*  vars) {
+  compiler->mapping_vars = vars;
 }
 
 void compiler_add_arg(struct compiler* compiler,
@@ -93,6 +99,12 @@ bool compiler_load_var_with_type(struct compiler* compiler,
           && vars_find(blueprint_vars(compiler->bp), name, type, &index)) {
     codewriter_load_member(compiler->cw, index);
     return true;
+  } else if (compiler->mapping_vars != NULL) {
+    if (type != NULL) *type = NULL;
+    compiler_push_constant(compiler, any_from_ptr(compiler->mapping_vars));
+    compiler_load_constant(compiler, any_from_ptr(name));
+    compiler_op(compiler, RAVEN_OP_INDEX);
+    return true;
   } else {
     return false;
   }
@@ -121,6 +133,12 @@ bool compiler_store_var_with_type(struct compiler* compiler,
       compiler_typecheck(compiler, our_type);
     codewriter_store_member(compiler->cw, index);
     return true;
+  } else if (compiler->mapping_vars != NULL) {
+    if (type != NULL) *type = NULL;
+    compiler_push_constant(compiler, any_from_ptr(compiler->mapping_vars));
+    compiler_push_constant(compiler, any_from_ptr(name));
+    compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);
+    return true;
   } else {
     return false;
   }
@@ -132,6 +150,10 @@ bool compiler_store_var(struct compiler* compiler, struct symbol* name) {
 
 void compiler_push_self(struct compiler* compiler) {
   codewriter_push_self(compiler->cw);
+}
+
+void compiler_push_constant(struct compiler* compiler, any value) {
+  codewriter_push_constant(compiler->cw, value);
 }
 
 void compiler_push(struct compiler* compiler) {

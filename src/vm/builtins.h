@@ -46,6 +46,7 @@ void builtin_substr(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_mkarray(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_append(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_chartostr(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_intern(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_keys(struct fiber* fiber, any* arg, unsigned int args);
 

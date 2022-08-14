@@ -148,6 +148,11 @@ void codewriter_push_self(struct codewriter* writer) {
   codewriter_write(writer, RAVEN_BYTECODE_PUSH_SELF);
 }
 
+void codewriter_push_constant(struct codewriter* writer, any value) {
+  codewriter_write(writer, RAVEN_BYTECODE_PUSH_CONST);
+  codewriter_write_constant(writer, value);
+}
+
 void codewriter_push(struct codewriter* writer) {
   codewriter_write(writer, RAVEN_BYTECODE_PUSH);
 }

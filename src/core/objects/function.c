@@ -170,6 +170,9 @@ void function_disassemble(struct function* function, struct log* log) {
     case RAVEN_BYTECODE_PUSH_SELF:
       log_printf(log, "PUSH_SELF");
       break;
+    case RAVEN_BYTECODE_PUSH_CONST:
+      log_printf(log, "PUSH_CONST %u", next_wc(function, &ip));
+      break;
     case RAVEN_BYTECODE_PUSH:
       log_printf(log, "PUSH");
       break;

@@ -568,11 +568,18 @@ void fiber_interpret(struct fiber* fiber) {
       }
       break;
     /*
-     * Just like LOAD_SELF, followed by a PUSH.
+     * Push `this` to the stack. The accumulator will not be touched.
      */
     case RAVEN_BYTECODE_PUSH_SELF:
       if (RAVEN_DEBUG_MODE) printf("PUSH_SELF\n");
       fiber_push(fiber, frame_self(fiber_top(fiber)));
+      break;
+    /*
+     * Push a constant to the stack. The accumulator will not be touched.
+     */
+    case RAVEN_BYTECODE_PUSH_CONST:
+      if (RAVEN_DEBUG_MODE) printf("PUSH_CONST\n");
+      fiber_push(fiber, next_constant(fiber));
       break;
     /*
      * Push the accumulator onto the stack.

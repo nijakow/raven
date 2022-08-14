@@ -12,6 +12,7 @@
 #include "../core/any.h"
 #include "../core/blueprint.h"
 #include "../core/vars.h"
+#include "../core/objects/mapping.h"
 #include "bytecodes.h"
 #include "codewriter.h"
 
@@ -21,6 +22,7 @@ struct compiler {
   struct compiler*    parent;
   struct codewriter*  cw;
   struct blueprint*   bp;
+  struct mapping*     mapping_vars;
   struct vars         vars;
   t_cw_label          break_label;
   t_cw_label          continue_label;
@@ -33,6 +35,8 @@ void compiler_create_sub(struct compiler* compiler, struct compiler* parent);
 void compiler_destroy(struct compiler* compiler);
 
 struct function* compiler_finish(struct compiler* compiler);
+
+void compiler_set_mapping_vars(struct compiler* compiler, struct mapping* vars);
 
 void compiler_add_arg(struct compiler* compiler,
                       struct type*     type,
@@ -57,6 +61,7 @@ bool compiler_store_var_with_type(struct compiler* compiler,
 bool compiler_store_var(struct compiler* compiler, struct symbol* name);
 
 void compiler_push_self(struct compiler* compiler);
+void compiler_push_constant(struct compiler* compiler, any value);
 void compiler_push(struct compiler* compiler);
 void compiler_pop(struct compiler* compiler);
 

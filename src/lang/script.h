@@ -10,6 +10,8 @@
 
 #include "../defs.h"
 
-struct function* script_compile(struct raven* raven, const char* source);
+struct function* script_compile(struct raven*   raven,
+                                const  char*    source,
+                                struct mapping* vars);
 
 #endif
