@@ -13,13 +13,13 @@
 #include "../base_obj.h"
 
 struct mapping_entry {
-  struct mapping_entry*  next;
   any                    key;
   any                    value;
 };
 
 struct mapping {
   struct base_obj        _;
+  unsigned int           entry_count;
   struct mapping_entry*  entries;
 };
 
