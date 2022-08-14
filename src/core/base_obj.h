@@ -110,9 +110,10 @@ struct base_obj {
   struct base_obj* next;
 
   /*
-   * The following two members are used for the garbage
-   * collection process. They are the object's color and
-   * a pointer to the next object in its gray-list.
+   * The following member is used for the garbage collection
+   * process. It holds the object's gc color and a pointer to
+   * the next object in its gray-list. This is done with tagged
+   * pointers.
    *
    * Since the gray-list pointer can be used for multiple
    * other purposes, it's called `forward`.
