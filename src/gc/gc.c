@@ -46,7 +46,7 @@ static struct base_obj* gc_pop(struct gc* gc) {
   struct base_obj*  obj;
 
   obj           = gc->mark_list;
-  gc->mark_list = obj->forward;
+  gc->mark_list = base_obj_forward(obj);
 
   return obj;
 }

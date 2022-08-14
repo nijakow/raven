@@ -138,20 +138,33 @@ static inline struct base_obj* base_obj_forward(struct base_obj* obj) {
   return obj->forward;
 }
 
+static inline void base_obj_set_forward(struct base_obj* obj,
+                                        struct base_obj* value) {
+  obj->forward = value;
+}
+
+static inline enum gc_tag base_obj_get_gc_tag(struct base_obj* obj) {
+  return obj->gc_tag;
+}
+
+static inline void base_obj_set_gc_tag(struct base_obj* obj, enum gc_tag tag) {
+  obj->gc_tag = tag;
+}
+
 static inline bool base_obj_is_marked(struct base_obj* obj) {
-  return obj->gc_tag != GC_TAG_WHITE;
+  return base_obj_get_gc_tag(obj) != GC_TAG_WHITE;
 }
 
 static inline void base_obj_mark_white(struct base_obj* obj) {
-  obj->gc_tag = GC_TAG_WHITE;
+  base_obj_set_gc_tag(obj, GC_TAG_WHITE);
 }
 
 static inline void base_obj_mark_gray(struct base_obj* obj) {
-  obj->gc_tag = GC_TAG_GRAY;
+  base_obj_set_gc_tag(obj, GC_TAG_GRAY);
 }
 
 static inline void base_obj_mark_black(struct base_obj* obj) {
-  obj->gc_tag = GC_TAG_BLACK;
+  base_obj_set_gc_tag(obj, GC_TAG_BLACK);
 }
 
 #endif
