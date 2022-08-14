@@ -271,8 +271,6 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_substr", builtin_substr);
   raven_builtin(raven, "mkarray", builtin_mkarray);
   raven_builtin(raven, "_append", builtin_append);
-  raven_builtin(raven, "_chartostr", builtin_chartostr);
-  raven_builtin(raven, "_intern", builtin_intern);
   raven_builtin(raven, "_keys", builtin_keys);
 
   raven_builtin(raven, "_isspace", builtin_isspace);

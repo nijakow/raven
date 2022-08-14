@@ -331,35 +331,6 @@ void builtin_append(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
-void builtin_chartostr(struct fiber* fiber, any* arg, unsigned int args) {
-  struct string*  string;
-  char            text[2];
-
-  if (args != 1 || !any_is_char(arg[0]))
-    fiber_crash(fiber);
-  else {
-    text[0] = any_to_char(arg[0]);
-    text[1] = '\0';
-    string  = string_new(fiber_raven(fiber), text);
-    fiber_set_accu(fiber, any_from_ptr(string));
-  }
-}
-
-void builtin_intern(struct fiber* fiber, any* arg, unsigned int args) {
-  struct symbol*  symbol;
-
-  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
-    fiber_crash(fiber);
-  else {
-    symbol = raven_find_symbol(fiber_raven(fiber),
-                               string_contents(any_to_ptr(arg[0])));
-    if (symbol == NULL)
-      fiber_set_accu(fiber, any_nil());
-    else
-      fiber_set_accu(fiber, any_from_ptr(symbol));
-  }
-}
-
 void builtin_keys(struct fiber* fiber, any* arg, unsigned int args) {
   struct array* array;
 
