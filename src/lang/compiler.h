@@ -19,6 +19,7 @@
 typedef t_cw_label t_compiler_label;
 
 struct compiler {
+  struct raven*       raven;
   struct compiler*    parent;
   struct codewriter*  cw;
   struct blueprint*   bp;
@@ -29,6 +30,7 @@ struct compiler {
 };
 
 void compiler_create(struct compiler*   compiler,
+                     struct raven*      raven,
                      struct codewriter* codewriter,
                      struct blueprint*  blueprint);
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent);

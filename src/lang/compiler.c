@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../raven.h"
+#include "../core/type.h"
+
 #include "compiler.h"
 
 static void compiler_create_base(struct compiler* compiler) {
@@ -14,9 +17,11 @@ static void compiler_create_base(struct compiler* compiler) {
 }
 
 void compiler_create(struct compiler*   compiler,
+                     struct raven*      raven,
                      struct codewriter* codewriter,
                      struct blueprint*  blueprint) {
   compiler_create_base(compiler);
+  compiler->raven        = raven;
   compiler->parent       = NULL;
   compiler->cw           = codewriter;
   compiler->bp           = blueprint;
@@ -25,6 +30,7 @@ void compiler_create(struct compiler*   compiler,
 
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent) {
   compiler_create_base(compiler);
+  compiler->raven  = parent->raven;
   compiler->parent = parent;
   compiler->cw     = parent->cw;
   compiler->bp     = parent->bp;
@@ -100,7 +106,8 @@ bool compiler_load_var_with_type(struct compiler* compiler,
     codewriter_load_member(compiler->cw, index);
     return true;
   } else if (compiler->mapping_vars != NULL) {
-    if (type != NULL) *type = NULL;
+    if (type != NULL)
+      *type = typeset_type_any(raven_types(compiler->raven));
     compiler_push_constant(compiler, any_from_ptr(compiler->mapping_vars));
     compiler_load_constant(compiler, any_from_ptr(name));
     compiler_op(compiler, RAVEN_OP_INDEX);
@@ -134,7 +141,8 @@ bool compiler_store_var_with_type(struct compiler* compiler,
     codewriter_store_member(compiler->cw, index);
     return true;
   } else if (compiler->mapping_vars != NULL) {
-    if (type != NULL) *type = NULL;
+    if (type != NULL)
+      *type = typeset_type_any(raven_types(compiler->raven));
     compiler_push_constant(compiler, any_from_ptr(compiler->mapping_vars));
     compiler_push_constant(compiler, any_from_ptr(name));
     compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);

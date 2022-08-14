@@ -27,7 +27,7 @@ struct function* script_compile(struct raven*   raven,
   reader = (char*) source;
   parser_create(&parser, raven, &reader, raven_log(raven));
   codewriter_create(&codewriter, raven);
-  compiler_create(&compiler, &codewriter, NULL);
+  compiler_create(&compiler, raven, &codewriter, NULL);
   if (vars != NULL)
     compiler_set_mapping_vars(&compiler, vars);
   if (parsepile_script(&parser, &compiler)) {

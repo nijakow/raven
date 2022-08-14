@@ -999,8 +999,9 @@ bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
        */
       parser_set_returntype(parser, type);
 
-      codewriter_create(&codewriter, parser->raven);  /* This is very hacky! */
-      compiler_create(&compiler, &codewriter, into);
+      /* Extracting `raven` this way is very hacky! */
+      codewriter_create(&codewriter, parser->raven);
+      compiler_create(&compiler, parser->raven, &codewriter, into);
 
       if (parsepile_arglist(parser, &compiler)) {
         if (parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
