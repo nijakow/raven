@@ -948,6 +948,13 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
   return result;
 }
 
+bool parsepile_script(struct parser* parser, struct compiler* compiler) {
+  while (!parser_check(parser, TOKEN_TYPE_EOF)) {
+    if (!parsepile_instruction(parser, compiler))
+      return false;
+  }
+  return true;
+}
 
 bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
   struct type*    type;

@@ -13,12 +13,14 @@
  * Our LPC code gets parsed and compiled into bytecode in one
  * go, there are no intermediate steps.
  *
- * The public interface of this module exposes only one function.
+ * The public interface of this module exposes only two functions.
  */
 
-#include "parser.h"
 #include "../core/blueprint.h"
+#include "compiler.h"
+#include "parser.h"
 
+bool parsepile_script(struct parser* parser, struct compiler* compiler);
 bool parsepile_file(struct parser* parser, struct blueprint* into);
 
 #endif

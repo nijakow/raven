@@ -89,7 +89,8 @@ bool compiler_load_var_with_type(struct compiler* compiler,
   if (vars_find(&compiler->vars, name, type, &index)) {
     codewriter_load_local(compiler->cw, index);
     return true;
-  } else if (vars_find(blueprint_vars(compiler->bp), name, type, &index)) {
+  } else if (compiler->bp != NULL
+          && vars_find(blueprint_vars(compiler->bp), name, type, &index)) {
     codewriter_load_member(compiler->cw, index);
     return true;
   } else {
@@ -113,7 +114,8 @@ bool compiler_store_var_with_type(struct compiler* compiler,
       compiler_typecheck(compiler, our_type);
     codewriter_store_local(compiler->cw, index);
     return true;
-  } else if (vars_find(blueprint_vars(compiler->bp), name, &our_type, &index)) {
+  } else if (compiler->bp != NULL
+          && vars_find(blueprint_vars(compiler->bp), name, &our_type, &index)) {
     if (type != NULL) *type = our_type;
     if (our_type != NULL)
       compiler_typecheck(compiler, our_type);

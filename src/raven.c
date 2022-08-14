@@ -285,4 +285,5 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_resolve", builtin_resolve);
   raven_builtin(raven, "_cat", builtin_cat);
   raven_builtin(raven, "_cc", builtin_cc);
+  raven_builtin(raven, "_cc_script", builtin_cc_script);
 }

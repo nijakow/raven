@@ -17,6 +17,7 @@
 #include "../core/objects/connection.h"
 #include "../core/blueprint.h"
 #include "../fs/file.h"
+#include "../lang/script.h"
 #include "../util/log.h"
 #include "../util/wrap.h"
 
@@ -389,17 +390,25 @@ void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args) {
 }
 
 void builtin_call(struct fiber* fiber, any* arg, unsigned int args) {
-  struct funcref* funcref;
-  unsigned int    index;
-  any             fargs[args - 1];
+  struct funcref*  funcref;
+  struct function* function;
+  unsigned int     index;
+  any              fargs[args - 1];
 
-  if (args < 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+  if (args < 1) {
     fiber_crash(fiber);
-  else {
+  } else if (args >= 2 && any_is_obj(arg[0], OBJ_TYPE_FUNCTION)) {
+    function = any_to_ptr(arg[0]);
+    for (index = 1; index < args; index++)
+      fiber_push(fiber, arg[index]);
+    fiber_push_frame(fiber, function, args - 1);
+  } else if (any_is_obj(arg[0], OBJ_TYPE_FUNCREF)) {
     funcref = any_to_ptr(arg[0]);
     for (index = 0; index < args - 1; index++)
       fargs[index] = arg[index + 1];
     funcref_enter(funcref, fiber, fargs, args - 1);
+  } else {
+    fiber_crash(fiber);
   }
 }
 
@@ -505,7 +514,7 @@ void builtin_cat(struct fiber* fiber, any* arg, unsigned int args) {
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
   struct filesystem*  filesystem;
   struct file*        file;
-  const char*         path;
+  const  char*        path;
 
   if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
     fiber_crash(fiber);
@@ -523,5 +532,20 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
         fiber_set_accu(fiber, any_from_int(2)); /* Failure! */
       }
     }
+  }
+}
+
+void builtin_cc_script(struct fiber* fiber, any* arg, unsigned int args) {
+  struct function*  function;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+    fiber_crash(fiber);
+  else {
+    function = script_compile(fiber_raven(fiber),
+                              string_contents(any_to_ptr(arg[0])));
+    if (function == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(function));
   }
 }
