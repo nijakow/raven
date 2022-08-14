@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "../raven.h"
+#include "../core/objects/string.h"
+
 #include "type.h"
 
 
@@ -79,6 +82,22 @@ static bool type_cast_func_string(struct type* type, any* value) {
   return type_check_func_string(type, *value);
 }
 
+static bool type_check_func_symbol(struct type* type, any value) {
+  return any_is_obj(value, OBJ_TYPE_SYMBOL) || any_is_nil(value);
+}
+
+static bool type_cast_func_symbol(struct type* type, any* value) {
+  struct symbol*  symbol;
+
+  if (any_is_obj(*value, OBJ_TYPE_STRING)) {
+    symbol = raven_find_symbol(typeset_raven(type_typeset(type)),
+                               string_contents(any_to_ptr(*value)));
+    *value = any_from_ptr(symbol);
+    return true;
+  }
+  return type_check_func_symbol(type, *value);
+}
+
 static bool type_check_func_object(struct type* type, any value) {
   return any_is_obj(value, OBJ_TYPE_OBJECT) || any_is_nil(value);
 }
@@ -142,12 +161,14 @@ bool type_cast(struct type* type, any* value) {
 }
 
 
-void typeset_create(struct typeset* ts) {
+void typeset_create(struct typeset* ts, struct raven* raven) {
+  ts->raven = raven;
   type_create(&ts->void_type, ts, NULL, type_check_func_void, type_cast_func_void);
   type_create(&ts->any_type, ts, NULL, type_check_func_any, type_cast_func_any);
   type_create(&ts->int_type, ts, &ts->any_type, type_check_func_int, type_cast_func_int);
   type_create(&ts->char_type, ts, &ts->any_type, type_check_func_char, type_cast_func_char);
   type_create(&ts->string_type, ts, &ts->any_type, type_check_func_string, type_cast_func_string);
+  type_create(&ts->symbol_type, ts, &ts->any_type, type_check_func_symbol, type_cast_func_symbol);
   type_create(&ts->object_type, ts, &ts->any_type, type_check_func_object, type_cast_func_object);
   type_create(&ts->funcref_type, ts, &ts->any_type, type_check_func_funcref, type_cast_func_funcref);
   type_create(&ts->mapping_type, ts, &ts->any_type, type_check_func_mapping, type_cast_func_mapping);
@@ -157,6 +178,7 @@ void typeset_destroy(struct typeset* ts) {
   type_destroy(&ts->mapping_type);
   type_destroy(&ts->funcref_type);
   type_destroy(&ts->object_type);
+  type_destroy(&ts->symbol_type);
   type_destroy(&ts->string_type);
   type_destroy(&ts->char_type);
   type_destroy(&ts->int_type);

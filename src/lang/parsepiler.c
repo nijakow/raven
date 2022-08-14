@@ -177,6 +177,8 @@ bool parse_type(struct parser* parser, struct type** loc) {
     *loc = typeset_type_char(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_STRING))
     *loc = typeset_type_string(raven_types(parser_raven(parser)));
+  else if (parser_check(parser, TOKEN_TYPE_KW_SYMBOL))
+    *loc = typeset_type_symbol(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_OBJECT))
     *loc = typeset_type_object(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_FUNCTION))
@@ -436,6 +438,11 @@ bool parsepile_simple_expr(struct parser*   parser,
     parser_advance(parser);
     result = true;
     parser_set_exprtype_to_string(parser);
+  } else if (parser_is(parser, TOKEN_TYPE_SYMBOL)) {
+    compiler_load_constant(compiler, any_from_ptr(parser_as_symbol(parser)));
+    parser_advance(parser);
+    result = true;
+    parser_set_exprtype_to_symbol(parser);
   } else if (parser_check(parser, TOKEN_TYPE_LCURLY)) {
     result = parsepile_array(parser, compiler);
     parser_set_exprtype_to_array(parser);

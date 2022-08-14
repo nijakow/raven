@@ -66,6 +66,7 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_KW_BOOL: return "KW_BOOL";
   case TOKEN_TYPE_KW_OBJECT: return "KW_OBJECT";
   case TOKEN_TYPE_KW_STRING: return "KW_STRING";
+  case TOKEN_TYPE_KW_SYMBOL: return "KW_SYMBOL";
   case TOKEN_TYPE_KW_MAPPING: return "KW_MAPPING";
   case TOKEN_TYPE_KW_FUNCTION: return "KW_FUNCTION";
   case TOKEN_TYPE_KW_ANY: return "KW_ANY";
@@ -189,11 +190,11 @@ void parser_read_int(struct parser* parser) {
   }
 }
 
-void parser_read_string(struct parser* parser) {
+void parser_read_string(struct parser* parser, const char* stop) {
   do {
-    parser_read_until(parser, "\"");
+    parser_read_until(parser, stop);
     reader_skip_whitespace(parser->reader);
-  } while (reader_has(parser->reader) && reader_checks(parser->reader, "\""));
+  } while (reader_has(parser->reader) && reader_checks(parser->reader, stop));
 }
 
 void parser_read_raw_string(struct parser* parser) {
@@ -219,8 +220,6 @@ void parser_advance(struct parser* parser) {
   parser_buffer_clear(parser);
 
   reader_skip_whitespace(parser->reader);
-
-  //printf("%s\n", *parser->reader);
 
   if (!reader_has(parser->reader)) {
     parser_set_type(parser, TOKEN_TYPE_EOF);
@@ -301,10 +300,13 @@ void parser_advance(struct parser* parser) {
     parser_set_type(parser, TOKEN_TYPE_PERCENT);
   } else if (reader_checks(parser->reader, "\"")) {
     parser_set_type(parser, TOKEN_TYPE_STRING);
-    parser_read_string(parser);
+    parser_read_string(parser, "\"");
   } else if (reader_checks(parser->reader, "\'")) {
     parser_set_type(parser, TOKEN_TYPE_CHAR);
     parser_read_character(parser);
+  } else if (reader_checks(parser->reader, "#\'")) {
+    parser_set_type(parser, TOKEN_TYPE_SYMBOL);
+    parser_read_string(parser, "\'");
   } else if (parser_isdigit(reader_peek(parser->reader))) {
     parser_set_type(parser, TOKEN_TYPE_INT);
     parser_read_int(parser);
@@ -312,10 +314,6 @@ void parser_advance(struct parser* parser) {
     while (reader_peekn(parser->reader, &c, IDENT_CHARS)) {
       parser_buffer_append(parser, c);
     }
-
-    /*
-     * TODO: Integer
-     */
 
     if (parser_buffer_is_empty(parser)) {
       parser_set_type(parser, TOKEN_TYPE_EOF);
@@ -345,6 +343,8 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_OBJECT);
     } else if (parser_buffer_is(parser, "string")) {
       parser_set_type(parser, TOKEN_TYPE_KW_STRING);
+    } else if (parser_buffer_is(parser, "symbol")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_SYMBOL);
     } else if (parser_buffer_is(parser, "mapping")) {
       parser_set_type(parser, TOKEN_TYPE_KW_MAPPING);
     } else if (parser_buffer_is(parser, "function")) {
@@ -404,6 +404,10 @@ struct string* parser_as_string(struct parser* parser) {
   return string_new(parser->raven, parser->buffer);
 }
 
+struct symbol* parser_set_exprtype_as_symbol(struct parser* parser) {
+  return raven_find_symbol(parser->raven, parser->buffer);
+}
+
 char parser_as_char(struct parser* parser) {
   return parser->buffer[0];
 }
@@ -443,6 +447,11 @@ void parser_set_exprtype_to_char(struct parser* parser) {
 void parser_set_exprtype_to_string(struct parser* parser) {
   parser_set_exprtype(parser,
       typeset_type_string(raven_types(parser_raven(parser))));
+}
+
+void parser_set_exprtype_to_symbol(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_symbol(raven_types(parser_raven(parser))));
 }
 
 void parser_set_exprtype_to_object(struct parser* parser) {

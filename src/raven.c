@@ -30,7 +30,7 @@ static void raven_create_vars(struct raven_vars* vars) {
  */
 void raven_create(struct raven* raven) {
   object_table_create(raven_objects(raven), raven);
-  typeset_create(raven_types(raven));
+  typeset_create(raven_types(raven), raven);
   log_create(raven_log(raven));
   scheduler_create(raven_scheduler(raven), raven);
   server_create(raven_server(raven), raven);

@@ -54,19 +54,26 @@ static inline type_cast_func type_type_cast_func(struct type* type) {
 
 
 struct typeset {
-  struct type  void_type;
-  struct type  any_type;
+  struct raven* raven;
 
-  struct type  int_type;
-  struct type  char_type;
-  struct type  string_type;
-  struct type  object_type;
-  struct type  funcref_type;
-  struct type  mapping_type;
+  struct type   void_type;
+  struct type   any_type;
+
+  struct type   int_type;
+  struct type   char_type;
+  struct type   string_type;
+  struct type   symbol_type;
+  struct type   object_type;
+  struct type   funcref_type;
+  struct type   mapping_type;
 };
 
-void typeset_create(struct typeset* ts);
+void typeset_create(struct typeset* ts, struct raven* raven);
 void typeset_destroy(struct typeset* ts);
+
+static inline struct raven* typeset_raven(struct typeset* ts) {
+  return ts->raven;
+}
 
 static inline struct type* typeset_type_void(struct typeset* ts) {
   return &ts->void_type;
@@ -90,6 +97,10 @@ static inline struct type* typeset_type_char(struct typeset* ts) {
 
 static inline struct type* typeset_type_string(struct typeset* ts) {
   return &ts->string_type;
+}
+
+static inline struct type* typeset_type_symbol(struct typeset* ts) {
+  return &ts->symbol_type;
 }
 
 static inline struct type* typeset_type_object(struct typeset* ts) {

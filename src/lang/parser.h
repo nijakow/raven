@@ -22,6 +22,7 @@ enum token_type {
   TOKEN_TYPE_INT,
   TOKEN_TYPE_CHAR,
   TOKEN_TYPE_STRING,
+  TOKEN_TYPE_SYMBOL,
 
   TOKEN_TYPE_LPAREN,
   TOKEN_TYPE_RPAREN,
@@ -74,6 +75,7 @@ enum token_type {
   TOKEN_TYPE_KW_BOOL,
   TOKEN_TYPE_KW_OBJECT,
   TOKEN_TYPE_KW_STRING,
+  TOKEN_TYPE_KW_SYMBOL,
   TOKEN_TYPE_KW_MAPPING,
   TOKEN_TYPE_KW_FUNCTION,
   TOKEN_TYPE_KW_ANY,
@@ -122,6 +124,7 @@ struct blueprint* parser_as_relative_blueprint(struct parser* parser,
                                                struct blueprint* from);
 int parser_as_int(struct parser* parser);
 struct string* parser_as_string(struct parser* parser);
+struct symbol* parser_as_symbol(struct parser* parser);
 char parser_as_char(struct parser* parser);
 
 unsigned int parser_unary_prec(struct parser* parser);
@@ -136,6 +139,7 @@ void parser_set_exprtype_to_bool(struct parser* parser);
 void parser_set_exprtype_to_int(struct parser* parser);
 void parser_set_exprtype_to_char(struct parser* parser);
 void parser_set_exprtype_to_string(struct parser* parser);
+void parser_set_exprtype_to_symbol(struct parser* parser);
 void parser_set_exprtype_to_object(struct parser* parser);
 void parser_set_exprtype_to_array(struct parser* parser);
 void parser_set_exprtype_to_mapping(struct parser* parser);
