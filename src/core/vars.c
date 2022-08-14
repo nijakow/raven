@@ -5,15 +5,21 @@
  * See README and LICENSE for further information.
  */
 
+#include "../util/memory.h"
+
 #include "vars.h"
+
 
 void vars_create(struct vars* vars) {
   vars->parent = NULL;
   vars->fill   = 0;
+  vars->alloc  = 0;
+  vars->vars   = NULL;
 }
 
 void vars_destroy(struct vars* vars) {
-
+  if (vars->vars != NULL)
+    memory_free(vars->vars);
 }
 
 void vars_mark(struct gc* gc, struct vars* vars) {
@@ -21,9 +27,8 @@ void vars_mark(struct gc* gc, struct vars* vars) {
 
   if (vars == NULL) return;
 
-  for (i = 0; i < vars->fill; i++) {
+  for (i = 0; i < vars->fill; i++)
     gc_mark_ptr(gc, vars->vars[i].name);
-  }
 
   vars_mark(gc, vars->parent);
 }
@@ -45,11 +50,20 @@ void vars_reparent(struct vars* vars, struct vars* parent) {
 }
 
 void vars_add(struct vars* vars, struct type* type, struct symbol* name) {
-  if (vars->fill < VARS_MAX_ENTRIES) {
-    vars->vars[vars->fill].type = type;
-    vars->vars[vars->fill].name = name;
-    vars->fill++;
+  struct var*   new_vars;
+  unsigned int  new_alloc;
+
+  if (vars->fill >= vars->alloc) {
+    new_alloc = (vars->alloc == 0) ? 4 : (vars->alloc * 2);
+    new_vars  = memory_realloc(vars->vars, new_alloc * sizeof(struct var));
+    if (new_vars == NULL)
+      return; /* TODO: Error! */
+    vars->alloc = new_alloc;
+    vars->vars  = new_vars;
   }
+  vars->vars[vars->fill].type = type;
+  vars->vars[vars->fill].name = name;
+  vars->fill++;
 }
 
 bool vars_find(struct vars*   vars,

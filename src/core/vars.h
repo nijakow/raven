@@ -29,9 +29,10 @@ struct var {
 };
 
 struct vars {
-  struct vars* parent;
-  unsigned int fill;
-  struct var   vars[VARS_MAX_ENTRIES];
+  struct vars*  parent;
+  unsigned int  fill;
+  unsigned int  alloc;
+  struct var*   vars;
 };
 
 void vars_create(struct vars* vars);
