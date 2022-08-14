@@ -117,8 +117,7 @@ struct base_obj {
    * Since the gray-list pointer can be used for multiple
    * other purposes, it's called `forward`.
    */
-  struct base_obj* forward;
-  enum   gc_tag    gc_tag;
+  uintptr_t forward;
 };
 
 void* base_obj_new(struct object_table* table,
@@ -135,24 +134,36 @@ static inline bool base_obj_is(struct base_obj* obj, enum obj_type type) {
 }
 
 static inline struct base_obj* base_obj_forward(struct base_obj* obj) {
-  return obj->forward;
+  return (struct base_obj*) ((obj->forward) & ~((uintptr_t) 0x03));
 }
 
 static inline void base_obj_set_forward(struct base_obj* obj,
                                         struct base_obj* value) {
-  obj->forward = value;
+  obj->forward = ((obj->forward) & ((uintptr_t) 0x03)) | ((uintptr_t) value);
 }
 
 static inline enum gc_tag base_obj_get_gc_tag(struct base_obj* obj) {
-  return obj->gc_tag;
+  return (enum gc_tag) ((obj->forward) & ((uintptr_t) 0x03));
 }
 
 static inline void base_obj_set_gc_tag(struct base_obj* obj, enum gc_tag tag) {
-  obj->gc_tag = tag;
+  obj->forward = ((obj->forward) & ~((uintptr_t) 0x03)) | ((uintptr_t) tag);
+}
+
+static inline bool base_obj_is_white(struct base_obj* obj) {
+  return base_obj_get_gc_tag(obj) == GC_TAG_WHITE;
+}
+
+static inline bool base_obj_is_gray(struct base_obj* obj) {
+  return base_obj_get_gc_tag(obj) == GC_TAG_GRAY;
+}
+
+static inline bool base_obj_is_black(struct base_obj* obj) {
+  return base_obj_get_gc_tag(obj) == GC_TAG_BLACK;
 }
 
 static inline bool base_obj_is_marked(struct base_obj* obj) {
-  return base_obj_get_gc_tag(obj) != GC_TAG_WHITE;
+  return !base_obj_is_white(obj);
 }
 
 static inline void base_obj_mark_white(struct base_obj* obj) {
