@@ -14,7 +14,7 @@
 struct string {
   struct base_obj  _;
   unsigned int     length;
-  char*            contents;
+  char             contents[];
 };
 
 struct string* string_new(struct raven* raven, const char* contents);

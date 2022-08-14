@@ -19,33 +19,19 @@ struct obj_info STRING_INFO = {
   .del  = string_del
 };
 
-char* strjoin(const char* s1, const char* s2) {
-  size_t l1;
-  size_t l2;
-  char*  result;
-
-  l1 = strlen(s1);
-  l2 = strlen(s2);
-  result = memory_alloc(l1 + l2 + 1);
-
-  if (result != NULL) {
-    memcpy(result, s1, l1);
-    memcpy(result + l1, s2, l2 + 1);
-  }
-
-  return result;
-}
-
 struct string* string_new(struct raven* raven, const char* contents) {
+  size_t          length;
   struct string*  string;
+
+  length = strlen(contents);
 
   string = base_obj_new(raven_objects(raven),
                         &STRING_INFO,
-                        sizeof(struct string));
+                        sizeof(struct string) + (length + 1) * sizeof(char));
 
   if (string != NULL) {
-    string->contents = strdup(contents);
-    string->length   = strlen(string->contents);
+    strncpy(string->contents, contents, (length + 1) * sizeof(char));
+    string->length = (unsigned int) length;
   }
 
   return string;
@@ -76,7 +62,6 @@ void string_del(void* string) {
   struct string* str;
 
   str = string;
-  memory_free(str->contents);
   base_obj_del(&str->_);
 }
 
@@ -84,16 +69,14 @@ void string_del(void* string) {
 struct string* string_append(struct raven*  raven,
                              struct string* a,
                              struct string* b) {
-  struct string*  string;
+  struct stringbuilder  sb;
+  struct string*        string;
 
-  string = base_obj_new(raven_objects(raven),
-                        &STRING_INFO,
-                        sizeof(struct string));
-
-  if (string != NULL) {
-    string->contents = strjoin(a->contents, b->contents);
-    string->length   = strlen(string->contents);
-  }
+  stringbuilder_create(&sb);
+  stringbuilder_append_str(&sb, string_contents(a));
+  stringbuilder_append_str(&sb, string_contents(b));
+  string = string_new_from_stringbuilder(raven, &sb);
+  stringbuilder_destroy(&sb);
 
   return string;
 }
@@ -107,7 +90,6 @@ struct string* string_substr(struct string* string,
                              unsigned int   to,
                              struct raven*  raven) {
   const char*           str;
-  char*                 str2;
   unsigned int          i;
   struct string*        result;
   struct stringbuilder  sb;
@@ -119,13 +101,7 @@ struct string* string_substr(struct string* string,
       stringbuilder_append_char(&sb, str[i]);
     if (i >= to) break;
   }
-  stringbuilder_get(&sb, &str2);
+  result = string_new_from_stringbuilder(raven, &sb);
   stringbuilder_destroy(&sb);
-  if (str2 == NULL)
-    return NULL;
-  else {
-    result = string_new(raven, str2);
-    memory_free(str2);
-    return result;
-  }
+  return result;
 }
