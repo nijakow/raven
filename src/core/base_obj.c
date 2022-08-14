@@ -40,8 +40,7 @@ void base_obj_dispatch_mark(struct gc* gc, struct base_obj* obj) {
 }
 
 void base_obj_mark_children(struct gc* gc, struct base_obj* obj) {
-  if (base_obj_forward(obj) != obj)
-    obj->info->mark(gc, obj);
+  obj->info->mark(gc, obj);
 }
 
 void base_obj_del(void* ptr) {
