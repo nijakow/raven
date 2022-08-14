@@ -158,7 +158,7 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
   while (frame != NULL) {
     function  = frame_function(frame);
     fname     = function_name(function);
-    name      = (char*) symbol_name(fname);
+    name      = (fname == NULL) ? "unknown" : ((char*) symbol_name(fname));
     path      = NULL;
     blueprint = function_blueprint(function);
     if (blueprint != NULL) {
