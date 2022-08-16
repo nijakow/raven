@@ -153,6 +153,23 @@ bool parsepile_expect_noadvance(struct parser* parser, enum token_type type) {
   }
 }
 
+bool parse_assignment_op(struct parser* parser, enum raven_op* op) {
+  if (parser_check(parser, TOKEN_TYPE_PLUS_ASSIGNMENT)) {
+    if (op != NULL) *op = RAVEN_OP_ADD;
+  } else if (parser_check(parser, TOKEN_TYPE_MINUS_ASSIGNMENT)) {
+    if (op != NULL) *op = RAVEN_OP_SUB;
+  } else if (parser_check(parser, TOKEN_TYPE_STAR_ASSIGNMENT)) {
+    if (op != NULL) *op = RAVEN_OP_MUL;
+  } else if (parser_check(parser, TOKEN_TYPE_SLASH_ASSIGNMENT)) {
+    if (op != NULL) *op = RAVEN_OP_DIV;
+  } else if (parser_check(parser, TOKEN_TYPE_PERCENT_ASSIGNMENT)) {
+    if (op != NULL) *op = RAVEN_OP_MOD;
+  } else {
+    return false;
+  }
+  return true;
+}
+
 bool parse_symbol(struct parser* parser, struct symbol** loc) {
   if (!parser_is(parser, TOKEN_TYPE_IDENT))
     return false;
@@ -327,6 +344,7 @@ bool parsepile_simple_expr(struct parser*   parser,
                            int              pr) {
   struct symbol*  symbol;
   struct type*    type;
+  enum   raven_op op;
   unsigned int    argcount;
   bool            result;
 
@@ -341,7 +359,15 @@ bool parsepile_simple_expr(struct parser*   parser,
       if (parsepile_expr(parser, compiler, pr)) {
         result = parsepile_store_var(parser, compiler, symbol);
       }
-      /* TODO: Do a typecheck */
+    } else if (parse_assignment_op(parser, &op)) {
+      if (parsepile_load_var(parser, compiler, symbol)) {
+        compiler_push(compiler);
+        if (parsepile_expr(parser, compiler, pr)) {
+          compiler_op(compiler, op);
+          parser_set_exprtype_to_any(parser);
+          result = parsepile_store_var(parser, compiler, symbol);
+        }
+      }
     } else if (parser_check(parser, TOKEN_TYPE_INC)) {
       result = compiler_load_var(compiler, symbol);
       compiler_push(compiler);

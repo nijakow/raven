@@ -53,6 +53,11 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_STAR: return "STAR";
   case TOKEN_TYPE_SLASH: return "SLASH";
   case TOKEN_TYPE_PERCENT: return "PERCENT";
+  case TOKEN_TYPE_PLUS_ASSIGNMENT: return "PLUS_ASSIGNMENT";
+  case TOKEN_TYPE_MINUS_ASSIGNMENT: return "MINUS_ASSIGNMENT";
+  case TOKEN_TYPE_STAR_ASSIGNMENT: return "STAR_ASSIGNMENT";
+  case TOKEN_TYPE_SLASH_ASSIGNMENT: return "SLASH_ASSIGNMENT";
+  case TOKEN_TYPE_PERCENT_ASSIGNMENT: return "PERCENT_ASSIGNMENT";
   case TOKEN_TYPE_KW_INHERIT: return "KW_INHERIT";
   case TOKEN_TYPE_KW_NEW: return "KW_NEW";
   case TOKEN_TYPE_KW_THIS: return "KW_THIS";
@@ -284,6 +289,16 @@ void parser_advance(struct parser* parser) {
     parser_set_type(parser, TOKEN_TYPE_AMPERSAND);
   } else if (reader_checks(parser->reader, "?")) {
     parser_set_type(parser, TOKEN_TYPE_QUESTION);
+  } else if (reader_checks(parser->reader, "+=")) {
+    parser_set_type(parser, TOKEN_TYPE_PLUS_ASSIGNMENT);
+  } else if (reader_checks(parser->reader, "-=")) {
+    parser_set_type(parser, TOKEN_TYPE_MINUS_ASSIGNMENT);
+  } else if (reader_checks(parser->reader, "*=")) {
+    parser_set_type(parser, TOKEN_TYPE_STAR_ASSIGNMENT);
+  } else if (reader_checks(parser->reader, "/=")) {
+    parser_set_type(parser, TOKEN_TYPE_SLASH_ASSIGNMENT);
+  } else if (reader_checks(parser->reader, "%=")) {
+    parser_set_type(parser, TOKEN_TYPE_PERCENT_ASSIGNMENT);
   } else if (reader_checks(parser->reader, "++")) {
     parser_set_type(parser, TOKEN_TYPE_INC);
   } else if (reader_checks(parser->reader, "--")) {
