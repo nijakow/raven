@@ -935,7 +935,9 @@ bool parsepile_return(struct parser* parser, struct compiler* compiler) {
   return false;
 }
 
-
+/*
+ * Parse an instruction.
+ */
 bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
   struct type*    type;
   struct symbol*  name;
@@ -981,6 +983,9 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
   return result;
 }
 
+/*
+ * Parse a script, which is a list of instructions.
+ */
 bool parsepile_script(struct parser* parser, struct compiler* compiler) {
   while (!parser_check(parser, TOKEN_TYPE_EOF)) {
     if (!parsepile_instruction(parser, compiler))
@@ -989,6 +994,13 @@ bool parsepile_script(struct parser* parser, struct compiler* compiler) {
   return true;
 }
 
+/*
+ * Parse an argument list of the form (type1 name1, type2 name2, ...).
+ *
+ * We also handle the ellipsis (`...`) for optional arguments. The
+ * arguments will be forwarded to the compiler, which will then
+ * store them in the generated function object.
+ */
 bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
   struct type*    type;
   struct symbol*  name;
@@ -1015,6 +1027,14 @@ bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
 }
 
 
+/*
+ * Compile file statements, like variables or functions.
+ *
+ * Usually, a file statement begins with a type designator (like `int`),
+ * followed by a symbol (the name). If an open parenthesis follows,
+ * we know that we're processing a function. If it doesn't, we
+ * assume that we're loading a member variable.
+ */
 bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
   struct codewriter  codewriter;
   struct compiler    compiler;
@@ -1064,6 +1084,14 @@ bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
   return result;
 }
 
+/*
+ * Process an `inherit` statement.
+ *
+ * This function will recursively load and include all referenced
+ * blueprints.
+ *
+ * If no `inherit` statement was given, we inherit from "/std/base.c".
+ */
 bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
   struct blueprint*  bp;
   bool               result;
@@ -1071,7 +1099,7 @@ bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
   result = false;
 
   if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
-    /* 'inherit;' inherits none */
+    /* 'inherit;' inherits from nothing - needed for "/std/base.c" itself */
     if (parser_check(parser, TOKEN_TYPE_SEMICOLON))
       result = true;
     else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
@@ -1093,6 +1121,27 @@ bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
   return result;
 }
 
+
+/*
+ * Parse an entire file.
+ *
+ * A file consists of a statement of the form:
+ *
+ *     inherit "...";
+ *
+ * followed by one or more variable declarations:
+ *
+ *     string name;
+ *
+ * and function definitions:
+ *
+ *     string query_name() {
+ *       return name;
+ *     }
+ *
+ * All of these statements will be compiled into the blueprint `into`,
+ * which we assume to be freshly created.
+ */
 bool parsepile_file(struct parser* parser, struct blueprint* into) {
   bool  result;
 
