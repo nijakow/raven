@@ -41,6 +41,11 @@
 #endif
 
 /*
+ * Optimizations for the `any` datatype
+ */
+//#define RAVEN_USE_COMPRESSED_ANY
+
+/*
  * Every object in the system gets an obj_type, so that we can
  * distinguish what type of object a variable is pointing to.
  */

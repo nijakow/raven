@@ -15,13 +15,13 @@
 #include "any.h"
 
 bool any_eq(any a, any b) {
-  if (a.type == ANY_TYPE_INT && b.type == ANY_TYPE_CHAR)
+  if (any_is(a, ANY_TYPE_INT) && any_is(b, ANY_TYPE_CHAR))
     return any_to_int(a) == any_to_char(b);
-  else if (a.type == ANY_TYPE_CHAR && b.type == ANY_TYPE_INT)
+  else if (any_is(a, ANY_TYPE_CHAR) && any_is(b, ANY_TYPE_INT))
     return any_to_char(a) == any_to_int(b);
-  else if (a.type != b.type)
+  else if (any_type(a) != any_type(b))
     return false;
-  switch (a.type)
+  switch (any_type(a))
   {
     case ANY_TYPE_NIL:
       return true;
@@ -52,7 +52,7 @@ unsigned int any_op_sizeof(any a) {
 }
 
 struct blueprint* any_get_blueprint(any a) {
-  switch (a.type) {
+  switch (any_type(a)) {
     case ANY_TYPE_PTR:
       if (base_obj_is(any_to_ptr(a), OBJ_TYPE_OBJECT))
         return object_blueprint(any_to_ptr(a));

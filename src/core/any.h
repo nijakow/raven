@@ -31,7 +31,6 @@
 
 #include "../defs.h"
 
-
 /*
  * The different tags, each corresponding to a field
  * in the union type below.
@@ -42,6 +41,72 @@ enum any_type {
   ANY_TYPE_INT,
   ANY_TYPE_CHAR
 };
+
+#ifdef RAVEN_USE_COMPRESSED_ANY
+
+#define RAVEN_ANY_TYPE_SHL(t) (((uintptr_t) t) << 62)
+#define RAVEN_ANY_TYPE_SHR(t) ((enum any_type) ((t >> 62) & 0x03))
+#define RAVEN_ANY_PAYLOAD(t) (t & ~(((uintptr_t) 0x03) << 62))
+
+typedef uintptr_t any;
+
+/*
+ * Extract the type of an `any`.
+ */
+static inline enum any_type any_type(any a) {
+  return RAVEN_ANY_TYPE_SHR(a);
+}
+
+/*
+ * Create an `any` that holds `nil`.
+ */
+static inline any any_nil() {
+  return RAVEN_ANY_TYPE_SHL(ANY_TYPE_NIL);
+}
+
+/*
+ * Create an `any` that holds a pointer.
+ */
+static inline any any_from_ptr(void* ptr) {
+  return RAVEN_ANY_TYPE_SHL(ANY_TYPE_PTR) | ((uintptr_t) ptr);
+}
+
+/*
+ * Create an `any` that holds an integer.
+ */
+static inline any any_from_int(int integer) {
+  return RAVEN_ANY_TYPE_SHL(ANY_TYPE_INT) | (integer & 0xffffffff);
+}
+
+/*
+ * Create an `any` that holds a character.
+ */
+static inline any any_from_char(char ch) {
+  return RAVEN_ANY_TYPE_SHL(ANY_TYPE_CHAR) | (ch & 0xffffffff);
+}
+
+/*
+ * Convert an `any` into a pointer. No type checks.
+ */
+static inline void* any_to_ptr(any a) {
+  return (void*) RAVEN_ANY_PAYLOAD(a);
+}
+
+/*
+ * Convert an `any` into an integer.
+ */
+static inline int any_to_int(any a) {
+  return (int) (RAVEN_ANY_PAYLOAD(a) & 0xffffffff);
+}
+
+/*
+ * Convert an `any` into a character.
+ */
+static inline char any_to_char(any a) {
+  return (char) (RAVEN_ANY_PAYLOAD(a) & 0xffffffff);
+}
+
+#else
 
 /*
  * The union type.
@@ -61,17 +126,10 @@ typedef struct {
 } any;
 
 /*
- * Check if an `any` holds a specific type.
+ * Extract the type of an `any`.
  */
-static inline bool any_is(any a, enum any_type type) {
-  return a.type == type;
-}
-
-/*
- * Check if an `any` holds `nil`.
- */
-static inline bool any_is_nil(any a) {
-  return any_is(a, ANY_TYPE_NIL);
+static inline enum any_type any_type(any a) {
+  return a.type;
 }
 
 /*
@@ -82,13 +140,6 @@ static inline any any_nil() {
 
   a.type = ANY_TYPE_NIL;
   return a;
-}
-
-/*
- * Check if an `any` holds a pointer.
- */
-static inline bool any_is_ptr(any a) {
-  return any_is(a, ANY_TYPE_PTR);
 }
 
 /*
@@ -104,20 +155,6 @@ static inline any any_from_ptr(void* ptr) {
 }
 
 /*
- * Convert an `any` into a pointer. No type checks.
- */
-static inline void* any_to_ptr(any a) {
-  return a.value.pointer;
-}
-
-/*
- * Check if an `any` holds an integer.
- */
-static inline bool any_is_int(any a) {
-  return any_is(a, ANY_TYPE_INT);
-}
-
-/*
  * Create an `any` that holds an integer.
  */
 static inline any any_from_int(int integer) {
@@ -127,22 +164,6 @@ static inline any any_from_int(int integer) {
   a.value.integer = integer;
 
   return a;
-}
-
-/*
- * Convert an `any` into an integer.
- */
-static inline int any_to_int(any a) {
-  if (a.type == ANY_TYPE_CHAR)
-    return a.value.character;
-  return a.value.integer;
-}
-
-/*
- * Check if an `any` holds a character.
- */
-static inline bool any_is_char(any a) {
-  return any_is(a, ANY_TYPE_CHAR);
 }
 
 /*
@@ -158,12 +179,61 @@ static inline any any_from_char(char ch) {
 }
 
 /*
+ * Convert an `any` into a pointer. No type checks.
+ */
+static inline void* any_to_ptr(any a) {
+  return a.value.pointer;
+}
+
+/*
+ * Convert an `any` into an integer.
+ */
+static inline int any_to_int(any a) {
+  return a.value.integer;
+}
+
+/*
  * Convert an `any` into a character.
  */
 static inline char any_to_char(any a) {
-  if (a.type == ANY_TYPE_INT)
-    return a.value.integer;
   return a.value.character;
+}
+
+#endif
+
+/*
+ * Check if an `any` holds a specific type.
+ */
+static inline bool any_is(any a, enum any_type type) {
+  return any_type(a) == type;
+}
+
+/*
+ * Check if an `any` holds `nil`.
+ */
+static inline bool any_is_nil(any a) {
+  return any_is(a, ANY_TYPE_NIL);
+}
+
+/*
+ * Check if an `any` holds a pointer.
+ */
+static inline bool any_is_ptr(any a) {
+  return any_is(a, ANY_TYPE_PTR);
+}
+
+/*
+ * Check if an `any` holds an integer.
+ */
+static inline bool any_is_int(any a) {
+  return any_is(a, ANY_TYPE_INT);
+}
+
+/*
+ * Check if an `any` holds a character.
+ */
+static inline bool any_is_char(any a) {
+  return any_is(a, ANY_TYPE_CHAR);
 }
 
 /*
