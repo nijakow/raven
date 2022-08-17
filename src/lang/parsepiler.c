@@ -1035,7 +1035,9 @@ bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
  * we know that we're processing a function. If it doesn't, we
  * assume that we're loading a member variable.
  */
-bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
+bool parsepile_file_statement(struct parser*    parser,
+                              struct blueprint* into,
+                              struct compiler*  init_compiler) {
   struct codewriter  codewriter;
   struct compiler    compiler;
   struct type*       type;
@@ -1074,10 +1076,13 @@ bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
       /*
        * We're parsing a variable
        */
-      if (parsepile_expect(parser, TOKEN_TYPE_SEMICOLON)) {
-        blueprint_add_var(into, type, name);
-        result = true;
+      blueprint_add_var(into, type, name);
+      result = true;
+      if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
+        result = parsepile_expression(parser, init_compiler)
+              && parsepile_store_var(parser, init_compiler, name);
       }
+      result = result && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
     }
   }
 
@@ -1092,17 +1097,22 @@ bool parsepile_file_statement(struct parser* parser, struct blueprint* into) {
  *
  * If no `inherit` statement was given, we inherit from "/std/base.c".
  */
-bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
+bool parsepile_inheritance(struct parser*    parser,
+                           struct blueprint* into,
+                           struct compiler*  init_compiler) {
   struct blueprint*  bp;
+  bool               has_inheritance;
   bool               result;
 
-  result = false;
+  has_inheritance = true;
+  result          = false;
 
   if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
     /* 'inherit;' inherits from nothing - needed for "/std/base.c" itself */
-    if (parser_check(parser, TOKEN_TYPE_SEMICOLON))
-      result = true;
-    else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
+    if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
+      has_inheritance = false;
+      result          = true;
+    } else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
       bp = parser_as_relative_blueprint(parser, into);
       if (bp != NULL) {
         if (blueprint_inherit(into, bp)) {
@@ -1116,6 +1126,17 @@ bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
     if (bp != NULL && blueprint_inherit(into, bp)) {
       result = true;
     }
+  }
+
+  if (has_inheritance) {
+    /*
+     * We do inherit from a different blueprint, so we instruct the
+     * `_init` function to call up `::_init()`.
+     */
+    compiler_push_self(init_compiler);
+    compiler_super_send(init_compiler,
+                        raven_find_symbol(parser_raven(parser), "_init"),
+                        0);
   }
 
   return result;
@@ -1143,20 +1164,37 @@ bool parsepile_inheritance(struct parser* parser, struct blueprint* into) {
  * which we assume to be freshly created.
  */
 bool parsepile_file(struct parser* parser, struct blueprint* into) {
-  bool  result;
+  struct codewriter  codewriter;
+  struct compiler    compiler;
+  struct function*   init_function;
+  bool               result;
 
-  if (!parsepile_inheritance(parser, into))
-    return false;
-  else {
+  result = false;
+
+  codewriter_create(&codewriter, parser_raven(parser));
+  compiler_create(&compiler, parser_raven(parser), &codewriter, into);
+
+  if (parsepile_inheritance(parser, into, &compiler)) {
     result = true;
 
     while (!parser_is(parser, TOKEN_TYPE_EOF)) {
-      if (!parsepile_file_statement(parser, into)) {
+      if (!parsepile_file_statement(parser, into, &compiler)) {
         result = false;
         break;
       }
     }
-
-    return result;
   }
+
+  init_function = compiler_finish(&compiler);
+
+  if (init_function != NULL) {
+    blueprint_add_func(into,
+                       raven_find_symbol(parser_raven(parser), "_init"),
+                       init_function);
+  }
+
+  compiler_destroy(&compiler);
+  codewriter_destroy(&codewriter);
+
+  return result;
 }
