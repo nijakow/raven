@@ -26,6 +26,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 /*
  * I don't like #define-switches, but this one helps a lot when
