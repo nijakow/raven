@@ -79,6 +79,14 @@ static bool type_check_func_string(struct type* type, any value) {
 }
 
 static bool type_cast_func_string(struct type* type, any* value) {
+  char  c[2];
+
+  if (any_is_char(*value)) {
+    c[0]   = any_to_char(*value);
+    c[1]   = '\0';
+    *value = any_from_ptr(string_new(typeset_raven(type_typeset(type)), c));
+    return true;
+  }
   return type_check_func_string(type, *value);
 }
 
