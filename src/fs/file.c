@@ -201,7 +201,7 @@ bool file_recompile(struct file* file, struct log* log) {
   stringbuilder_create(&sb);
   file_write_path(file, &sb);
   log_printf(raven_log(filesystem_raven(file_fs(file))),
-             "Compiling file %s...\n", stringbuilder_get_const(&sb));
+             "]%s\n", stringbuilder_get_const(&sb));
   stringbuilder_destroy(&sb);
 
   if (!file_open(file, &f, "r"))
