@@ -249,7 +249,7 @@ bool parsepile_load_var(struct parser*   parser,
 
   result = compiler_load_var_with_type(compiler, name, &type);
   if (result) parser_set_exprtype(parser, type);
-  return true;
+  return result;
 }
 
 bool parsepile_store_var(struct parser*   parser,
@@ -262,7 +262,7 @@ bool parsepile_store_var(struct parser*   parser,
   if (result && !type_match(type, parser_get_exprtype(parser))) {
     parser_error(parser, "Warning: possible type mismatch!\n");
   }
-  return true;
+  return result;
 }
 
 bool parsepile_return_with_typecheck(struct parser*   parser,
@@ -940,28 +940,49 @@ bool parsepile_return(struct parser* parser, struct compiler* compiler) {
 }
 
 bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
+  struct type*      type;
+  struct symbol*    name;
+  struct compiler   subcompiler;
   t_compiler_label  label;
   bool              result;
+  bool              result2;
 
-  if (!compiler_open_catch(compiler)) {
+  compiler_create_sub(&subcompiler, compiler);
+
+  if (!compiler_open_catch(&subcompiler)) {
     /* TODO: Error */
     return false;
   }
 
-  result = false;
+  result  = false;
+  result2 = true;
 
-  if (parsepile_instruction(parser, compiler)) {
+  if (parsepile_instruction(parser, &subcompiler)) {
     if (parsepile_expect(parser, TOKEN_TYPE_KW_CATCH)) {
-      label = compiler_open_label(compiler);
-      compiler_jump(compiler, label);
-      compiler_place_catch(compiler);
-      if (parsepile_instruction(parser, compiler)) {
-        result = true;
+      /*
+       * TODO: Let this happen inside of a subcompiler!
+       */
+       label = compiler_open_label(&subcompiler);
+       compiler_jump(&subcompiler, label);
+       compiler_place_catch(&subcompiler);
+       if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
+        result2 = false;
+        if (parse_fancy_vardecl(parser, &type, &name)) {
+          compiler_add_var(&subcompiler, type, name);
+          compiler_typecheck(&subcompiler, type);
+          compiler_store_var(&subcompiler, name);
+          result2 = parsepile_expect(parser, TOKEN_TYPE_RPAREN);
+        }
       }
-      compiler_place_label(compiler, label);
-      compiler_close_label(compiler, label);
+      if (parsepile_instruction(parser, &subcompiler)) {
+        result = result2;
+      }
+      compiler_place_label(&subcompiler, label);
+      compiler_close_label(&subcompiler, label);
     }
   }
+
+  compiler_destroy(&subcompiler);
 
   return result;
 }
