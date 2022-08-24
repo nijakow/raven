@@ -1299,7 +1299,7 @@ bool parsepile_file_statement(struct parser*    parser,
  * This function will recursively load and include all referenced
  * blueprints.
  *
- * If no `inherit` statement was given, we inherit from "/std/base.c".
+ * If no `inherit` statement was given, we inherit from "/secure/base.c".
  */
 bool parsepile_inheritance(struct parser*    parser,
                            struct blueprint* into,
@@ -1312,7 +1312,7 @@ bool parsepile_inheritance(struct parser*    parser,
   result          = false;
 
   if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
-    /* 'inherit;' inherits from nothing - needed for "/std/base.c" itself */
+    /* 'inherit;' inherits from nothing - needed for "/secure/base.c" itself */
     if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
       has_inheritance = false;
       result          = true;
@@ -1326,7 +1326,7 @@ bool parsepile_inheritance(struct parser*    parser,
       }
     }
   } else {
-    bp = raven_get_blueprint(parser->raven, "/std/base.c");
+    bp = raven_get_blueprint(parser->raven, "/secure/base.c");
     if (bp != NULL && blueprint_inherit(into, bp)) {
       result = true;
     }

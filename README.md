@@ -61,10 +61,8 @@ To set up a mudlib for Raven, create this directory structure:
   + mudlib/
      |
      +- secure/
-     |   |
-     |   +- master.c
-     |
-     +- std/
+         |
+         +- master.c
          |
          +- base.c
 ```
@@ -102,7 +100,7 @@ void main() {
 ```
 
 ```c
-/* mudlib/std/base.c */
+/* mudlib/secure/base.c */
 
 /*
  * This is the file that every object automatically inherits from.
