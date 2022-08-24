@@ -55,6 +55,15 @@ void print_object(struct log* log, any object) {
   }
 }
 
+void builtin_throw(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1)
+    fiber_crash(fiber);
+  else {
+    printf("Yes!\n");
+    fiber_throw(fiber, arg[0]);
+  }
+}
+
 void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 0)
     fiber_crash(fiber);

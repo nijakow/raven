@@ -240,6 +240,8 @@ void raven_setup_builtins(struct raven* raven) {
    * Essentially, we allocate a symbol and set its builtin pointer
    * to the corresponding function.
    */
+  raven_builtin(raven, "_throw", builtin_throw);
+
   raven_builtin(raven, "_this_connection", builtin_this_connection);
   raven_builtin(raven, "print", builtin_print);
   raven_builtin(raven, "write", builtin_write);

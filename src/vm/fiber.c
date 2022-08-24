@@ -97,16 +97,17 @@ void fiber_push_frame(struct fiber*    fiber,
   any*           locals;
   int            missing; /* Must be signed! */
 
-  local_count     = function_local_count(func);
-  locals          = (any*) (fiber->sp - (args + 1) * sizeof(any));
-  missing         = local_count - ((int) args + 1);
-  frame           = (struct frame*) (fiber->sp + (missing * sizeof(any)));
-  fiber->sp       = fiber->sp + (missing * sizeof(any)) + sizeof(struct frame);
-  frame->prev     = fiber->top;
-  frame->function = func;
-  frame->ip       = 0;
-  frame->locals   = locals;
-  fiber->top      = frame;
+  local_count       = function_local_count(func);
+  locals            = (any*) (fiber->sp - (args + 1) * sizeof(any));
+  missing           = local_count - ((int) args + 1);
+  frame             = (struct frame*) (fiber->sp + (missing * sizeof(any)));
+  fiber->sp         = fiber->sp + (missing * sizeof(any)) + sizeof(struct frame);
+  frame->prev       = fiber->top;
+  frame->function   = func;
+  frame->catch_addr = 0;
+  frame->ip         = 0;
+  frame->locals     = locals;
+  fiber->top        = frame;
   /* Initialize all uninitialized variables */
   while (local_count --> args + 1)
     locals[local_count] = any_nil();

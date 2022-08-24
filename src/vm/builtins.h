@@ -13,6 +13,8 @@
 
 typedef void (*builtin_func)(struct fiber*, any*, unsigned int);
 
+void builtin_throw(struct fiber* fiber, any* arg, unsigned int args);
+
 void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_print(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_write(struct fiber* fiber, any* arg, unsigned int args);
