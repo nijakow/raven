@@ -144,8 +144,12 @@ void fiber_throw(struct fiber* fiber, any value) {
   fiber_unwind(fiber);
 }
 
-void fiber_do_crash(struct fiber* fiber, const char* file, int line) {
-  log_printf(raven_log(fiber_raven(fiber)), "Crash! %s %d\n", file, line);
+void fiber_do_crash(struct fiber* fiber,
+                    const  char*  message,
+                    const  char*  file,
+                    int           line) {
+  log_printf(raven_log(fiber_raven(fiber)),
+             "Error (%s:%d): %s\n", file, line, message);
   fiber_print_backtrace(fiber, raven_log(fiber_raven(fiber)));
   fiber_throw(fiber, any_nil());
 }

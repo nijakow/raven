@@ -58,10 +58,16 @@ void fiber_wait_for_input(struct fiber* fiber);
 void fiber_reactivate(struct fiber* fiber);
 void fiber_reactivate_with_value(struct fiber* fiber, any value);
 void fiber_throw(struct fiber* fiber, any value);
-void fiber_do_crash(struct fiber* fiber, const char* file, int line);
+void fiber_do_crash(struct fiber* fiber,
+                    const  char*  message,
+                    const  char*  file,
+                    int           line);
 void fiber_unwind(struct fiber* fiber);
 
-#define fiber_crash(fiber) fiber_do_crash(fiber, __FILE__, __LINE__)
+#define fiber_crash(fiber) \
+  fiber_do_crash(fiber, "fiber_crash(...) was called!", __FILE__, __LINE__)
+#define fiber_crash_msg(fiber, msg) \
+  fiber_do_crash(fiber, msg, __FILE__, __LINE__)
 
 void fiber_print_backtrace(struct fiber* fiber, struct log* log);
 
