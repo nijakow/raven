@@ -179,6 +179,24 @@ void builtin_initialize(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args) {
+  struct blueprint*  blueprint;
+  struct function*   function;
+
+  if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
+    arg_error(fiber);
+  else {
+    blueprint = any_get_blueprint(arg[0]);
+    if (blueprint != NULL) {
+      function = blueprint_lookup(blueprint, any_to_ptr(arg[1]));
+      if (function != NULL) {
+        function_disassemble(function, raven_log(fiber_raven(fiber)));
+      }
+    }
+    /* TODO: Return a string */
+  }
+}
+
 void builtin_arrayp(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 1)
     arg_error(fiber);

@@ -25,6 +25,7 @@ void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_the(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_initializedp(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_initialize(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_arrayp(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_stringp(struct fiber* fiber, any* arg, unsigned int args);
