@@ -59,7 +59,6 @@ void builtin_throw(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 1)
     fiber_crash(fiber);
   else {
-    printf("Yes!\n");
     fiber_throw(fiber, arg[0]);
   }
 }
