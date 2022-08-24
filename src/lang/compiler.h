@@ -16,6 +16,8 @@
 #include "bytecodes.h"
 #include "codewriter.h"
 
+#define COMPILER_MAX_CATCH 4
+
 typedef t_cw_label t_compiler_label;
 
 struct compiler {
@@ -27,6 +29,8 @@ struct compiler {
   struct vars         vars;
   t_cw_label          break_label;
   t_cw_label          continue_label;
+  t_cw_label          catch_labels[COMPILER_MAX_CATCH];
+  unsigned int        catch_count;
 };
 
 void compiler_create(struct compiler*   compiler,
@@ -93,5 +97,8 @@ void compiler_jump_if_not(struct compiler* compiler, t_compiler_label label);
 
 void compiler_break(struct compiler* compiler);
 void compiler_continue(struct compiler* compiler);
+
+bool compiler_open_catch(struct compiler* compiler);
+void compiler_place_catch(struct compiler* compiler);
 
 #endif

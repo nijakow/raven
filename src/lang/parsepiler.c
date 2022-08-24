@@ -935,6 +935,33 @@ bool parsepile_return(struct parser* parser, struct compiler* compiler) {
   return false;
 }
 
+bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
+  t_compiler_label  label;
+  bool              result;
+
+  if (!compiler_open_catch(compiler)) {
+    /* TODO: Error */
+    return false;
+  }
+
+  result = false;
+
+  if (parsepile_instruction(parser, compiler)) {
+    if (parsepile_expect(parser, TOKEN_TYPE_KW_CATCH)) {
+      label = compiler_open_label(compiler);
+      compiler_jump(compiler, label);
+      compiler_place_catch(compiler);
+      if (parsepile_instruction(parser, compiler)) {
+        result = true;
+      }
+      compiler_place_label(compiler, label);
+      compiler_close_label(compiler, label);
+    }
+  }
+
+  return result;
+}
+
 /*
  * Parse an instruction.
  */
@@ -973,6 +1000,8 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
     result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
   } else if (parser_check(parser, TOKEN_TYPE_KW_RETURN)) {
     result = parsepile_return(parser, compiler);
+  } else if (parser_check(parser, TOKEN_TYPE_KW_TRY)) {
+    result = parsepile_trycatch(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
     result = true;
   } else {

@@ -73,6 +73,8 @@ void       codewriter_close_label(struct codewriter* writer, t_cw_label label);
 void       codewriter_jump(struct codewriter* writer, t_cw_label label);
 void       codewriter_jump_if(struct codewriter* writer, t_cw_label label);
 void       codewriter_jump_if_not(struct codewriter* writer, t_cw_label label);
+void       codewriter_update_catch(struct codewriter* writer, t_cw_label label);
+void       codewriter_clear_catch(struct codewriter* writer);
 
 void       codewriter_return(struct codewriter* writer);
 

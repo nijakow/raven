@@ -675,6 +675,13 @@ void fiber_interpret(struct fiber* fiber) {
                                               next_type(fiber)));
       break;
     /*
+     * Update the reference to the next catch block.
+     */
+    case RAVEN_BYTECODE_UPDATE_CATCH:
+      /* TODO */
+      next_wc(fiber);
+      break;
+    /*
      * Invalid opcode. That's of course an error. Boom.
      */
     default:

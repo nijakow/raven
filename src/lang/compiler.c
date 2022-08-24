@@ -26,6 +26,7 @@ void compiler_create(struct compiler*   compiler,
   compiler->cw           = codewriter;
   compiler->bp           = blueprint;
   compiler->mapping_vars = NULL;
+  compiler->catch_count  = 0;
 }
 
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent) {
@@ -253,5 +254,42 @@ void compiler_continue(struct compiler* compiler) {
       compiler_jump(compiler, c->continue_label);
       break;
     }
+  }
+}
+
+static inline t_compiler_label compiler_catchlabel(struct compiler* compiler) {
+  return compiler->catch_labels[compiler->catch_count - 1];
+}
+
+bool compiler_open_catch(struct compiler* compiler) {
+  t_compiler_label  label;
+
+  if (compiler->catch_count >= COMPILER_MAX_CATCH)
+    return false;
+
+  label = compiler_open_label(compiler);
+  compiler->catch_labels[compiler->catch_count++] = label;
+  codewriter_update_catch(compiler->cw, label);
+
+  return true;
+}
+
+void compiler_place_catch(struct compiler* compiler) {
+  compiler_place_label(compiler, compiler_catchlabel(compiler));
+  compiler_close_label(compiler, compiler_catchlabel(compiler));
+  /*
+   * We pop the last catch label from the catch stack.
+   */
+  compiler->catch_count--;
+  if (compiler->catch_count > 0) {
+    /*
+     * If an error occurs, we jump to the surrounding catch clause.
+     */
+    codewriter_update_catch(compiler->cw, compiler_catchlabel(compiler));
+  } else {
+    /*
+     * No surrounding catch clause!
+     */
+    codewriter_clear_catch(compiler->cw);
   }
 }

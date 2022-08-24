@@ -257,6 +257,23 @@ void codewriter_jump_if_not(struct codewriter* writer, t_cw_label label) {
   codewriter_write_cwl(writer, label);
 }
 
+void codewriter_update_catch(struct codewriter* writer, t_cw_label label) {
+  codewriter_write(writer, RAVEN_BYTECODE_UPDATE_CATCH);
+  codewriter_write_cwl(writer, label);
+}
+
+void codewriter_clear_catch(struct codewriter* writer) {
+  /*
+   * This implementation is a little hack: Since defining a catch
+   * entry point takes at least one instruction, there will never
+   * be a catch entry point at the address of zero. Therefore,
+   * resetting the catch pointer can be done by updating it to
+   * point to zero.
+   */
+  codewriter_write(writer, RAVEN_BYTECODE_UPDATE_CATCH);
+  codewriter_write_wc(writer, 0);
+}
+
 void codewriter_return(struct codewriter* writer) {
   codewriter_write(writer, RAVEN_BYTECODE_RETURN);
 }

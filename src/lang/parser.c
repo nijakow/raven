@@ -85,6 +85,8 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_KW_BREAK: return "KW_BREAK";
   case TOKEN_TYPE_KW_CONTINUE: return "KW_CONTINUE";
   case TOKEN_TYPE_KW_RETURN: return "KW_RETURN";
+  case TOKEN_TYPE_KW_TRY: return "KW_TRY";
+  case TOKEN_TYPE_KW_CATCH: return "KW_CATCH";
   default: return "UNKNOWN";
   }
 }
@@ -386,6 +388,10 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_CONTINUE);
     } else if (parser_buffer_is(parser, "return")) {
       parser_set_type(parser, TOKEN_TYPE_KW_RETURN);
+    } else if (parser_buffer_is(parser, "try")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_TRY);
+    } else if (parser_buffer_is(parser, "catch")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_CATCH);
     } else {
       parser_set_type(parser, TOKEN_TYPE_IDENT);
     }

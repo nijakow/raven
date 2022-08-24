@@ -94,7 +94,9 @@ enum token_type {
   TOKEN_TYPE_KW_FOR,
   TOKEN_TYPE_KW_BREAK,
   TOKEN_TYPE_KW_CONTINUE,
-  TOKEN_TYPE_KW_RETURN
+  TOKEN_TYPE_KW_RETURN,
+  TOKEN_TYPE_KW_TRY,
+  TOKEN_TYPE_KW_CATCH
 };
 
 const char* token_type_name(enum token_type type);
