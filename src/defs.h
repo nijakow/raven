@@ -42,6 +42,12 @@
 #endif
 
 /*
+ * Color switch
+ */
+#define RAVEN_USE_VT100
+#include "util/vt100.h"
+
+/*
  * Optimizations for the `any` datatype
  */
 //#define RAVEN_USE_COMPRESSED_ANY
