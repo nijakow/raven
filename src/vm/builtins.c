@@ -548,6 +548,15 @@ void builtin_cc_script(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_gc(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 0)
+    arg_error(fiber);
+  else {
+    raven_gc(fiber_raven(fiber));
+    fiber_set_accu(fiber, any_nil());
+  }
+}
+
 void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args) {
   struct blueprint*  blueprint;
   struct function*   function;

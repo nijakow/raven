@@ -263,7 +263,6 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_the", builtin_the);
   raven_builtin(raven, "_initializedp", builtin_initializedp);
   raven_builtin(raven, "_initialize", builtin_initialize);
-  raven_builtin(raven, "_disassemble", builtin_disassemble);
 
   raven_builtin(raven, "_arrayp", builtin_arrayp);
   raven_builtin(raven, "_stringp", builtin_stringp);
@@ -299,6 +298,9 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_cat", builtin_cat);
   raven_builtin(raven, "_cc", builtin_cc);
   raven_builtin(raven, "_cc_script", builtin_cc_script);
+  raven_builtin(raven, "_disassemble", builtin_disassemble);
+
+  raven_builtin(raven, "_gc", builtin_gc);
 
   raven_builtin(raven, "_random", builtin_random);
 }

@@ -64,6 +64,8 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_cc_script(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args);
 
+void builtin_gc(struct fiber* fiber, any* arg, unsigned int args);
+
 void builtin_random(struct fiber* fiber, any* arg, unsigned int args);
 
 #endif
