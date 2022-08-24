@@ -14,6 +14,8 @@ static void compiler_create_base(struct compiler* compiler) {
   vars_create(&compiler->vars);
   compiler->break_label    = -1;
   compiler->continue_label = -1;
+  compiler->catch_count    = 0;
+  compiler->mapping_vars   = NULL;
 }
 
 void compiler_create(struct compiler*   compiler,
@@ -25,8 +27,6 @@ void compiler_create(struct compiler*   compiler,
   compiler->parent       = NULL;
   compiler->cw           = codewriter;
   compiler->bp           = blueprint;
-  compiler->mapping_vars = NULL;
-  compiler->catch_count  = 0;
 }
 
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent) {
@@ -257,8 +257,17 @@ void compiler_continue(struct compiler* compiler) {
   }
 }
 
-static inline t_compiler_label compiler_catchlabel(struct compiler* compiler) {
-  return compiler->catch_labels[compiler->catch_count - 1];
+static inline bool compiler_catchlabel(struct compiler*  compiler,
+                                       t_compiler_label* label_loc) {
+  if (compiler == NULL)
+    return false;
+  else if (compiler->catch_count == 0)
+    return compiler_catchlabel(compiler->parent, label_loc);
+  else {
+    if (label_loc != NULL)
+      *label_loc = compiler->catch_labels[compiler->catch_count - 1];
+    return true;
+  }
 }
 
 bool compiler_open_catch(struct compiler* compiler) {
@@ -275,17 +284,23 @@ bool compiler_open_catch(struct compiler* compiler) {
 }
 
 void compiler_place_catch(struct compiler* compiler) {
-  compiler_place_label(compiler, compiler_catchlabel(compiler));
-  compiler_close_label(compiler, compiler_catchlabel(compiler));
+  t_compiler_label  label;
+
+  if (compiler->catch_count == 0)
+    return;
+
+  label = compiler->catch_labels[--(compiler->catch_count)];
+
+  compiler_place_label(compiler, label);
+  compiler_close_label(compiler, label);
   /*
    * We pop the last catch label from the catch stack.
    */
-  compiler->catch_count--;
-  if (compiler->catch_count > 0) {
+  if (compiler_catchlabel(compiler, &label)) {
     /*
      * If an error occurs, we jump to the surrounding catch clause.
      */
-    codewriter_update_catch(compiler->cw, compiler_catchlabel(compiler));
+    codewriter_update_catch(compiler->cw, label);
   } else {
     /*
      * No surrounding catch clause!

@@ -677,7 +677,7 @@ void fiber_interpret(struct fiber* fiber) {
     /*
      * Update the reference to the next catch block.
      */
-    case RAVEN_BYTECODE_UPDATE_CATCH:
+    case RAVEN_BYTECODE_CATCH:
       /* TODO */
       next_wc(fiber);
       break;

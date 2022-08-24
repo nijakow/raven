@@ -142,6 +142,7 @@ void parser_set_returntype(struct parser* parser, struct type* type);
 void parser_reset_returntype(struct parser* parser);
 
 void parser_set_exprtype(struct parser* parser, struct type* type);
+void parser_set_exprtype_to_void(struct parser* parser);
 void parser_set_exprtype_to_any(struct parser* parser);
 void parser_set_exprtype_to_bool(struct parser* parser);
 void parser_set_exprtype_to_int(struct parser* parser);

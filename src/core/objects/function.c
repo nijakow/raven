@@ -40,6 +40,7 @@ struct function* function_new(struct raven* raven,
                             + sizeof(struct type*) * type_count);
 
   if (function != NULL) {
+    function->name           =          NULL;
     function->blueprint      =          NULL;
     function->prev_method    =          NULL;
     function->next_method    =          NULL;
@@ -131,6 +132,12 @@ void function_disassemble(struct function* function, struct log* log) {
   unsigned int  ip;
   unsigned int  args;
 
+  if (function_name(function) == NULL)
+    log_printf(log, "Function <unnamed>:\n");
+  else {
+    log_printf(log, "Function %s:\n", symbol_name(function_name(function)));
+  }
+
   ip = 0;
 
   while (ip < function_bytecode_count(function)) {
@@ -211,6 +218,9 @@ void function_disassemble(struct function* function, struct log* log) {
       break;
     case RAVEN_BYTECODE_TYPECAST:
       log_printf(log, "TYPECHECK %d", next_wc(function, &ip));
+      break;
+    case RAVEN_BYTECODE_CATCH:
+      log_printf(log, "CATCH %d", next_wc(function, &ip));
       break;
     default:
       log_printf(log, "???\n");

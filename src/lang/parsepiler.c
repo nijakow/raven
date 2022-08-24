@@ -928,7 +928,11 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
 }
 
 bool parsepile_return(struct parser* parser, struct compiler* compiler) {
-  if (parsepile_expression(parser, compiler)) {
+  if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
+    compiler_load_constant(compiler, any_nil());
+    parser_set_exprtype_to_void(parser);
+    return parsepile_return_with_typecheck(parser, compiler);
+  } else if (parsepile_expression(parser, compiler)) {
     return parsepile_return_with_typecheck(parser, compiler)
         && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
   }

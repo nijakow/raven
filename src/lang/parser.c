@@ -445,6 +445,11 @@ void parser_set_exprtype(struct parser* parser, struct type* type) {
   parser->exprtype = type;
 }
 
+void parser_set_exprtype_to_void(struct parser* parser) {
+  parser_set_exprtype(parser,
+      typeset_type_void(raven_types(parser_raven(parser))));
+}
+
 void parser_set_exprtype_to_any(struct parser* parser) {
   parser_set_exprtype(parser,
       typeset_type_any(raven_types(parser_raven(parser))));

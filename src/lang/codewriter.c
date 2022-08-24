@@ -258,7 +258,7 @@ void codewriter_jump_if_not(struct codewriter* writer, t_cw_label label) {
 }
 
 void codewriter_update_catch(struct codewriter* writer, t_cw_label label) {
-  codewriter_write(writer, RAVEN_BYTECODE_UPDATE_CATCH);
+  codewriter_write(writer, RAVEN_BYTECODE_CATCH);
   codewriter_write_cwl(writer, label);
 }
 
@@ -270,7 +270,7 @@ void codewriter_clear_catch(struct codewriter* writer) {
    * resetting the catch pointer can be done by updating it to
    * point to zero.
    */
-  codewriter_write(writer, RAVEN_BYTECODE_UPDATE_CATCH);
+  codewriter_write(writer, RAVEN_BYTECODE_CATCH);
   codewriter_write_wc(writer, 0);
 }
 
