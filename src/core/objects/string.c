@@ -39,16 +39,7 @@ struct string* string_new(struct raven* raven, const char* contents) {
 
 struct string* string_new_from_stringbuilder(struct raven*         raven,
                                              struct stringbuilder* sb) {
-  struct string*  string;
-  char*           cstr;
-
-  if (!stringbuilder_get(sb, &cstr))
-    return NULL;
-  else {
-    string = string_new(raven, cstr);
-    memory_free(cstr);
-    return string;
-  }
+  return string_new(raven, stringbuilder_get_const(sb));
 }
 
 void string_mark(struct gc* gc, void* string) {

@@ -157,19 +157,13 @@ char* file_path(struct file* file) {
 }
 
 static bool file_open(struct file* file, FILE** fp, const char* mode) {
-  char*                 path;
   struct stringbuilder  sb;
 
   stringbuilder_create(&sb);
   stringbuilder_append_str(&sb, filesystem_anchor(file_fs(file)));
   file_write_path(file, &sb);
-  stringbuilder_get(&sb, &path);
+  *fp = fopen(stringbuilder_get_const(&sb), mode);
   stringbuilder_destroy(&sb);
-  log_printf(raven_log(filesystem_raven(file_fs(file))),
-             "Compiling file %s...\n",
-             path);
-  *fp = fopen(path, mode);
-  memory_free(path);
   return *fp != NULL;
 }
 
@@ -203,6 +197,12 @@ bool file_recompile(struct file* file, struct log* log) {
   size_t                bytes_read;
   struct stringbuilder  sb;
   char                  buffer[1024];
+
+  stringbuilder_create(&sb);
+  file_write_path(file, &sb);
+  log_printf(raven_log(filesystem_raven(file_fs(file))),
+             "Compiling file %s...\n", stringbuilder_get_const(&sb));
+  stringbuilder_destroy(&sb);
 
   if (!file_open(file, &f, "r"))
     return false;
@@ -262,9 +262,6 @@ void file_load(struct file* file, const char* realpath) {
   struct stringbuilder  sb;
   char*                 path;
   struct file*          f;
-
-  log_printf(raven_log(filesystem_raven(file_fs(file))),
-             "Loading %s...\n", realpath);
 
   dirp = opendir(realpath);
   stringbuilder_create(&sb);
