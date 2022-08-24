@@ -61,9 +61,20 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
 
   result = false;
 
+  /*
+   * Set up random number generation.
+   */
+  srand(time(NULL));
+
+  /*
+   * Set up the filesystem anchor, and load all files in the directory.
+   */
   filesystem_set_anchor(&raven->fs, mudlib);
   filesystem_load(&raven->fs);
 
+  /*
+   * Spawn a new fiber, calling "/secure/master.c"->main()
+   */
   object = raven_get_object(raven, "/secure/master.c");
   if (object != NULL) {
     fiber = scheduler_new_fiber(raven_scheduler(raven));
@@ -288,4 +299,6 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_cat", builtin_cat);
   raven_builtin(raven, "_cc", builtin_cc);
   raven_builtin(raven, "_cc_script", builtin_cc_script);
+
+  raven_builtin(raven, "_random", builtin_random);
 }
