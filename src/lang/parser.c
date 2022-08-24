@@ -82,6 +82,9 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_KW_WHILE: return "KW_WHILE";
   case TOKEN_TYPE_KW_DO: return "KW_DO";
   case TOKEN_TYPE_KW_FOR: return "KW_FOR";
+  case TOKEN_TYPE_KW_SWITCH: return "KW_SWITCH";
+  case TOKEN_TYPE_KW_CASE: return "KW_CASE";
+  case TOKEN_TYPE_KW_DEFAULT: return "KW_DEFAULT";
   case TOKEN_TYPE_KW_BREAK: return "KW_BREAK";
   case TOKEN_TYPE_KW_CONTINUE: return "KW_CONTINUE";
   case TOKEN_TYPE_KW_RETURN: return "KW_RETURN";
@@ -382,6 +385,12 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_DO);
     } else if (parser_buffer_is(parser, "for")) {
       parser_set_type(parser, TOKEN_TYPE_KW_FOR);
+    } else if (parser_buffer_is(parser, "switch")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_SWITCH);
+    } else if (parser_buffer_is(parser, "case")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_CASE);
+    } else if (parser_buffer_is(parser, "default")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_DEFAULT);
     } else if (parser_buffer_is(parser, "break")) {
       parser_set_type(parser, TOKEN_TYPE_KW_BREAK);
     } else if (parser_buffer_is(parser, "continue")) {
