@@ -14,9 +14,10 @@
 #include "funcref.h"
 
 struct obj_info FUNCREF_INFO = {
-  .type = OBJ_TYPE_FUNCREF,
-  .mark = funcref_mark,
-  .del  = funcref_del
+  .type  = OBJ_TYPE_FUNCREF,
+  .mark  = (mark_func)  funcref_mark,
+  .del   = (del_func)   funcref_del,
+  .stats = (stats_func) NULL
 };
 
 

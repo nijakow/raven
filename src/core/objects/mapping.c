@@ -16,9 +16,10 @@
 
 
 struct obj_info MAPPING_INFO = {
-  .type = OBJ_TYPE_MAPPING,
-  .mark = (mark_func) mapping_mark,
-  .del  = (del_func)  mapping_del
+  .type  = OBJ_TYPE_MAPPING,
+  .mark  = (mark_func) mapping_mark,
+  .del   = (del_func)  mapping_del,
+  .stats = (stats_func) NULL
 };
 
 struct mapping* mapping_new(struct raven* raven) {

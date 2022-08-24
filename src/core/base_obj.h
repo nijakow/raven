@@ -64,6 +64,7 @@
  */
 typedef void (*mark_func)(struct gc*, void*);
 typedef void (*del_func)(void*);
+typedef void (*stats_func)(void*, struct object_stats*);
 
 /*
  * The `struct obj_info` itself.
@@ -74,6 +75,7 @@ struct obj_info {
   enum obj_type type;
   mark_func     mark;
   del_func      del;
+  stats_func    stats;
 };
 
 /*
@@ -129,6 +131,7 @@ void  base_obj_dispatch_mark(struct gc* gc, struct base_obj* obj);
 void  base_obj_mark_children(struct gc* gc, struct base_obj* obj);
 void  base_obj_del(void*);
 void  base_obj_dispatch_del(void*);
+void  base_obj_dispatch_stats(void*);
 
 static inline bool base_obj_is(struct base_obj* obj, enum obj_type type) {
   return obj->info->type == type;

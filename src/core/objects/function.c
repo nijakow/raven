@@ -14,9 +14,10 @@
 #include "function.h"
 
 struct obj_info FUNCTION_INFO = {
-  .type = OBJ_TYPE_FUNCTION,
-  .mark = (mark_func) function_mark,
-  .del  = (del_func)  function_del
+  .type  = OBJ_TYPE_FUNCTION,
+  .mark  = (mark_func)  function_mark,
+  .del   = (del_func)   function_del,
+  .stats = (stats_func) NULL
 };
 
 

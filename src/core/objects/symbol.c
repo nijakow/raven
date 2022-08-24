@@ -13,9 +13,10 @@
 #include "symbol.h"
 
 struct obj_info SYMBOL_INFO = {
-  .type = OBJ_TYPE_SYMBOL,
-  .mark = (mark_func) symbol_mark,
-  .del  = (del_func)  symbol_del
+  .type  = OBJ_TYPE_SYMBOL,
+  .mark  = (mark_func)  symbol_mark,
+  .del   = (del_func)   symbol_del,
+  .stats = (stats_func) NULL
 };
 
 

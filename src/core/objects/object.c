@@ -14,9 +14,10 @@
 
 
 struct obj_info OBJECT_INFO = {
-  .type = OBJ_TYPE_OBJECT,
-  .mark = (mark_func) object_mark,
-  .del  = (del_func)  object_del
+  .type  = OBJ_TYPE_OBJECT,
+  .mark  = (mark_func)  object_mark,
+  .del   = (del_func)   object_del,
+  .stats = (stats_func) NULL
 };
 
 

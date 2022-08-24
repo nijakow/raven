@@ -109,6 +109,8 @@ struct gc;
 
 void gc_mark_ptr(struct gc* gc, void* ptr);
 
+struct object_stats;
+
 struct stringbuilder;
 
 #endif
