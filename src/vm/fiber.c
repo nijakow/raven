@@ -138,10 +138,30 @@ void fiber_reactivate_with_value(struct fiber* fiber, any value) {
   fiber_reactivate(fiber);
 }
 
+void fiber_throw(struct fiber* fiber, any value) {
+  fiber_set_accu(fiber, value);
+  fiber_unwind(fiber);
+}
+
 void fiber_do_crash(struct fiber* fiber, const char* file, int line) {
-  fiber->state = FIBER_STATE_CRASHED;
   log_printf(raven_log(fiber_raven(fiber)), "Crash! %s %d\n", file, line);
   fiber_print_backtrace(fiber, raven_log(fiber_raven(fiber)));
+  fiber_throw(fiber, any_nil());
+}
+
+/*
+ * This unwinds the stack to catch a thrown error.
+ */
+void fiber_unwind(struct fiber* fiber) {
+  while (fiber_top(fiber) != NULL) {
+    if (frame_catch_addr(fiber_top(fiber)) != 0) {
+      fiber_top(fiber)->ip = frame_catch_addr(fiber_top(fiber));
+      fiber->state = FIBER_STATE_RUNNING;
+      return;
+    }
+    fiber_pop_frame(fiber);
+  }
+  fiber->state = FIBER_STATE_CRASHED;
 }
 
 void fiber_print_backtrace(struct fiber* fiber, struct log* log) {

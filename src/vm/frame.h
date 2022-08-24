@@ -14,6 +14,7 @@
 struct frame {
   struct frame*     prev;
   struct function*  function;
+  unsigned int      catch_addr;
   unsigned int      ip;
   any*              locals;
 };
@@ -34,6 +35,14 @@ static inline any frame_self(struct frame* frame) {
 
 static inline any* frame_local(struct frame* frame, unsigned int index) {
   return &frame->locals[index + 1];
+}
+
+static inline unsigned int frame_catch_addr(struct frame* frame) {
+  return frame->catch_addr;
+}
+
+static inline void frame_set_catch_addr(struct frame* frame, unsigned int ca) {
+  frame->catch_addr = ca;
 }
 
 #endif

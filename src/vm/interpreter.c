@@ -678,8 +678,7 @@ void fiber_interpret(struct fiber* fiber) {
      * Update the reference to the next catch block.
      */
     case RAVEN_BYTECODE_CATCH:
-      /* TODO */
-      next_wc(fiber);
+      frame_set_catch_addr(fiber_top(fiber), next_wc(fiber));
       break;
     /*
      * Invalid opcode. That's of course an error. Boom.

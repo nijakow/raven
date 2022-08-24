@@ -57,7 +57,9 @@ void fiber_pause(struct fiber* fiber);
 void fiber_wait_for_input(struct fiber* fiber);
 void fiber_reactivate(struct fiber* fiber);
 void fiber_reactivate_with_value(struct fiber* fiber, any value);
+void fiber_throw(struct fiber* fiber, any value);
 void fiber_do_crash(struct fiber* fiber, const char* file, int line);
+void fiber_unwind(struct fiber* fiber);
 
 #define fiber_crash(fiber) fiber_do_crash(fiber, __FILE__, __LINE__)
 
