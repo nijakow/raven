@@ -927,6 +927,154 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
   return result;
 }
 
+bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
+  struct compiler   subcompiler;
+  t_compiler_label  continuation;
+  t_compiler_label  skip;
+  t_compiler_label  end;
+  bool              result;
+  bool              has_default;
+
+  result      = false;
+  has_default = false;
+
+  compiler_create_sub(&subcompiler, compiler);
+
+  continuation = compiler_open_label(&subcompiler);
+  end          = compiler_open_break_label(&subcompiler);
+
+  if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+    if (parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
+      result = true;
+      compiler_push(&subcompiler);
+      compiler_jump(&subcompiler, continuation);
+      while (result && !parser_check(parser, TOKEN_TYPE_RCURLY)) {
+        if (parser_check(parser, TOKEN_TYPE_KW_CASE)) {
+          /*
+           * We are currently in a normal stream of instructions.
+           * This stream will be broken here to inject another
+           * `case` statement.
+           */
+          skip = compiler_open_label(&subcompiler);
+          compiler_jump(&subcompiler, skip);
+          /*
+           * Our decision path continues here. We place the label,
+           * destroy it, and fill `continuation` immediately
+           * with a new label (to which we jump if the comparison
+           * fails).
+           */
+          compiler_place_label(&subcompiler, continuation);
+          compiler_close_label(&subcompiler, continuation);
+          continuation = compiler_open_label(&subcompiler);
+          /*
+           * Do a POP, followed by a PUSH. This will ensure that our
+           * originally pushed value stays on the stack.
+           */
+          compiler_pop(&subcompiler);
+          compiler_push(&subcompiler);
+          /*
+           * Push the value once more, this time as the first operand
+           * to the comparison operation.
+           */
+          compiler_push(&subcompiler);
+          /*
+           * Load the expression that we want to compare our value
+           * against.
+           *
+           * TODO, FIXME, XXX: Check for failure of the calls!
+           */
+          result = parsepile_expression(parser, &subcompiler)
+                && parsepile_expect(parser, TOKEN_TYPE_COLON);
+          /*
+           * Perform the actual comparison.
+           */
+          compiler_op(&subcompiler, RAVEN_OP_EQ);
+          /*
+           * We assume that the comparison succeeded. If it didn't,
+           * we follow our comparison path to the next statement.
+           */
+          compiler_jump_if_not(&subcompiler, continuation);
+          /*
+           * Since the comparison succeeded, there's no need to keep
+           * this value on the stack. Drop it!
+           */
+          compiler_pop(&subcompiler);
+          /*
+           * We can now place and close our label to resume execution.
+           */
+          compiler_place_label(&subcompiler, skip);
+          compiler_close_label(&subcompiler, skip);
+        } else if (parser_check(parser, TOKEN_TYPE_KW_DEFAULT)) {
+          /*
+           * This is the `default` statement.
+           */
+          has_default = true;
+          /*
+           * We are currently in a normal stream of instructions.
+           * This stream will be broken here to inject the `default`
+           * statement.
+           */
+          skip = compiler_open_label(&subcompiler);
+          compiler_jump(&subcompiler, skip);
+          /*
+           * Our decision path continues here. We place the label,
+           * destroy it, and fill `continuation` immediately
+           * with a new label (to which we jump if the comparison
+           * fails).
+           */
+          compiler_place_label(&subcompiler, continuation);
+          compiler_close_label(&subcompiler, continuation);
+          continuation = compiler_open_label(&subcompiler);
+          /*
+           * We expect the colon, of course.
+           */
+          result = parsepile_expect(parser, TOKEN_TYPE_COLON);
+          /*
+           * Pop the calculated value from the first statement.
+           */
+          compiler_pop(&subcompiler);
+          /*
+           * We can now place and close our label to resume execution.
+           */
+          compiler_place_label(&subcompiler, skip);
+          compiler_close_label(&subcompiler, skip);
+        } else {
+          result = parsepile_instruction(parser, &subcompiler);
+        }
+      }
+
+      /*
+       * We are in the normal path, jump to the end of the statement.
+       */
+      compiler_jump(&subcompiler, end);
+
+      /*
+       * This is the end of the normal decision path.
+       */
+      compiler_place_label(&subcompiler, continuation);
+      if (!has_default) {
+        /*
+         * Pop the calculated value from the first statement.
+         */
+        compiler_pop(&subcompiler);
+      }
+
+      /*
+       * This is the end of our switch statement.
+       */
+      compiler_place_label(&subcompiler, continuation);
+      compiler_place_label(&subcompiler, end);
+    }
+  }
+
+  compiler_close_label(&subcompiler, end);
+  compiler_close_label(&subcompiler, continuation);
+
+  compiler_destroy(&subcompiler);
+
+  return result;
+}
+
 bool parsepile_return(struct parser* parser, struct compiler* compiler) {
   if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
     compiler_load_constant(compiler, any_nil());
@@ -1017,6 +1165,8 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
     result = parsepile_do_while(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_KW_FOR)) {
     result = parsepile_for(parser, compiler);
+  } else if (parser_check(parser, TOKEN_TYPE_KW_SWITCH)) {
+    result = parsepile_switch(parser, compiler);
   } else if (parser_check(parser, TOKEN_TYPE_KW_BREAK)) {
     compiler_break(compiler);
     result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
