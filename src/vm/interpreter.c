@@ -80,7 +80,7 @@ void fiber_builtin(struct fiber*  fiber,
    * In case of error, we crash.
    */
   if (blt == NULL)
-    fiber_crash(fiber); /* TODO: Error message */
+    fiber_crash_msg(fiber, "Builtin was not found!");
   else {
     /*
      * We now have the function pointer, and the arguments, which
@@ -185,12 +185,12 @@ void fiber_super_send(struct fiber*      fiber,
   struct function*  function;
 
   if (func_bp == NULL || blueprint_parent(func_bp) == NULL)
-    fiber_crash(fiber);
+    fiber_crash_msg(fiber, "Unable to super-send message - parent not found!");
   else {
     function = blueprint_lookup(blueprint_parent(func_bp), message);
 
     if (function == NULL)
-      fiber_crash(fiber);
+      fiber_crash_msg(fiber, "Unable to super-send message - func not found!");
     else
       fiber_push_frame(fiber, function, args);
   }
@@ -288,7 +288,7 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
     fiber_set_accu(fiber, fiber_op_new(fiber, fiber_get_accu(fiber)));
     break;
   default:
-    fiber_crash(fiber);
+    fiber_crash_msg(fiber, "Undefined operation!");
     break;
   }
 }
@@ -421,7 +421,7 @@ static void fiber_load_funcref(struct fiber* fiber, any name) {
    * For obvious reasons, looking up an integer is just silly.
    */
   if (!any_is_obj(name, OBJ_TYPE_SYMBOL))
-    fiber_crash(fiber);
+    fiber_crash_msg(fiber, "Function not found!");
   else {
     /*
      * The rest of this function should be obvious.
@@ -534,11 +534,11 @@ void fiber_interpret(struct fiber* fiber) {
     case RAVEN_BYTECODE_LOAD_MEMBER:
       if (RAVEN_DEBUG_MODE) printf("LOAD_MEMBER\n");
       if (!any_is_ptr(frame_self(fiber_top(fiber))))
-        fiber_crash(fiber);
+        fiber_crash_msg(fiber, "Unable to lookup member - wrong type!");
       else {
         obj = any_to_ptr(frame_self(fiber_top(fiber)));
         if (!base_obj_is(obj, OBJ_TYPE_OBJECT))
-          fiber_crash(fiber);
+          fiber_crash_msg(fiber, "Unable to lookup member - wrong type!");
         else
           fiber_set_accu(fiber,
                          *object_slot((struct object*) obj, next_wc(fiber)));
@@ -557,11 +557,11 @@ void fiber_interpret(struct fiber* fiber) {
     case RAVEN_BYTECODE_STORE_MEMBER:
       if (RAVEN_DEBUG_MODE) printf("STORE_MEMBER\n");
       if (!any_is_ptr(frame_self(fiber_top(fiber))))
-        fiber_crash(fiber);
+        fiber_crash_msg(fiber, "Unable to store member - wrong type!");
       else {
         obj = any_to_ptr(frame_self(fiber_top(fiber)));
         if (!base_obj_is(obj, OBJ_TYPE_OBJECT))
-          fiber_crash(fiber);
+          fiber_crash_msg(fiber, "Unable to store member - wrong type!");
         else
           *object_slot((struct object*) obj, next_wc(fiber)) =
                                                       fiber_get_accu(fiber);
@@ -663,7 +663,7 @@ void fiber_interpret(struct fiber* fiber) {
      */
     case RAVEN_BYTECODE_TYPECHECK:
       if (!fiber_op_typecheck(fiber, fiber_get_accu(fiber), next_type(fiber)))
-        fiber_crash(fiber);
+        fiber_crash_msg(fiber, "Typecheck failed!");
       break;
     /*
      * Ensure that the accumulator is of a specific type.
@@ -684,7 +684,7 @@ void fiber_interpret(struct fiber* fiber) {
      * Invalid opcode. That's of course an error. Boom.
      */
     default:
-      fiber_crash(fiber);
+      fiber_crash_msg(fiber, "Invalid bytecode!");
       break;
     }
   }

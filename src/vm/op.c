@@ -188,6 +188,6 @@ bool fiber_op_typecheck(struct fiber* fiber, any a, struct type* type) {
 
 any fiber_op_typecast(struct fiber* fiber, any a, struct type* type) {
   if (!type_cast(type, &a))
-    fiber_crash(fiber);
+    fiber_crash_msg(fiber, "Typecast failed!");
   return a;
 }
