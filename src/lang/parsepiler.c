@@ -980,8 +980,6 @@ bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
           /*
            * Load the expression that we want to compare our value
            * against.
-           *
-           * TODO, FIXME, XXX: Check for failure of the calls!
            */
           result = parsepile_expression(parser, &subcompiler)
                 && parsepile_expect(parser, TOKEN_TYPE_COLON);
@@ -1107,9 +1105,6 @@ bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
 
   if (parsepile_instruction(parser, &subcompiler)) {
     if (parsepile_expect(parser, TOKEN_TYPE_KW_CATCH)) {
-      /*
-       * TODO: Let this happen inside of a subcompiler!
-       */
        label = compiler_open_label(&subcompiler);
        compiler_jump(&subcompiler, label);
        compiler_place_catch(&subcompiler);
