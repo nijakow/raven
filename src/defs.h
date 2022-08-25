@@ -51,7 +51,7 @@
 /*
  * Optimizations for the `any` datatype
  */
-#define RAVEN_USE_COMPRESSED_ANY
+//#define RAVEN_USE_COMPRESSED_ANY
 
 /*
  * Every object in the system gets an obj_type, so that we can
