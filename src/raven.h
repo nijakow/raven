@@ -49,6 +49,7 @@ void raven_create(struct raven* raven);
 void raven_destroy(struct raven* raven);
 
 void raven_mark(struct gc* gc, struct raven* raven);
+void raven_gc(struct raven* raven);
 
 void raven_serve_on(struct raven* raven, int port);
 
