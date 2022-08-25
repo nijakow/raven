@@ -30,6 +30,11 @@
 #include <netinet/in.h>
 
 /*
+ * Our version.
+ */
+#define RAVEN_VERSION "0.1"
+
+/*
  * I don't like #define-switches, but this one helps a lot when
  * you need to get detailed information about what the system
  * is doing.

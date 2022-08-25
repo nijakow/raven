@@ -52,6 +52,18 @@ void raven_destroy(struct raven* raven) {
 }
 
 /*
+ * Print a nice little banner for this program.
+ */
+void raven_banner(struct raven* raven) {
+  log_printf(raven_log(raven), "\n");
+  log_printf(raven_log(raven), "        R a v e n\n");
+  log_printf(raven_log(raven), "\n");
+  log_printf(raven_log(raven), "        The Raven MUD driver\n");
+  log_printf(raven_log(raven), "        Version %s\n", RAVEN_VERSION);
+  log_printf(raven_log(raven), "\n");
+}
+
+/*
  * Load a Raven mudlib, and prepare all important objects.
  */
 bool raven_boot(struct raven* raven, const char* mudlib) {
@@ -60,6 +72,11 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
   bool            result;
 
   result = false;
+
+  /*
+   * Print our banner and version info.
+   */
+  raven_banner(raven);
 
   /*
    * Set up random number generation.
