@@ -102,6 +102,14 @@ any fiber_op_sub(struct fiber* fiber, any a, any b) {
 any fiber_op_mul(struct fiber* fiber, any a, any b) {
   if (any_is_int(a) && any_is_int(b))
     return any_from_int(any_to_int(a) * any_to_int(b));
+  else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_int(b))
+    return any_from_ptr(string_multiply(fiber_raven(fiber),
+                                        any_to_ptr(a),
+                                        any_to_int(b)));
+  else if (any_is_int(a) && any_is_obj(b, OBJ_TYPE_STRING))
+    return any_from_ptr(string_multiply(fiber_raven(fiber),
+                                        any_to_ptr(b),
+                                        any_to_int(a)));
   else
     return any_nil();
 }

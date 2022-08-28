@@ -26,6 +26,9 @@ void           string_del(void* string);
 struct string* string_append(struct raven*  raven,
                              struct string* a,
                              struct string* b);
+struct string* string_multiply(struct raven*  raven,
+                               struct string* string,
+                               unsigned int   count);
 
 bool string_eq(struct string* a, struct string* b);
 

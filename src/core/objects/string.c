@@ -73,6 +73,25 @@ struct string* string_append(struct raven*  raven,
   return string;
 }
 
+struct string* string_multiply(struct raven*  raven,
+                               struct string* string,
+                               unsigned int   count) {
+  struct stringbuilder  sb;
+  struct string*        result;
+  unsigned int          i;
+
+  stringbuilder_create(&sb);
+
+  for (int i = 0; i < count; i++) {
+    stringbuilder_append_str(&sb, string_contents(string));
+  }
+
+  result = string_new_from_stringbuilder(raven, &sb);
+  stringbuilder_destroy(&sb);
+
+  return result;
+}
+
 bool string_eq(struct string* a, struct string* b) {
   return strcmp(string_contents(a), string_contents(b)) == 0;
 }
