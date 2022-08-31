@@ -73,7 +73,6 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_KW_STRING: return "KW_STRING";
   case TOKEN_TYPE_KW_SYMBOL: return "KW_SYMBOL";
   case TOKEN_TYPE_KW_MAPPING: return "KW_MAPPING";
-  case TOKEN_TYPE_KW_FUNCTION: return "KW_FUNCTION";
   case TOKEN_TYPE_KW_ANY: return "KW_ANY";
   case TOKEN_TYPE_KW_AUTO: return "KW_AUTO";
   case TOKEN_TYPE_KW_LET: return "KW_LET";
@@ -367,8 +366,6 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_SYMBOL);
     } else if (parser_buffer_is(parser, "mapping")) {
       parser_set_type(parser, TOKEN_TYPE_KW_MAPPING);
-    } else if (parser_buffer_is(parser, "function")) {
-      parser_set_type(parser, TOKEN_TYPE_KW_FUNCTION);
     } else if (parser_buffer_is(parser, "any")) {
       parser_set_type(parser, TOKEN_TYPE_KW_ANY);
     } else if (parser_buffer_is(parser, "auto")) {

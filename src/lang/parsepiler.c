@@ -198,29 +198,26 @@ bool parse_type(struct parser* parser, struct type** loc) {
     *loc = typeset_type_symbol(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_OBJECT))
     *loc = typeset_type_object(raven_types(parser_raven(parser)));
-  else if (parser_check(parser, TOKEN_TYPE_KW_FUNCTION))
-    *loc = typeset_type_funcref(raven_types(parser_raven(parser)));
   else if (parser_check(parser, TOKEN_TYPE_KW_MAPPING))
     *loc = typeset_type_mapping(raven_types(parser_raven(parser)));
   else
     return false;
-  /* Parse asterisks */
-  while (parser_check(parser, TOKEN_TYPE_STAR)) {
-    /*
-     * For now, we don't have array types yet, so we default
-     * to `any`.
-     */
-    *loc = typeset_type_any(raven_types(parser_raven(parser)));
-  }
 
-  /*
-   * This is a special syntax for function types.
-   */
-  if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
-    parser_check(parser, TOKEN_TYPE_ELLIPSIS);
-    if (!parser_check(parser, TOKEN_TYPE_RPAREN))
-      return false;
-    *loc = typeset_type_funcref(raven_types(parser_raven(parser)));
+  while (true) {
+    if (parser_check(parser, TOKEN_TYPE_STAR)) {
+      /*
+       * For now, we don't have array types yet, so we default
+       * to `any`.
+       */
+      *loc = typeset_type_any(raven_types(parser_raven(parser)));
+    } else if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
+      parser_check(parser, TOKEN_TYPE_ELLIPSIS);
+      if (!parser_check(parser, TOKEN_TYPE_RPAREN))
+        return false;
+      *loc = typeset_type_funcref(raven_types(parser_raven(parser)));
+    } else {
+      break;
+    }
   }
 
   return true;
