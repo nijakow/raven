@@ -82,7 +82,7 @@ struct string* string_multiply(struct raven*  raven,
 
   stringbuilder_create(&sb);
 
-  for (int i = 0; i < count; i++) {
+  for (i = 0; i < count; i++) {
     stringbuilder_append_str(&sb, string_contents(string));
   }
 
