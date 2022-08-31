@@ -199,7 +199,7 @@ void builtin_objectp(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 1)
     arg_error(fiber);
   else {
-    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_ARRAY)));
+    fiber_set_accu(fiber, any_from_int(any_is_obj(arg[0], OBJ_TYPE_OBJECT)));
   }
 }
 
