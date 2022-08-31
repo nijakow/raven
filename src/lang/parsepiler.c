@@ -212,6 +212,17 @@ bool parse_type(struct parser* parser, struct type** loc) {
      */
     *loc = typeset_type_any(raven_types(parser_raven(parser)));
   }
+
+  /*
+   * This is a special syntax for function types.
+   */
+  if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
+    parser_check(parser, TOKEN_TYPE_ELLIPSIS);
+    if (!parser_check(parser, TOKEN_TYPE_RPAREN))
+      return false;
+    *loc = typeset_type_funcref(raven_types(parser_raven(parser)));
+  }
+
   return true;
 }
 
@@ -638,10 +649,37 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
   struct symbol*  symbol;
 
   if (parser_check(parser, TOKEN_TYPE_AMPERSAND)) {
+    /*
+     * This is the address operator, used in expressions
+     * such as:
+     *
+     *     function f = &foo;
+     *
+     * which will return a function pointer to the function `foo`.
+     */
     if (!parse_symbol(parser, &symbol))
       return false;
     compiler_load_funcref(compiler, symbol);
     parser_set_exprtype_to_any(parser); /* TODO: Function type */
+  } else if (parser_check(parser, TOKEN_TYPE_STAR)) {
+    /*
+     * This is the dereference operator, used in expressions
+     * such as:
+     *
+     *     *"/secure/master.c"
+     *
+     * which will reference the object `/secure/master.c`.
+     *
+     * In practice, this will just be a hidden call to the
+     * method `the(...)`.
+     */
+     compiler_push_self(compiler); /* TODO: Maybe push a special object? */
+     if (!parsepile_expr(parser, compiler, 1))
+       return false;
+     compiler_push(compiler);
+     compiler_send(compiler,
+                   raven_find_symbol(parser->raven, "the"),
+                   1);
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
     return parsepile_expr(parser, compiler, 1);
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
