@@ -76,7 +76,7 @@ In order to set up an interactive server, configure your files like this:
 ```c
 /* mudlib/secure/master.c */
 
-void connect() {
+void connect(any connection) {
   /*
    * This function is called when a new player connects.
    */
@@ -88,6 +88,12 @@ void connect() {
     write("> ");
     write("You said: ", input_line(), "\n");
   }
+}
+
+void disconnect(any connection) {
+  /*
+   * This function is called when a player disconnects.
+   */
 }
 
 void main() {
