@@ -145,6 +145,8 @@ any fiber_op_index(struct fiber* fiber, any a, any b) {
   } else if (any_is_obj(a, OBJ_TYPE_MAPPING)) {
     mapping_get(any_to_ptr(a), b, &result);
     return result;
+  } else if (any_is_int(a) && any_is_int(b)) {
+    return any_from_int((any_to_int(a) & (1 << any_to_int(b))) != 0);
   } else {
     return any_nil();
   }
@@ -157,6 +159,8 @@ any fiber_op_index_assign(struct fiber* fiber, any a, any b, any c) {
   } else if (any_is_obj(a, OBJ_TYPE_MAPPING)) {
     mapping_put(any_to_ptr(a), b, c);
     return c;
+  } else if (any_is_int(a) && any_is_int(b)) {
+    return any_from_int(any_to_int(a) | (any_to_int(c) << any_to_int(b)));
   } else {
     return any_nil();
   }
