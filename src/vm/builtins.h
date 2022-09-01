@@ -56,6 +56,7 @@ void builtin_keys(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_isspace(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args);
 
+void builtin_implements(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_call(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_this_player(struct fiber* fiber, any* arg, unsigned int args);

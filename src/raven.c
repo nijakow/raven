@@ -325,6 +325,7 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_isspace", builtin_isspace);
   raven_builtin(raven, "_wrap", builtin_wrap);
 
+  raven_builtin(raven, "_implements", builtin_implements);
   raven_builtin(raven, "call", builtin_call);
 
   raven_builtin(raven, "this_player", builtin_this_player);

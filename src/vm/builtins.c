@@ -425,6 +425,17 @@ void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_implements(struct fiber* fiber, any* arg, unsigned int args) {
+  bool result;
+  
+  if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
+    arg_error(fiber);
+  else {
+    result = (any_resolve_func(arg[0], any_to_ptr(arg[1])) != NULL);
+    fiber_set_accu(fiber, any_from_int(result));
+  }
+}
+
 void builtin_call(struct fiber* fiber, any* arg, unsigned int args) {
   struct funcref*  funcref;
   struct function* function;
