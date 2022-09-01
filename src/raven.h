@@ -65,6 +65,12 @@ struct symbol* raven_gensym(struct raven* raven);
 struct blueprint* raven_get_blueprint(struct raven* raven, const char* path);
 struct object* raven_get_object(struct raven* raven, const char* path);
 
+bool raven_call_out(struct raven* raven,
+                    const char*   receiver,
+                    const char*   name,
+                    any*          args,
+                    unsigned int  arg_count);
+
 void raven_setup_builtins(struct raven* raven);
 
 static inline struct object_table* raven_objects(struct raven* raven) {

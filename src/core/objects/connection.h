@@ -22,6 +22,7 @@ struct connection {
   struct fiber*       fiber;
   int                 socket;
   struct ringbuffer   in_buffer;
+  any                 player_object;
 };
 
 struct connection* connection_new(struct raven* raven,
@@ -57,6 +58,15 @@ static inline struct fiber* connection_fiber(struct connection* connection) {
 static inline void connection_set_fiber(struct connection* connection,
                                         struct fiber*      fiber) {
   connection->fiber = fiber;
+}
+
+static inline any connection_player_object(struct connection* connection) {
+  return connection->player_object;
+}
+
+static inline void connection_set_player_object(struct connection* connection,
+                                                any                value) {
+  connection->player_object = value;
 }
 
 #endif

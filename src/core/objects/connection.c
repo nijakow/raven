@@ -28,8 +28,9 @@ struct obj_info CONNECTION_INFO = {
 static void connection_create(struct connection* connection,
                               struct server*     server,
                               int                socket) {
-  connection->server  =  server;
-  connection->socket  =  socket;
+  connection->server        = server;
+  connection->socket        = socket;
+  connection->player_object = any_nil();
   ringbuffer_create(&connection->in_buffer);
 
   connection->next    =  server->connections;

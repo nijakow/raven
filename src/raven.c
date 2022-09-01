@@ -67,9 +67,7 @@ void raven_banner(struct raven* raven) {
  * Load a Raven mudlib, and prepare all important objects.
  */
 bool raven_boot(struct raven* raven, const char* mudlib) {
-  struct object*  object;
-  struct fiber*   fiber;
-  bool            result;
+  bool  result;
 
   result = false;
 
@@ -92,15 +90,7 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
   /*
    * Spawn a new fiber, calling "/secure/master.c"->main()
    */
-  object = raven_get_object(raven, "/secure/master.c");
-  if (object != NULL) {
-    fiber = scheduler_new_fiber(raven_scheduler(raven));
-    if (fiber != NULL) {
-      fiber_push(fiber, any_from_ptr(object));
-      fiber_send(fiber, raven_find_symbol(raven, "main"), 0);
-      result = true;
-    }
-  }
+  result = raven_call_out(raven, "/secure/master.c", "main", NULL, 0);
 
   return result;
 }
@@ -247,6 +237,32 @@ struct blueprint* raven_get_blueprint(struct raven* raven, const char* path) {
  */
 struct object* raven_get_object(struct raven* raven, const char* path) {
   return filesystem_get_object(raven_fs(raven), path);
+}
+
+/*
+ * Call a method on an object in a new thread.
+ */
+bool raven_call_out(struct raven* raven,
+                    const char*   receiver,
+                    const char*   name,
+                    any*          args,
+                    unsigned int  arg_count) {
+  struct object* object;
+  struct fiber*  fiber;
+  unsigned int   index;
+
+  object = raven_get_object(raven, receiver);
+  if (object != NULL) {
+    fiber = scheduler_new_fiber(raven_scheduler(raven));
+    if (fiber != NULL) {
+      fiber_push(fiber, any_from_ptr(object));
+      for (index = 0; index < arg_count; index++)
+        fiber_push(fiber, args[index]);
+      fiber_send(fiber, raven_find_symbol(raven, name), arg_count);
+      return true;
+    }
+  }
+  return false;
 }
 
 /*
