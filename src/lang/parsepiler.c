@@ -132,6 +132,7 @@ void parser_error(struct parser* parser, const char* format, ...) {
 
   va_start(args, format);
   log_vprintf_error(parser_log(parser),
+                    "LPC Source Code (file unknown)",
                     parser_src(parser),
                     parser_line(parser),
                     parser_caret(parser),
@@ -488,6 +489,8 @@ bool parsepile_simple_expr(struct parser*   parser,
   } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
     result = parsepile_mapping(parser, compiler);
     parser_set_exprtype_to_mapping(parser);
+  } else {
+    parser_error(parser, "Expected an expression");
   }
   return result;
 }
@@ -1323,6 +1326,8 @@ bool parsepile_file_statement(struct parser*    parser,
       }
       result = result && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
     }
+  } else {
+    parser_error(parser, "Invalid toplevel expression");
   }
 
   return result;
