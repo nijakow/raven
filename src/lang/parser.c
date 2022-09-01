@@ -98,11 +98,13 @@ void parser_create(struct parser* parser,
                    struct raven*  raven,
                    t_reader*      reader,
                    struct log*    log) {
-  parser->raven       = raven;
-  parser->reader      = reader;
-  parser->log         = log;
-  parser->token_type  = TOKEN_TYPE_EOF;
-  parser->buffer_fill = 0;
+  parser->raven          = raven;
+  parser->reader         = reader;
+  parser->file_pos.line  = 0;
+  parser->file_pos.caret = 0;
+  parser->log            = log;
+  parser->token_type     = TOKEN_TYPE_EOF;
+  parser->buffer_fill    = 0;
   parser_reset_exprtype(parser);
   parser_reset_returntype(parser);
   parser_advance(parser);
@@ -229,6 +231,8 @@ void parser_advance(struct parser* parser) {
   parser_buffer_clear(parser);
 
   reader_skip_whitespace(parser->reader);
+
+  parser->file_pos = reader_file_pos(parser->reader);
 
   if (!reader_has(parser->reader)) {
     parser_set_type(parser, TOKEN_TYPE_EOF);

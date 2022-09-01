@@ -9,6 +9,7 @@
 
 void reader_create(struct reader* reader, const char* source) {
   reader->position       = (char*) source;
+  reader->src            = (char*) source;
   reader->file_pos.line  = 0;
   reader->file_pos.caret = 0;
 }

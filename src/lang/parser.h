@@ -109,6 +109,7 @@ const char* token_type_name(enum token_type type);
 struct parser {
   struct raven*   raven;
   t_reader*       reader;
+  struct file_pos file_pos;
   struct log*     log;
   enum token_type token_type;
   struct type*    exprtype;
@@ -164,12 +165,16 @@ static inline struct log* parser_log(struct parser* parser) {
   return parser->log;
 }
 
+static inline const char* parser_src(struct parser* parser) {
+  return reader_src(parser->reader);
+}
+
 static inline unsigned int parser_line(struct parser* parser) {
-  return parser->reader->file_pos.line;
+  return parser->file_pos.line;
 }
 
 static inline unsigned int parser_caret(struct parser* parser) {
-  return parser->reader->file_pos.caret;
+  return parser->file_pos.caret;
 }
 
 static inline struct type* parser_get_exprtype(struct parser* parser) {

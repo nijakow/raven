@@ -19,4 +19,17 @@ void log_destroy(struct log* log);
 void log_vprintf(struct log* log, const char* format, va_list args);
 void log_printf(struct log* log, const char* format, ...);
 
+void log_vprintf_error(struct log*  log,
+                       const char*  src,
+                       unsigned int line,
+                       unsigned int caret,
+                       const char*  format,
+                       va_list      args);
+void log_printf_error(struct log*  log,
+                      const char*  src,
+                      unsigned int line,
+                      unsigned int caret,
+                      const char*  format,
+                      ...);
+
 #endif

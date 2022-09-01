@@ -17,6 +17,7 @@ struct file_pos {
 
 typedef struct reader {
   char*            position;
+  char*            src;
   struct file_pos  file_pos;
 } t_reader;
 
@@ -27,16 +28,32 @@ static inline char** reader_ptr(t_reader* reader) {
   return &reader->position;
 }
 
-static inline char* reader_pos(t_reader* reader) {
-  return *reader_ptr(reader);
+static inline char* reader_get(t_reader* reader) {
+  return reader->position;
+}
+
+static inline struct file_pos reader_file_pos(t_reader* reader) {
+  return reader->file_pos;
+}
+
+static inline const char* reader_src(t_reader* reader) {
+  return reader->src;
+}
+
+static inline unsigned int reader_line(t_reader* reader) {
+  return reader->file_pos.line;
+}
+
+static inline unsigned int reader_caret(t_reader* reader) {
+  return reader->file_pos.caret;
 }
 
 static inline bool reader_has(t_reader* reader) {
-  return *reader_pos(reader) != '\0';
+  return *reader_get(reader) != '\0';
 }
 
 static inline char reader_peek(t_reader* reader) {
-  return *reader_pos(reader);
+  return *reader_get(reader);
 }
 
 static inline char reader_advance(t_reader* reader) {

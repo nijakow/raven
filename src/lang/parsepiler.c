@@ -131,9 +131,12 @@ void parser_error(struct parser* parser, const char* format, ...) {
   va_list args;
 
   va_start(args, format);
-  log_printf(parser_log(parser),
-             "(%u:%u): ", parser_line(parser) + 1, parser_caret(parser) + 1);
-  log_vprintf(parser_log(parser), format, args);
+  log_vprintf_error(parser_log(parser),
+                    parser_src(parser),
+                    parser_line(parser),
+                    parser_caret(parser),
+                    format,
+                    args);
   va_end(args);
 }
 
