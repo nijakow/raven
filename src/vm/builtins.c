@@ -307,6 +307,46 @@ void builtin_object_children(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_object_set_hb(struct fiber* fiber, any* arg, unsigned int args) {
+  struct object**  heartbeats;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    arg_error(fiber);
+  else {
+    heartbeats = object_table_heartbeats(raven_objects(fiber_raven(fiber)));
+    object_link_heartbeat(any_to_ptr(arg[0]), heartbeats);
+    fiber_set_accu(fiber, arg[0]);
+  }
+}
+
+void builtin_object_fst_hb(struct fiber* fiber, any* arg, unsigned int args) {
+  struct object*  first;
+
+  if (args != 0)
+    arg_error(fiber);
+  else {
+    first = *object_table_heartbeats(raven_objects(fiber_raven(fiber)));
+    if (first == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(first));
+  }
+}
+
+void builtin_object_next_hb(struct fiber* fiber, any* arg, unsigned int args) {
+  struct object*  object;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    arg_error(fiber);
+  else {
+    object = any_to_ptr(arg[0]);
+    if (object_next_heartbeat(object) == NULL)
+      fiber_set_accu(fiber, any_nil());
+    else
+      fiber_set_accu(fiber, any_from_ptr(object_next_heartbeat(object)));
+  }
+}
+
 void builtin_substr(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 3
    || !any_is_obj(arg[0], OBJ_TYPE_STRING)

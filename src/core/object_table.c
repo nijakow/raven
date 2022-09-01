@@ -10,9 +10,10 @@
 #include "object_table.h"
 
 void object_table_create(struct object_table* table, struct raven* raven) {
-  table->raven   = raven;
-  table->objects = NULL;
-  table->symbols = NULL;
+  table->raven      = raven;
+  table->objects    = NULL;
+  table->symbols    = NULL;
+  table->heartbeats = NULL;
 }
 
 void object_table_destroy(struct object_table* table) {

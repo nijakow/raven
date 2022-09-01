@@ -14,13 +14,15 @@
 
 struct object {
   struct base_obj    _;
-  bool               was_initialized;
+  struct blueprint*  blue;
+  struct object*     heartbeat_next;
+  struct object**    heartbeat_prev;
   struct object*     parent;
   struct object*     sibling;
   struct object*     children;
-  struct blueprint*  blue;
   unsigned int       slot_count;
   any*               slots;
+  bool               was_initialized;
   any                payload[];
 };
 
@@ -31,6 +33,7 @@ void           object_del(struct object* object);
 struct object* object_clone(struct raven* raven, struct object* original);
 
 void object_move_to(struct object* object, struct object* target);
+void object_link_heartbeat(struct object* object, struct object** list);
 
 static inline bool object_was_initialized(struct object* object) {
   return object->was_initialized;
@@ -38,6 +41,10 @@ static inline bool object_was_initialized(struct object* object) {
 
 static inline void object_set_initialized(struct object* object) {
   object->was_initialized = true;
+}
+
+static inline struct object* object_next_heartbeat(struct object* object) {
+  return object->heartbeat_next;
 }
 
 static inline struct object* object_parent(struct object* object) {

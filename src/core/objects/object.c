@@ -53,6 +53,8 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
   if (object != NULL) {
     object->blue            = blueprint;
     object->was_initialized = false;
+    object->heartbeat_next  = NULL;
+    object->heartbeat_prev  = NULL;
     object->parent          = NULL;
     object->sibling         = NULL;
     object->children        = NULL;
@@ -79,6 +81,11 @@ void object_mark(struct gc* gc, struct object* object) {
 
 void object_del(struct object* object) {
   struct object*  child;
+
+  if (object->heartbeat_prev != NULL)
+    *(object->heartbeat_prev) = object->heartbeat_next;
+  if (object->heartbeat_next != NULL)
+    object->heartbeat_next->heartbeat_prev = object->heartbeat_prev;
 
   object_unlink(object);
   for (child = object->children; child != NULL; child = child->sibling)
@@ -110,5 +117,15 @@ void object_move_to(struct object* object, struct object* target) {
     object->parent   = target;
     object->sibling  = target->children;
     target->children = object;
+  }
+}
+
+void object_link_heartbeat(struct object* object, struct object** list) {
+  if (object->heartbeat_prev == NULL) {
+    if (*list != NULL)
+      (*list)->heartbeat_prev = &object->heartbeat_next;
+    object->heartbeat_prev =  list;
+    object->heartbeat_next = *list;
+    *list                  =  object;
   }
 }
