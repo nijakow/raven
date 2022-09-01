@@ -10,19 +10,32 @@
 
 #include "../defs.h"
 
-typedef char* t_reader;
+typedef struct reader {
+  char*  position;
+} t_reader;
+
+void reader_create(struct reader* reader, const char* source);
+void reader_destroy(struct reader* reader);
+
+static inline char** reader_ptr(t_reader* reader) {
+  return &reader->position;
+}
+
+static inline char* reader_pos(t_reader* reader) {
+  return *reader_ptr(reader);
+}
 
 static inline bool reader_has(t_reader* reader) {
-  return **reader != '\0';
+  return *reader_pos(reader) != '\0';
 }
 
 static inline char reader_peek(t_reader* reader) {
-  return **reader;
+  return *reader_pos(reader);
 }
 
 static inline char reader_advance(t_reader* reader) {
   if (reader_has(reader))
-    return *((*reader)++);
+    return *((*reader_ptr(reader))++);
   return '\0';
 }
 

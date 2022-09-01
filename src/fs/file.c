@@ -187,6 +187,7 @@ bool file_cat(struct file* file, struct stringbuilder* into) {
 
 bool file_recompile(struct file* file, struct log* log) {
   struct raven*         raven;
+  struct reader         reader;
   struct parser         parser;
   struct blueprint*     blueprint;
   FILE*                 f;
@@ -222,9 +223,11 @@ bool file_recompile(struct file* file, struct log* log) {
 
   raven     = filesystem_raven(file->fs);
   blueprint = blueprint_new(raven, file);
-  parser_create(&parser, raven, &code, log);
+  reader_create(&reader, code);
+  parser_create(&parser, raven, &reader, log);
   result    = parsepile_file(&parser, blueprint);
   parser_destroy(&parser);
+  reader_destroy(&reader);
   memory_free(code_copy);
 
   if (result)

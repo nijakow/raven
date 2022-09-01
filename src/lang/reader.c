@@ -7,6 +7,14 @@
 
 #include "reader.h"
 
+void reader_create(struct reader* reader, const char* source) {
+  reader->position = (char*) source;
+}
+
+void reader_destroy(struct reader* reader) {
+
+}
+
 bool reader_peekn(t_reader* reader, char* loc, const char* str) {
   unsigned int  i;
 
@@ -31,7 +39,7 @@ bool reader_checks(t_reader* reader, const char* str) {
   char*         backup;
   unsigned int  i;
 
-  backup = *reader;
+  backup = reader->position;
   i      = 0;
   while (true) {
     if (str[i] == '\0') {
@@ -39,7 +47,7 @@ bool reader_checks(t_reader* reader, const char* str) {
     } else if (!reader_has(reader)) {
       return false;
     } else if ((str[i] != reader_advance(reader))) {
-      *reader = backup;
+      reader->position = backup;
       return false;
     }
     i++;

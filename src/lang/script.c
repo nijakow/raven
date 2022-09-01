@@ -24,7 +24,7 @@ struct function* script_compile(struct raven*   raven,
   struct function*   result;
 
   result = NULL;
-  reader = (char*) source;
+  reader_create(&reader, source);
   parser_create(&parser, raven, &reader, raven_log(raven));
   codewriter_create(&codewriter, raven);
   compiler_create(&compiler, raven, &codewriter, NULL);
@@ -36,5 +36,6 @@ struct function* script_compile(struct raven*   raven,
   compiler_destroy(&compiler);
   codewriter_destroy(&codewriter);
   parser_destroy(&parser);
+  reader_destroy(&reader);
   return result;
 }
