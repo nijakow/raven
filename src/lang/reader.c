@@ -8,7 +8,9 @@
 #include "reader.h"
 
 void reader_create(struct reader* reader, const char* source) {
-  reader->position = (char*) source;
+  reader->position       = (char*) source;
+  reader->file_pos.line  = 0;
+  reader->file_pos.caret = 0;
 }
 
 void reader_destroy(struct reader* reader) {
@@ -36,11 +38,13 @@ bool reader_checkn(t_reader* reader, const char* str) {
 }
 
 bool reader_checks(t_reader* reader, const char* str) {
-  char*         backup;
-  unsigned int  i;
+  char*            backup;
+  struct file_pos  backup_file_pos;
+  unsigned int     i;
 
-  backup = reader->position;
-  i      = 0;
+  backup          = reader->position;
+  backup_file_pos = reader->file_pos;
+  i               = 0;
   while (true) {
     if (str[i] == '\0') {
       return true;
@@ -48,6 +52,7 @@ bool reader_checks(t_reader* reader, const char* str) {
       return false;
     } else if ((str[i] != reader_advance(reader))) {
       reader->position = backup;
+      reader->file_pos = backup_file_pos;
       return false;
     }
     i++;

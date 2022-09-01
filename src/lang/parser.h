@@ -164,6 +164,14 @@ static inline struct log* parser_log(struct parser* parser) {
   return parser->log;
 }
 
+static inline unsigned int parser_line(struct parser* parser) {
+  return parser->reader->file_pos.line;
+}
+
+static inline unsigned int parser_caret(struct parser* parser) {
+  return parser->reader->file_pos.caret;
+}
+
 static inline struct type* parser_get_exprtype(struct parser* parser) {
   return parser->exprtype;
 }

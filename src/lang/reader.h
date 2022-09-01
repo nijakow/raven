@@ -10,8 +10,14 @@
 
 #include "../defs.h"
 
+struct file_pos {
+  unsigned int  line;
+  unsigned int  caret;
+};
+
 typedef struct reader {
-  char*  position;
+  char*            position;
+  struct file_pos  file_pos;
 } t_reader;
 
 void reader_create(struct reader* reader, const char* source);
@@ -34,8 +40,15 @@ static inline char reader_peek(t_reader* reader) {
 }
 
 static inline char reader_advance(t_reader* reader) {
-  if (reader_has(reader))
+  if (reader_has(reader)) {
+    if (reader_peek(reader) == '\n') {
+      reader->file_pos.caret  = 0;
+      reader->file_pos.line  += 1;
+    } else {
+      reader->file_pos.caret++;
+    }
     return *((*reader_ptr(reader))++);
+  }
   return '\0';
 }
 
