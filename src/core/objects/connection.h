@@ -16,6 +16,7 @@
 
 struct connection {
   struct base_obj     _;
+  struct raven*       raven;
   struct server*      server;
   struct connection*  next;
   struct connection** prev;
@@ -33,10 +34,15 @@ void connection_del(struct connection* connection);
 
 void connection_detach_from_server(struct connection* connection);
 
+void connection_close_impl(struct connection* connection);
 void connection_close(struct connection* connection);
 void connection_endofinput(struct connection* connection);
 void connection_input(struct connection* connection, char* b, unsigned int n);
 void connection_output_str(struct connection* connection, const char* str);
+
+static inline struct raven* connection_raven(struct connection* connection) {
+  return connection->raven;
+}
 
 static inline struct server* connection_server(struct connection* connection) {
   return connection->server;

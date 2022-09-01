@@ -86,7 +86,8 @@ void server_accept(struct server* server) {
         fiber_push(fiber,
                    any_from_ptr(raven_get_object(raven,
                                                  "/secure/master.c")));
-        fiber_send(fiber, raven_find_symbol(raven, "connect"), 0);
+        fiber_push(fiber, any_from_ptr(connection));
+        fiber_send(fiber, raven_find_symbol(raven, "connect"), 1);
       }
     }
   }

@@ -28,6 +28,7 @@ struct obj_info CONNECTION_INFO = {
 static void connection_create(struct connection* connection,
                               struct server*     server,
                               int                socket) {
+  connection->raven         = server_raven(server);
   connection->server        = server;
   connection->socket        = socket;
   connection->player_object = any_nil();
@@ -41,7 +42,7 @@ static void connection_create(struct connection* connection,
 }
 
 static void connection_destroy(struct connection* connection) {
-  connection_close(connection);
+  connection_close_impl(connection);
   ringbuffer_destroy(&connection->in_buffer);
 }
 
@@ -79,12 +80,25 @@ void connection_detach_from_server(struct connection* connection) {
   connection->server = NULL;
 }
 
-void connection_close(struct connection* connection) {
+void connection_close_impl(struct connection* connection) {
   if (connection->socket >= 0) {
     close(connection->socket);
     connection->socket = -1;
   }
   connection_detach_from_server(connection);
+}
+
+void connection_close(struct connection* connection) {
+  any  connection_any;
+
+  connection_close_impl(connection);
+
+  connection_any = any_from_ptr(connection);
+  raven_call_out(connection_raven(connection),
+                 "/secure/master.c",
+                 "disconnect",
+                 &connection_any,
+                 1);
 }
 
 void connection_endofinput(struct connection* connection) {
