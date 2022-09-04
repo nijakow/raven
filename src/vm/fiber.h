@@ -17,6 +17,7 @@ struct frame;
 enum fiber_state {
   FIBER_STATE_RUNNING,
   FIBER_STATE_PAUSED,
+  FIBER_STATE_SLEEPING,
   FIBER_STATE_WAITING_FOR_INPUT,
   FIBER_STATE_STOPPED,
   FIBER_STATE_CRASHED
@@ -32,6 +33,7 @@ struct fiber {
   struct fiber**     prev;
   enum fiber_state   state;
   struct scheduler*  scheduler;
+  raven_time_t       wakeup_time;
   struct connection* connection;
   struct funcref*    input_to;
   struct fiber_vars  vars;
@@ -75,6 +77,15 @@ void fiber_push_input(struct fiber* fiber, struct string* text);
 
 static inline struct raven* fiber_raven(struct fiber* fiber) {
   return scheduler_raven(fiber->scheduler);
+}
+
+static inline enum fiber_state fiber_state(struct fiber* fiber) {
+  return fiber->state;
+}
+
+static inline void fiber_set_state(struct fiber*    fiber,
+                                   enum fiber_state state) {
+  fiber->state = state;
 }
 
 static inline struct connection* fiber_connection(struct fiber* fiber) {
@@ -123,6 +134,15 @@ static inline any* fiber_stack_peek(struct fiber* fiber, unsigned int depth) {
 
 static inline struct fiber_vars* fiber_vars(struct fiber* fiber) {
   return &fiber->vars;
+}
+
+static inline void fiber_sleep_until(struct fiber* fiber, raven_time_t when) {
+  fiber_set_state(fiber, FIBER_STATE_SLEEPING);
+  fiber->wakeup_time = when;
+}
+
+static inline raven_time_t fiber_wakeup_time(struct fiber* fiber) {
+  return fiber->wakeup_time;
 }
 
 #endif

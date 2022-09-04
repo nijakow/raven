@@ -105,4 +105,9 @@ static inline bool raven_was_interrupted(struct raven* raven) {
   return raven->was_interrupted;
 }
 
+static inline raven_time_t raven_time(struct raven* raven) {
+  (void) raven;
+  return time(NULL);
+}
+
 #endif

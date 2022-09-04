@@ -5,6 +5,7 @@
  * See README and LICENSE for further information.
  */
 
+#include "../raven.h"
 #include "fiber.h"
 #include "interpreter.h"
 
@@ -34,14 +35,23 @@ struct fiber* scheduler_new_fiber(struct scheduler* scheduler) {
 }
 
 void scheduler_run(struct scheduler* scheduler) {
-  struct fiber** fiber;
+  struct fiber**  fiber;
+  raven_time_t    current_time;
+
+  current_time = raven_time(scheduler_raven(scheduler));
 
   fiber = &scheduler->fibers;
   while (*fiber != NULL) {
-    switch ((*fiber)->state)
+    switch (fiber_state(*fiber))
     {
       case FIBER_STATE_RUNNING:
         fiber_interpret(*fiber);
+        fiber = &((*fiber)->next);
+        break;
+      case FIBER_STATE_SLEEPING:
+        if (current_time >= fiber_wakeup_time(*fiber)) {
+          fiber_set_state(*fiber, FIBER_STATE_RUNNING);
+        }
         fiber = &((*fiber)->next);
         break;
       case FIBER_STATE_STOPPED:

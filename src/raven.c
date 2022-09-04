@@ -285,6 +285,7 @@ void raven_setup_builtins(struct raven* raven) {
    * to the corresponding function.
    */
   raven_builtin(raven, "_throw", builtin_throw);
+  raven_builtin(raven, "_sleep", builtin_sleep);
 
   raven_builtin(raven, "_this_connection", builtin_this_connection);
   raven_builtin(raven, "print", builtin_print);

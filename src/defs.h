@@ -82,6 +82,11 @@ enum obj_type {
 typedef uint8_t t_bc; /* byte code */
 typedef int16_t t_wc; /* word code (must be signed!) */
 
+/*
+ * A value for timekeeping.
+ */
+typedef time_t raven_time_t;
+
 
 /*
  *     I m p o r t a n t   S t r u c t s   a n d   F u n c t i o n s

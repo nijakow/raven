@@ -65,6 +65,17 @@ void builtin_throw(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_sleep(struct fiber* fiber, any* arg, unsigned int args) {
+  raven_time_t  current_time;
+
+  if (args != 1 || !any_is_int(arg[0]))
+    arg_error(fiber);
+  else {
+    current_time = raven_time(fiber_raven(fiber));
+    fiber_sleep_until(fiber, current_time + any_to_int(arg[0]));
+  }
+}
+
 void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 0)
     arg_error(fiber);
@@ -427,7 +438,7 @@ void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args) {
 
 void builtin_implements(struct fiber* fiber, any* arg, unsigned int args) {
   bool result;
-  
+
   if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
     arg_error(fiber);
   else {
