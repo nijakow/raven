@@ -47,7 +47,7 @@ struct blueprint* filesystem_get_blueprint(struct filesystem* fs,
   }
 }
 
-struct object* filesystem_get_object(struct filesystem* fs, const char* path) {
+struct object* filesystem_basic_get_object(struct filesystem* fs, const char* path) {
   struct file*  file;
 
   file = filesystem_resolve(fs, path);
@@ -56,6 +56,32 @@ struct object* filesystem_get_object(struct filesystem* fs, const char* path) {
   else {
     return file_get_object(file);
   }
+}
+
+struct object* filesystem_get_object_with_extension(struct filesystem* fs,
+                                                    const char*        path,
+                                                    const char*        extension) {
+  unsigned int  index;
+  char*         p;
+  char          buffer[1024];
+
+  p = buffer;
+
+  for (index = 0; path[index]      != '\0'; index++) *(p++) = path[index];
+  for (index = 0; extension[index] != '\0'; index++) *(p++) = extension[index];
+  *p = '\0';
+
+  return filesystem_basic_get_object(fs, buffer);
+}
+
+struct object* filesystem_get_object(struct filesystem* fs, const char* path) {
+  struct object*  obj;
+
+  obj = filesystem_get_object_with_extension(fs, path, ".lpc");
+  if (obj != NULL) return obj;
+  obj = filesystem_get_object_with_extension(fs, path, ".c");
+  if (obj != NULL) return obj;
+  return filesystem_basic_get_object(fs, path);
 }
 
 void filesystem_set_anchor(struct filesystem* fs, const char* anchor) {
