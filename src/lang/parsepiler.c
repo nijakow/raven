@@ -43,7 +43,7 @@
  * The parsepiler starts out with a `parser` that is holding the data
  * of the first token in the LPC file:
  *
- *     inherit "/std/object.c";
+ *     inherit "/std/object";
  *     ^
  *     |
  *     +- The parser points to this token!
@@ -671,9 +671,9 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
      * This is the dereference operator, used in expressions
      * such as:
      *
-     *     *"/secure/master.c"
+     *     *"/secure/master"
      *
-     * which will reference the object `/secure/master.c`.
+     * which will reference the object `/secure/master`.
      *
      * In practice, this will just be a hidden call to the
      * method `the(...)`.
@@ -1339,7 +1339,7 @@ bool parsepile_file_statement(struct parser*    parser,
  * This function will recursively load and include all referenced
  * blueprints.
  *
- * If no `inherit` statement was given, we inherit from "/secure/base.c".
+ * If no `inherit` statement was given, we inherit from "/secure/base".
  */
 bool parsepile_inheritance(struct parser*    parser,
                            struct blueprint* into,
@@ -1352,7 +1352,7 @@ bool parsepile_inheritance(struct parser*    parser,
   result          = false;
 
   if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
-    /* 'inherit;' inherits from nothing - needed for "/secure/base.c" itself */
+    /* 'inherit;' inherits from nothing - needed for "/secure/base" itself */
     if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
       has_inheritance = false;
       result          = true;
@@ -1366,7 +1366,7 @@ bool parsepile_inheritance(struct parser*    parser,
       }
     }
   } else {
-    bp = raven_get_blueprint(parser->raven, "/secure/base.c");
+    bp = raven_get_blueprint(parser->raven, "/secure/base");
     if (bp != NULL && blueprint_inherit(into, bp)) {
       result = true;
     }

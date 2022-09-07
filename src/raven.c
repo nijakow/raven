@@ -88,9 +88,9 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
   filesystem_load(&raven->fs);
 
   /*
-   * Spawn a new fiber, calling "/secure/master.c"->main()
+   * Spawn a new fiber, calling "/secure/master"->main()
    */
-  result = raven_call_out(raven, "/secure/master.c", "main", NULL, 0);
+  result = raven_call_out(raven, "/secure/master", "main", NULL, 0);
 
   return result;
 }

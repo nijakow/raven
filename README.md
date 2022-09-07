@@ -62,19 +62,19 @@ To set up a mudlib for Raven, create this directory structure:
      |
      +- secure/
          |
-         +- master.c
+         +- master.lpc
          |
-         +- base.c
+         +- base.lpc
 ```
 
 Then set the variable `$RAVEN_MUDLIB` to point to your `mudlib/` directory. If
 you now start the server, it will try to run the `main()` function inside of
-`mudlib/secure/master.c`.
+`mudlib/secure/master.lpc`.
 
 In order to set up an interactive server, configure your files like this:
 
 ```c
-/* mudlib/secure/master.c */
+/* mudlib/secure/master.lpc */
 
 void connect(any connection) {
   /*
@@ -106,7 +106,7 @@ void main() {
 ```
 
 ```c
-/* mudlib/secure/base.c */
+/* mudlib/secure/base.lpc */
 
 /*
  * This is the file that every object automatically inherits from.
