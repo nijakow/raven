@@ -133,6 +133,32 @@ struct file* file_resolve(struct file* file, const char* name) {
   return file;
 }
 
+struct file* file_resolve_with_extension(struct file* file,
+                                         const  char* path,
+                                         const  char* extension) {
+  unsigned int  index;
+  char*         p;
+  char          buffer[1024];
+
+  p = buffer;
+
+  for (index = 0; path[index]      != '\0'; index++) *(p++) = path[index];
+  for (index = 0; extension[index] != '\0'; index++) *(p++) = extension[index];
+  *p = '\0';
+
+  return file_resolve(file, buffer);
+}
+
+struct file* file_resolve_flex(struct file* file, const char* path) {
+  struct file*  result;
+
+  result = file_resolve_with_extension(file, path, ".lpc");
+  if (result != NULL) return result;
+  result = file_resolve_with_extension(file, path, ".c");
+  if (result != NULL) return result;
+  return file_resolve(file, path);
+}
+
 static bool file_write_path(struct file* file, struct stringbuilder* sb) {
   if (file->parent != NULL) {
     if (!file_write_path(file->parent, sb))

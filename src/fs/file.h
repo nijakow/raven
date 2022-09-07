@@ -37,6 +37,7 @@ void file_load(struct file* file, const char* realpath);
 
 struct file* file_resolve1(struct file* file, const char* name);
 struct file* file_resolve(struct file* file, const char* name);
+struct file* file_resolve_flex(struct file* file, const char* name);
 
 char* file_path(struct file* file);
 

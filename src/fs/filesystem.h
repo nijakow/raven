@@ -26,6 +26,8 @@ void filesystem_set_anchor(struct filesystem* fs, const char* anchor);
 void filesystem_load(struct filesystem* fs);
 
 struct file* filesystem_resolve(struct filesystem* fs, const char* path);
+struct file* filesystem_resolve_flex(struct filesystem* fs, const char* path);
+
 struct blueprint* filesystem_get_blueprint(struct filesystem* fs,
                                            const char* path);
 struct object* filesystem_get_object(struct filesystem* fs, const char* path);

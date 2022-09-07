@@ -109,7 +109,7 @@ struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg) {
 }
 
 struct blueprint* blueprint_load_relative(struct blueprint* bp,
-                                          const char* path) {
+                                          const  char*      path) {
   struct file*  file;
 
   file = blueprint_file(bp);
@@ -118,7 +118,7 @@ struct blueprint* blueprint_load_relative(struct blueprint* bp,
   file = file_parent(file);
   if (file == NULL) return NULL;
 
-  file = file_resolve(file, path);
+  file = file_resolve_flex(file, path);
   if (file == NULL) return NULL;
 
   return file_get_blueprint(file);
