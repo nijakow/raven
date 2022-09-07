@@ -163,7 +163,7 @@ void builtin_the(struct fiber* fiber, any* arg, unsigned int args) {
     file  = blueprint_file(blue);
     file2 = file_parent(file);
     if (file2 == NULL) file2 = file;
-    file3 = file_resolve(file2, string_contents(any_to_ptr(arg[0])));
+    file3 = file_resolve_flex(file2, string_contents(any_to_ptr(arg[0])));
     if (file3 == NULL)
       fiber_set_accu(fiber, any_nil());
     else {
