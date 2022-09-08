@@ -165,7 +165,7 @@ struct file* file_resolve_flex(struct file* file, const char* path) {
   return file_resolve(file, path);
 }
 
-static bool file_write_path(struct file* file, struct stringbuilder* sb) {
+bool file_write_path(struct file* file, struct stringbuilder* sb) {
   if (file->parent != NULL) {
     if (!file_write_path(file->parent, sb))
       return false;

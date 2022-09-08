@@ -314,6 +314,7 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_object_parent", builtin_object_parent);
   raven_builtin(raven, "_object_sibling", builtin_object_sibling);
   raven_builtin(raven, "_object_children", builtin_object_children);
+  raven_builtin(raven, "_object_path", builtin_object_path);
   raven_builtin(raven, "_set_heart_beat", builtin_object_set_hb);
   raven_builtin(raven, "_object_first_heartbeat", builtin_object_fst_hb);
   raven_builtin(raven, "_object_next_heartbeat", builtin_object_next_hb);

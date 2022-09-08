@@ -323,6 +323,30 @@ void builtin_object_children(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_object_path(struct fiber* fiber, any* arg, unsigned int args) {
+  struct blueprint*     blue;
+  struct file*          file;
+  struct string*        string;
+  struct stringbuilder  sb;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+    arg_error(fiber);
+  else {
+    fiber_set_accu(fiber, any_nil());
+    blue = any_get_blueprint(arg[0]);
+    if (blue != NULL) {
+      file = blueprint_file(blue);
+      if (file != NULL) {
+        stringbuilder_create(&sb);
+        file_write_path(file, &sb);
+        string = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
+        stringbuilder_destroy(&sb);
+        fiber_set_accu(fiber, any_from_ptr(string));
+      }
+    }
+  }
+}
+
 void builtin_object_set_hb(struct fiber* fiber, any* arg, unsigned int args) {
   struct object**  heartbeats;
 
