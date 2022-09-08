@@ -158,17 +158,22 @@ void builtin_the(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
     arg_error(fiber);
   else {
-    self  = frame_self(fiber_top(fiber));
-    blue  = any_get_blueprint(self);
-    file  = blueprint_file(blue);
-    file2 = file_parent(file);
-    if (file2 == NULL) file2 = file;
-    file3 = file_resolve_flex(file2, string_contents(any_to_ptr(arg[0])));
-    if (file3 == NULL)
-      fiber_set_accu(fiber, any_nil());
-    else {
-      obj = file_get_object(file3);
-      fiber_set_accu(fiber, (obj == NULL) ? any_nil() : any_from_ptr(obj));
+    fiber_set_accu(fiber, any_nil());
+    self = frame_self(fiber_top(fiber));
+    blue = any_get_blueprint(self);
+    if (blue != NULL) {
+      file = blueprint_file(blue);
+      if (file != NULL) {
+        file2 = file_parent(file);
+        if (file2 == NULL) file2 = file;
+        file3 = file_resolve_flex(file2, string_contents(any_to_ptr(arg[0])));
+        if (file3 == NULL)
+          fiber_set_accu(fiber, any_nil());
+        else {
+          obj = file_get_object(file3);
+          fiber_set_accu(fiber, (obj == NULL) ? any_nil() : any_from_ptr(obj));
+        }
+      }
     }
   }
 }
