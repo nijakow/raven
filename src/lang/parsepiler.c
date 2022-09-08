@@ -120,11 +120,19 @@
 
 #include "../defs.h"
 
+#include "../fs/file.h"
+#include "../util/stringbuilder.h"
+
 #include "bytecodes.h"
 #include "codewriter.h"
 #include "compiler.h"
 
 #include "parsepiler.h"
+
+
+bool parsepile_file_impl(struct parser*    parser,
+                         struct blueprint* into,
+                         bool              inheritance);
 
 
 void parser_error(struct parser* parser, const char* format, ...) {
@@ -1387,6 +1395,37 @@ bool parsepile_inheritance(struct parser*    parser,
 }
 
 
+bool parsepile_include_statement(struct parser*    parser,
+                                 struct blueprint* into) {
+  struct file*          file;
+  struct stringbuilder  sb;
+  struct reader         reader;
+  struct parser         new_parser;
+  bool                  result;
+
+  result = false;
+  if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
+    file = file_resolve_flex(file_parent(blueprint_file(into)),
+                             parser_as_cstr(parser));
+    parser_advance(parser);
+    if (file != NULL) {
+      stringbuilder_create(&sb);
+      file_cat(file, &sb);
+      {
+        reader_create(&reader, stringbuilder_get_const(&sb));
+        parser_create(&new_parser, parser_raven(parser), &reader, parser_log(parser));
+        result = parsepile_file_impl(&new_parser, into, false);
+        parser_destroy(&new_parser);
+        reader_destroy(&reader);
+      }
+      stringbuilder_destroy(&sb);
+    }
+  }
+
+  return result;
+}
+
+
 /*
  * Parse an entire file.
  *
@@ -1407,7 +1446,9 @@ bool parsepile_inheritance(struct parser*    parser,
  * All of these statements will be compiled into the blueprint `into`,
  * which we assume to be freshly created.
  */
-bool parsepile_file(struct parser* parser, struct blueprint* into) {
+bool parsepile_file_impl(struct parser*    parser,
+                         struct blueprint* into,
+                         bool              inheritance) {
   struct codewriter  codewriter;
   struct compiler    compiler;
   struct function*   init_function;
@@ -1418,11 +1459,16 @@ bool parsepile_file(struct parser* parser, struct blueprint* into) {
   codewriter_create(&codewriter, parser_raven(parser));
   compiler_create(&compiler, parser_raven(parser), &codewriter, into);
 
-  if (parsepile_inheritance(parser, into, &compiler)) {
+  if (!inheritance || parsepile_inheritance(parser, into, &compiler)) {
     result = true;
 
     while (!parser_is(parser, TOKEN_TYPE_EOF)) {
-      if (!parsepile_file_statement(parser, into, &compiler)) {
+      if (parser_check(parser, TOKEN_TYPE_KW_INCLUDE)) {
+        if (!parsepile_include_statement(parser, into)) {
+          result = false;
+          break;
+        }
+      } else if (!parsepile_file_statement(parser, into, &compiler)) {
         result = false;
         break;
       }
@@ -1442,3 +1488,9 @@ bool parsepile_file(struct parser* parser, struct blueprint* into) {
 
   return result;
 }
+
+bool parsepile_file(struct parser*    parser,
+                    struct blueprint* into) {
+  return parsepile_file_impl(parser, into, true);
+}
+

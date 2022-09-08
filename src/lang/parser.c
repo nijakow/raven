@@ -11,7 +11,7 @@
 #include "parser.h"
 
 static const char* IDENT_CHARS =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$#";
 
 
 const char* token_type_name(enum token_type type) {
@@ -58,6 +58,7 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_STAR_ASSIGNMENT: return "STAR_ASSIGNMENT";
   case TOKEN_TYPE_SLASH_ASSIGNMENT: return "SLASH_ASSIGNMENT";
   case TOKEN_TYPE_PERCENT_ASSIGNMENT: return "PERCENT_ASSIGNMENT";
+  case TOKEN_TYPE_KW_INCLUDE: return "KW_INCLUDE";
   case TOKEN_TYPE_KW_INHERIT: return "KW_INHERIT";
   case TOKEN_TYPE_KW_NEW: return "KW_NEW";
   case TOKEN_TYPE_KW_THIS: return "KW_THIS";
@@ -340,6 +341,8 @@ void parser_advance(struct parser* parser) {
 
     if (parser_buffer_is_empty(parser)) {
       parser_set_type(parser, TOKEN_TYPE_EOF);
+    } else if (parser_buffer_is(parser, "#include")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_INCLUDE);
     } else if (parser_buffer_is(parser, "inherit")) {
       parser_set_type(parser, TOKEN_TYPE_KW_INHERIT);
     } else if (parser_buffer_is(parser, "new")) {

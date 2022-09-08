@@ -117,6 +117,8 @@ struct file* file_resolve1(struct file* file, const char* name) {
 struct file* file_resolve(struct file* file, const char* name) {
   unsigned int  i;
 
+  if (file == NULL) return NULL;
+
   if (name[0] == '/') {
     return file_resolve(filesystem_root(file_fs(file)), &name[1]);
   }
@@ -140,6 +142,8 @@ struct file* file_resolve_with_extension(struct file* file,
   char*         p;
   char          buffer[1024];
 
+  if (file == NULL) return NULL;
+
   p = buffer;
 
   for (index = 0; path[index]      != '\0'; index++) *(p++) = path[index];
@@ -155,6 +159,8 @@ struct file* file_resolve_flex(struct file* file, const char* path) {
   result = file_resolve_with_extension(file, path, ".lpc");
   if (result != NULL) return result;
   result = file_resolve_with_extension(file, path, ".c");
+  if (result != NULL) return result;
+  result = file_resolve_with_extension(file, path, ".h");
   if (result != NULL) return result;
   return file_resolve(file, path);
 }

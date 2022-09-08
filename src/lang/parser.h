@@ -68,6 +68,7 @@ enum token_type {
   TOKEN_TYPE_SLASH_ASSIGNMENT,
   TOKEN_TYPE_PERCENT_ASSIGNMENT,
 
+  TOKEN_TYPE_KW_INCLUDE,
   TOKEN_TYPE_KW_INHERIT,
   TOKEN_TYPE_KW_NEW,
   TOKEN_TYPE_KW_THIS,
@@ -183,6 +184,10 @@ static inline struct type* parser_get_exprtype(struct parser* parser) {
 
 static inline struct type* parser_get_returntype(struct parser* parser) {
   return parser->returntype;
+}
+
+static inline const char* parser_as_cstr(struct parser* parser) {
+  return parser->buffer;
 }
 
 #endif

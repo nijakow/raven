@@ -51,6 +51,7 @@ static inline struct filesystem* file_fs(struct file* file) {
 }
 
 static inline struct file* file_parent(struct file* file) {
+  if (file == NULL) return NULL;
   return file->parent;
 }
 
