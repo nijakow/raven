@@ -70,6 +70,10 @@ bool raven_call_out(struct raven* raven,
                     const char*   name,
                     any*          args,
                     unsigned int  arg_count);
+bool raven_call_out_func(struct raven*   raven,
+                         struct funcref* funcref,
+                         any*            args,
+                         unsigned int    arg_count);
 
 void raven_setup_builtins(struct raven* raven);
 

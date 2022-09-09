@@ -105,6 +105,7 @@ struct blueprint;
 struct symbol;
 struct string;
 struct function;
+struct funcref;
 
 struct scheduler;
 struct fiber;

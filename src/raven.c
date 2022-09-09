@@ -8,6 +8,7 @@
 #include "raven.h"
 
 #include "core/objects/symbol.h"
+#include "core/objects/funcref.h"
 #include "vm/builtins.h"
 #include "vm/fiber.h"
 #include "vm/interpreter.h"
@@ -243,8 +244,8 @@ struct object* raven_get_object(struct raven* raven, const char* path) {
  * Call a method on an object in a new thread.
  */
 bool raven_call_out(struct raven* raven,
-                    const char*   receiver,
-                    const char*   name,
+                    const  char*  receiver,
+                    const  char*  name,
                     any*          args,
                     unsigned int  arg_count) {
   struct object* object;
@@ -261,6 +262,23 @@ bool raven_call_out(struct raven* raven,
       fiber_send(fiber, raven_find_symbol(raven, name), arg_count);
       return true;
     }
+  }
+  return false;
+}
+
+/*
+ * Call a funcref in a new thread.
+ */
+bool raven_call_out_func(struct raven*   raven,
+                         struct funcref* funcref,
+                         any*            args,
+                         unsigned int    arg_count) {
+  struct fiber*  fiber;
+
+  fiber = scheduler_new_fiber(raven_scheduler(raven));
+  if (fiber != NULL) {
+    funcref_enter(funcref, fiber, args, arg_count);
+    return true;
   }
   return false;
 }
@@ -286,6 +304,7 @@ void raven_setup_builtins(struct raven* raven) {
    */
   raven_builtin(raven, "_throw", builtin_throw);
   raven_builtin(raven, "_sleep", builtin_sleep);
+  raven_builtin(raven, "fork", builtin_fork);
 
   raven_builtin(raven, "_this_connection", builtin_this_connection);
   raven_builtin(raven, "print", builtin_print);

@@ -76,6 +76,18 @@ void builtin_sleep(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_fork(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args == 0 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+    arg_error(fiber);
+  else {
+    raven_call_out_func(fiber_raven(fiber),
+                        any_to_ptr(arg[0]),
+                        arg,
+                        args);
+    fiber_set_accu(fiber, any_nil());
+  }
+}
+
 void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 0)
     arg_error(fiber);
