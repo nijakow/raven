@@ -60,6 +60,7 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_PERCENT_ASSIGNMENT: return "PERCENT_ASSIGNMENT";
   case TOKEN_TYPE_KW_INCLUDE: return "KW_INCLUDE";
   case TOKEN_TYPE_KW_INHERIT: return "KW_INHERIT";
+  case TOKEN_TYPE_KW_PRIVATE: return "KW_PRIVATE";
   case TOKEN_TYPE_KW_PROTECTED: return "KW_PROTECTED";
   case TOKEN_TYPE_KW_NEW: return "KW_NEW";
   case TOKEN_TYPE_KW_THIS: return "KW_THIS";
@@ -346,6 +347,8 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_INCLUDE);
     } else if (parser_buffer_is(parser, "inherit")) {
       parser_set_type(parser, TOKEN_TYPE_KW_INHERIT);
+    } else if (parser_buffer_is(parser, "private")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_PRIVATE);
     } else if (parser_buffer_is(parser, "protected")) {
       parser_set_type(parser, TOKEN_TYPE_KW_PROTECTED);
     } else if (parser_buffer_is(parser, "new")) {
