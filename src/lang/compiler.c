@@ -31,10 +31,11 @@ void compiler_create(struct compiler*   compiler,
 
 void compiler_create_sub(struct compiler* compiler, struct compiler* parent) {
   compiler_create_base(compiler);
-  compiler->raven  = parent->raven;
-  compiler->parent = parent;
-  compiler->cw     = parent->cw;
-  compiler->bp     = parent->bp;
+  compiler->raven        = parent->raven;
+  compiler->parent       = parent;
+  compiler->cw           = parent->cw;
+  compiler->bp           = parent->bp;
+  compiler->mapping_vars = parent->mapping_vars;
   vars_reparent(&compiler->vars, &parent->vars);
 }
 
