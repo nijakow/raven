@@ -45,6 +45,7 @@ struct function* function_new(struct raven* raven,
     function->blueprint      =          NULL;
     function->prev_method    =          NULL;
     function->next_method    =          NULL;
+    function->modifier       =          RAVEN_MODIFIER_NONE;
     function->locals         =          locals;
     function->varargs        =          varargs;
     function->bytecode_count =          bytecode_count;

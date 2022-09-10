@@ -9,25 +9,27 @@
 #define RAVEN_CORE_FUNCTION_H
 
 #include "../../defs.h"
+#include "../../lang/modifiers.h"
 #include "../any.h"
 #include "../base_obj.h"
 
 
 struct function {
-  struct base_obj    _;
-  struct blueprint*  blueprint;
-  struct symbol*     name;
-  struct function**  prev_method;
-  struct function*   next_method;
-  unsigned int       locals;
-  bool               varargs;
-  unsigned int       bytecode_count;
-  t_bc*              bytecodes;
-  unsigned int       constant_count;
-  any*               constants;
-  unsigned int       type_count;
-  struct type**      types;
-  char               payload[];
+  struct base_obj      _;
+  struct blueprint*    blueprint;
+  struct symbol*       name;
+  struct function**    prev_method;
+  struct function*     next_method;
+  enum raven_modifier  modifier;
+  unsigned int         locals;
+  bool                 varargs;
+  unsigned int         bytecode_count;
+  t_bc*                bytecodes;
+  unsigned int         constant_count;
+  any*                 constants;
+  unsigned int         type_count;
+  struct type**        types;
+  char                 payload[];
 };
 
 struct function* function_new(struct raven* raven,
@@ -54,6 +56,14 @@ void function_disassemble(struct function* function, struct log* log);
 
 static inline struct symbol* function_name(struct function* func) {
   return func->name;
+}
+
+static inline enum raven_modifier function_modifier(struct function* func) {
+  return func->modifier;
+}
+
+static inline void function_set_modifier(struct function* func, enum raven_modifier mod) {
+  func->modifier = mod;
 }
 
 static inline struct blueprint* function_blueprint(struct function* func) {

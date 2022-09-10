@@ -120,10 +120,12 @@
 
 #include "../defs.h"
 
+#include "../core/objects/function.h"
 #include "../fs/file.h"
 #include "../util/stringbuilder.h"
 
 #include "bytecodes.h"
+#include "modifiers.h"
 #include "codewriter.h"
 #include "compiler.h"
 
@@ -1288,14 +1290,21 @@ bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
 bool parsepile_file_statement(struct parser*    parser,
                               struct blueprint* into,
                               struct compiler*  init_compiler) {
-  struct codewriter  codewriter;
-  struct compiler    compiler;
-  struct type*       type;
-  struct symbol*     name;
-  struct function*   function;
-  bool               result;
+  struct codewriter      codewriter;
+  struct compiler        compiler;
+  struct type*           type;
+  struct symbol*         name;
+  struct function*       function;
+  enum   raven_modifier  modifier;
+  bool                   result;
 
   result = false;
+
+  if (parser_check(parser, TOKEN_TYPE_KW_PROTECTED)) {
+    modifier = RAVEN_MODIFIER_PROTECTED;
+  } else {
+    modifier = RAVEN_MODIFIER_NONE;
+  }
 
   if (parse_type_and_name(parser, &type, &name)) {
     if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
@@ -1313,6 +1322,7 @@ bool parsepile_file_statement(struct parser*    parser,
           if (parsepile_block_body(parser, &compiler)) {
             function = compiler_finish(&compiler);
             if (function != NULL) {
+              function_set_modifier(function, modifier);
               blueprint_add_func(into, name, function);
               result = true;
             }
