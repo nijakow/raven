@@ -10,6 +10,63 @@
 
 #include "../defs.h"
 
+/*
+ * Stringbuilders are objects that help us with the
+ * instantiation and concatenation of strings.
+ *
+ * Internally, they contain a resizable buffer. We
+ * have access to functions which extract and append
+ * strings from and to this stringbuilder.
+ *
+ * A default usecase would be appending three strings.
+ * In "normal" C we would have to write something like
+ * this:
+ *
+ *     strjoin(strjoin("a", "b"), "c");
+ *
+ * This would of course leak memory, so the actual
+ * implementation should rather look like this:
+ *
+ *     char* join3(char* a, char* b, char* c) {
+ *         char* tmp;
+ *         char* res;
+ *
+ *         tmp = strjoin(a, b);
+ *         res = strjoin(tmp, c);
+ *         free(tmp);
+ *         return res;
+ *     }
+ *
+ * This is all a bit clunky, especially since the same
+ * problem would arise if we were now had to append
+ * four strings:
+ *
+ *     strjoin(strjoin3("a", "b", "c"), "d"); // Ow!
+ *
+ * A stringbuilder can help here:
+ *
+ *     {
+ *         struct stringbuilder  sb;
+ *         char*                 res;
+ *
+ *         stringbuilder_create(&sb);
+ *         stringbuilder_append_str(&sb, "a");
+ *         stringbuilder_append_str(&sb, "b");
+ *         stringbuilder_append_str(&sb, "c");
+ *         stringbuilder_append_str(&sb, "d");
+ *         res = stringbuilder_get(&sb);
+ *         stringbuilder_destroy(&sb);
+ *     }
+ *
+ * This frees us of the burden of keeping track of all
+ * the memory allocations and deallocations that would
+ * happen while building the resulting string.
+ *
+ * Stringbuilders are used throughout raven wherever
+ * there's any need for resizeable strings or where
+ * strings are being constructed out of smaller strings.
+ */
+
 struct stringbuilder {
   unsigned int alloc;
   unsigned int fill;

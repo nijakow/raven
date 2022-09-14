@@ -1,6 +1,14 @@
 #ifndef RAVEN_UTIL_VT100_H
 #define RAVEN_UTIL_VT100_H
 
+/*
+ * This file defines many useful ANSI VT100 escape sequences.
+ *
+ * Since support for VT100 sequences doesn't exist on every
+ * target platform, there is a switch in defs.h that allows
+ * us to use empty strings instead.
+ */
+
 #ifdef RAVEN_USE_VT100
 
 # define RAVEN_VT100_RESET   "\033[0m"
