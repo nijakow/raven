@@ -5,6 +5,11 @@
  * See README and LICENSE for further information.
  */
 
+/*
+ * This file contains a small tool for wrapping a string
+ * to a certain margin.
+ */
+
 #include "wrap.h"
 
 static bool is_wrap_space(char c) {

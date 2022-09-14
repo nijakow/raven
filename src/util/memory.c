@@ -7,6 +7,18 @@
 
 #include "../defs.h"
 
+/*
+ * The idea behind this file is to hide the system's
+ * allocators behind our own functions. This is especially
+ * useful since `malloc()`'s specification is quite weird
+ * in some cases.
+ *
+ * For example, allocating zero bytes is allowed by most
+ * systems, but the standard explicitly says that such
+ * behavior is undefined. The same applies to
+ * `realloc`ating NULL.
+ */
+
 #include "memory.h"
 
 void* memory_alloc(size_t size) {
