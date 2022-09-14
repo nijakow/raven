@@ -8,15 +8,15 @@
 #ifndef RAVEN_H
 #define RAVEN_H
 
-#include "defs.h"
-#include "core/any.h"
-#include "core/type.h"
-#include "core/object_table.h"
-#include "fs/filesystem.h"
-#include "server/server.h"
-#include "util/log.h"
-#include "vm/scheduler.h"
-#include "gc/gc.h"
+#include "../defs.h"
+#include "../core/any.h"
+#include "../core/type.h"
+#include "../core/object_table.h"
+#include "../fs/filesystem.h"
+#include "../server/server.h"
+#include "../util/log.h"
+#include "../vm/scheduler.h"
+#include "../gc/gc.h"
 
 /*
  * All variables of type `any` that are associated with the state of

@@ -34,8 +34,8 @@
  * are no GRAY objects anymore), and the garbage collector terminates.
  */
 
-#include "../raven.h"
 #include "../core/object_table.h"
+#include "../raven/raven.h"
 #include "gc.h"
 
 /*

@@ -5,8 +5,8 @@
  * See README and LICENSE for further information.
  */
 
-#include "../raven.h"
 #include "../core/type.h"
+#include "../raven/raven.h"
 
 #include "compiler.h"
 

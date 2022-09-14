@@ -6,8 +6,8 @@
  */
 
 #include "../defs.h"
-#include "../raven.h"
 
+#include "../raven/raven.h"
 #include "../core/objects/object.h"
 #include "../core/objects/array.h"
 #include "../core/objects/mapping.h"

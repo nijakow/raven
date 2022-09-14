@@ -6,8 +6,8 @@
  */
 
 #include "../../defs.h"
-#include "../../raven.h"
 
+#include "../../raven/raven.h"
 #include "../../server/server.h"
 #include "../../util/memory.h"
 #include "../../vm/fiber.h"

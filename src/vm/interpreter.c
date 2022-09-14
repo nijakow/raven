@@ -7,7 +7,7 @@
 
 #include "../defs.h"
 
-#include "../raven.h"
+#include "../raven/raven.h"
 #include "../lang/bytecodes.h"
 #include "../core/objects/array.h"
 #include "../core/objects/function.h"

@@ -6,7 +6,8 @@
  */
 
 #include "../defs.h"
-#include "../raven.h"
+
+#include "../raven/raven.h"
 #include "../core/objects/function.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"

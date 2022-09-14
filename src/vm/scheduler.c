@@ -5,7 +5,8 @@
  * See README and LICENSE for further information.
  */
 
-#include "../raven.h"
+#include "../raven/raven.h"
+
 #include "fiber.h"
 #include "interpreter.h"
 

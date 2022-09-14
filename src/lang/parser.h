@@ -9,8 +9,8 @@
 #define RAVEN_LANG_PARSER_H
 
 #include "../defs.h"
-#include "../raven.h"
 #include "../core/type.h"
+#include "../raven/raven.h"
 #include "../util/log.h"
 
 #include "reader.h"

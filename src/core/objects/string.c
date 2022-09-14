@@ -6,8 +6,8 @@
  */
 
 #include "../../defs.h"
-#include "../../raven.h"
 
+#include "../../raven/raven.h"
 #include "../../util/stringbuilder.h"
 #include "../../util/memory.h"
 

@@ -10,7 +10,7 @@
 #include "../core/objects/object.h"
 #include "../core/objects/string.h"
 #include "../core/type.h"
-#include "../raven.h"
+#include "../raven/raven.h"
 
 #include "fiber.h"
 

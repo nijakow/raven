@@ -6,7 +6,8 @@
  */
 
 #include "../defs.h"
-#include "../raven.h"
+
+#include "../raven/raven.h"
 #include "../core/objects/connection.h"
 #include "../vm/scheduler.h"
 #include "../vm/fiber.h"

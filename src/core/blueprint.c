@@ -5,7 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include "../raven.h"
+#include "../raven/raven.h"
 #include "../fs/file.h"
 #include "objects/function.h"
 

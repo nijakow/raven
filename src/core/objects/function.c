@@ -6,10 +6,11 @@
  */
 
 #include "../../defs.h"
-#include "../../raven.h"
+
+#include "../../raven/raven.h"
+#include "../../lang/bytecodes.h"
 
 #include "../blueprint.h"
-#include "../../lang/bytecodes.h"
 
 #include "function.h"
 

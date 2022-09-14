@@ -6,7 +6,8 @@
  */
 
 #include "defs.h"
-#include "raven.h"
+
+#include "raven/raven.h"
 
 
 static struct raven  THE_RAVEN;
