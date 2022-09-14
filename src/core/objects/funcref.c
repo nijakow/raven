@@ -17,7 +17,7 @@ struct obj_info FUNCREF_INFO = {
   .type  = OBJ_TYPE_FUNCREF,
   .mark  = (mark_func)  funcref_mark,
   .del   = (del_func)   funcref_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 

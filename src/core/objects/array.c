@@ -14,7 +14,7 @@ struct obj_info ARRAY_INFO = {
   .type  = OBJ_TYPE_ARRAY,
   .mark  = (mark_func)  array_mark,
   .del   = (del_func)   array_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 struct array* array_new(struct raven* raven, unsigned int size) {

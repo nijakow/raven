@@ -15,7 +15,7 @@ struct obj_info BLUEPRINT_INFO = {
   .type  = OBJ_TYPE_BLUEPRINT,
   .mark  = (mark_func)  blueprint_mark,
   .del   = (del_func)   blueprint_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 static void blueprint_create(struct blueprint* blue, struct file* file) {

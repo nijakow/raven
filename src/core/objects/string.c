@@ -17,7 +17,7 @@ struct obj_info STRING_INFO = {
   .type  = OBJ_TYPE_STRING,
   .mark  = string_mark,
   .del   = string_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 struct string* string_new(struct raven* raven, const char* contents) {

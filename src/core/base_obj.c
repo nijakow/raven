@@ -47,7 +47,7 @@ void base_obj_del(void* ptr) {
   memory_free(ptr);
 }
 
-void base_obj_stats(void*, struct obj_stats* stats) {
+void base_obj_stats(void* ptr, struct obj_stats* stats) {
   /* TODO */
 }
 

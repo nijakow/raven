@@ -21,7 +21,7 @@ struct obj_info CONNECTION_INFO = {
   .type  = OBJ_TYPE_CONNECTION,
   .mark  = (mark_func)  connection_mark,
   .del   = (del_func)   connection_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 

@@ -17,7 +17,7 @@ struct obj_info FUNCTION_INFO = {
   .type  = OBJ_TYPE_FUNCTION,
   .mark  = (mark_func)  function_mark,
   .del   = (del_func)   function_del,
-  .stats = (stats_func) NULL
+  .stats = (stats_func) base_obj_stats
 };
 
 
