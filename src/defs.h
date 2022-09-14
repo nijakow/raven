@@ -71,7 +71,8 @@ enum obj_type {
   OBJ_TYPE_MAPPING,
   OBJ_TYPE_FUNCREF,
   OBJ_TYPE_CONNECTION,
-  OBJ_TYPE_BLUEPRINT
+  OBJ_TYPE_BLUEPRINT,
+  OBJ_TYPE_MAX
 };
 
 /*
@@ -120,7 +121,7 @@ struct gc;
 
 void gc_mark_ptr(struct gc* gc, void* ptr);
 
-struct object_stats;
+struct obj_stats;
 
 struct stringbuilder;
 

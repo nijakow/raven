@@ -52,3 +52,9 @@ void base_obj_dispatch_del(void* ptr) {
     return;
   ((struct base_obj*) ptr)->info->del(ptr);
 }
+
+void base_obj_dispatch_stats(void* ptr, struct obj_stats* stats) {
+  if (ptr == NULL)
+    return;
+  ((struct base_obj*) ptr)->info->stats(ptr, stats);
+}
