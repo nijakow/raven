@@ -127,11 +127,14 @@ void* base_obj_new(struct object_table* table,
                    struct obj_info*     info,
                    size_t               size);
 void  base_obj_mark(struct gc* gc, struct base_obj* obj);
-void  base_obj_dispatch_mark(struct gc* gc, struct base_obj* obj);
-void  base_obj_mark_children(struct gc* gc, struct base_obj* obj);
 void  base_obj_del(void*);
+void  base_obj_stats(void*, struct obj_stats* stats);
+
+void  base_obj_dispatch_mark(struct gc* gc, struct base_obj* obj);
 void  base_obj_dispatch_del(void*);
 void  base_obj_dispatch_stats(void*, struct obj_stats* stats);
+
+void  base_obj_mark_children(struct gc* gc, struct base_obj* obj);
 
 static inline struct obj_info* base_obj_info(struct base_obj* obj) {
   return obj->info;

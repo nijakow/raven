@@ -47,6 +47,10 @@ void base_obj_del(void* ptr) {
   memory_free(ptr);
 }
 
+void base_obj_stats(void*, struct obj_stats* stats) {
+  /* TODO */
+}
+
 void base_obj_dispatch_del(void* ptr) {
   if (ptr == NULL)
     return;
