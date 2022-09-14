@@ -4,11 +4,16 @@
 
 
 void obj_stats_create(struct obj_stats* stats) {
-  stats->size = 0;
+  stats->count = 0;
+  stats->size  = 0;
 }
 
 void obj_stats_destroy(struct obj_stats* stats) {
   
+}
+
+void obj_stats_inc_count(struct obj_stats* stats) {
+  stats->count++;
 }
 
 

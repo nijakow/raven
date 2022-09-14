@@ -6,6 +6,7 @@
  */
 
 #include "../gc/gc.h"
+#include "../gc/stats.h"
 #include "../util/memory.h"
 
 #include "base_obj.h"
@@ -48,7 +49,7 @@ void base_obj_del(void* ptr) {
 }
 
 void base_obj_stats(void* ptr, struct obj_stats* stats) {
-  /* TODO */
+  obj_stats_inc_count(stats);
 }
 
 void base_obj_dispatch_del(void* ptr) {
