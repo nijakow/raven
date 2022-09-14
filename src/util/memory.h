@@ -14,4 +14,6 @@ void* memory_alloc(size_t size);
 void* memory_realloc(void* ptr, size_t new_size);
 void  memory_free(void* ptr);
 
+char* memory_strdup(const char* ptr);
+
 #endif

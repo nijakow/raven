@@ -25,3 +25,8 @@ void memory_free(void* ptr) {
   if (ptr != NULL)
     free(ptr);
 }
+
+
+char* memory_strdup(const char* ptr) {
+  return strdup(ptr);
+}
