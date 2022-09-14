@@ -277,13 +277,16 @@ bool parse_fancy_vardecl(struct parser*  parser,
 }
 
 bool parsepile_load_var(struct parser*   parser,
-                         struct compiler* compiler,
-                         struct symbol*   name) {
+                        struct compiler* compiler,
+                        struct symbol*   name) {
   struct type*  type;
   bool          result;
 
   result = compiler_load_var_with_type(compiler, name, &type);
   if (result) parser_set_exprtype(parser, type);
+  else parser_error(parser,
+                    "Invalid variable name: %s!",
+                    symbol_name(name));
   return result;
 }
 
@@ -294,7 +297,11 @@ bool parsepile_store_var(struct parser*   parser,
   bool          result;
 
   result = compiler_store_var_with_type(compiler, name, &type);
-  if (result && !type_match(type, parser_get_exprtype(parser))) {
+  if (!result) {
+    parser_error(parser,
+                 "Invalid variable name: %s!",
+                 symbol_name(name));
+  } else if (!type_match(type, parser_get_exprtype(parser))) {
     parser_error(parser, "Warning: possible type mismatch!\n");
   }
   return result;
