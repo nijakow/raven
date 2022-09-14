@@ -20,7 +20,7 @@
  * Ringbuffers help us with this task. A ringbuffer consists
  * of a char array that holds the data, and two pointers,
  * one of which is called the READ HEAD, the other one is
- * called the WRITE_HEAD:
+ * called the WRITE HEAD:
  *
  *
  *                 ....
