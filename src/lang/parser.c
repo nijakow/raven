@@ -228,9 +228,15 @@ void parser_read_character(struct parser* parser) {
   reader_advance(parser->reader);
 }
 
-void parser_advance(struct parser* parser) {
+void parser_read_symbol(struct parser* parser) {
   char c;
 
+  while (reader_peekn(parser->reader, &c, IDENT_CHARS)) {
+    parser_buffer_append(parser, c);
+  }
+}
+
+void parser_advance(struct parser* parser) {
   parser_buffer_clear(parser);
 
   reader_skip_whitespace(parser->reader);
@@ -333,13 +339,14 @@ void parser_advance(struct parser* parser) {
   } else if (reader_checks(parser->reader, "#\'")) {
     parser_set_type(parser, TOKEN_TYPE_SYMBOL);
     parser_read_string(parser, "\'");
+  } else if (reader_checks(parser->reader, "#:")) {
+    parser_set_type(parser, TOKEN_TYPE_SYMBOL);
+    parser_read_symbol(parser);
   } else if (parser_isdigit(reader_peek(parser->reader))) {
     parser_set_type(parser, TOKEN_TYPE_INT);
     parser_read_int(parser);
   } else {
-    while (reader_peekn(parser->reader, &c, IDENT_CHARS)) {
-      parser_buffer_append(parser, c);
-    }
+    parser_read_symbol(parser);
 
     if (parser_buffer_is_empty(parser)) {
       parser_set_type(parser, TOKEN_TYPE_EOF);
