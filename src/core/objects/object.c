@@ -27,6 +27,7 @@ static void object_unlink(struct object* object) {
 
   if (object->parent != NULL) {
     ptr = &object->parent->children;
+
     while (*ptr != NULL) {
       if (*ptr == object)
         *ptr = object->sibling;
