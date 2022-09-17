@@ -111,6 +111,22 @@ bool object_get(struct object* object, struct symbol* symbol, any* result) {
   return true;
 }
 
+bool object_put(struct object* object, struct symbol* symbol, any value) {
+  struct blueprint*  blue;
+  struct vars*       vars;
+  unsigned int       index;
+
+  blue = object_blueprint(object);
+  vars = blueprint_vars(blue);
+
+  if (!vars_find(vars, symbol, NULL, &index))
+    return false;
+
+  *object_slot(object, index) = value;
+
+  return true;
+}
+
 struct object* object_clone(struct raven* raven, struct object* original) {
   unsigned int    index;
   struct object*  object;

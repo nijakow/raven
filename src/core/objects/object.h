@@ -31,6 +31,7 @@ void           object_mark(struct gc* gc, struct object* object);
 void           object_del(struct object* object);
 
 bool           object_get(struct object* object, struct symbol* symbol, any* result);
+bool           object_put(struct object* object, struct symbol* symbol, any value);
 
 struct object* object_clone(struct raven* raven, struct object* original);
 
