@@ -30,6 +30,8 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint);
 void           object_mark(struct gc* gc, struct object* object);
 void           object_del(struct object* object);
 
+bool           object_get(struct object* object, struct symbol* symbol, any* result);
+
 struct object* object_clone(struct raven* raven, struct object* original);
 
 void object_move_to(struct object* object, struct object* target);

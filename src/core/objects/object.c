@@ -95,6 +95,22 @@ void object_del(struct object* object) {
   base_obj_del(&object->_);
 }
 
+bool object_get(struct object* object, struct symbol* symbol, any* result) {
+  struct blueprint*  blue;
+  struct vars*       vars;
+  unsigned int       index;
+
+  blue = object_blueprint(object);
+  vars = blueprint_vars(blue);
+
+  if (!vars_find(vars, symbol, NULL, &index))
+    return false;
+
+  *result = *object_slot(object, index);
+
+  return true;
+}
+
 struct object* object_clone(struct raven* raven, struct object* original) {
   unsigned int    index;
   struct object*  object;

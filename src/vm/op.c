@@ -145,6 +145,11 @@ any fiber_op_index(struct fiber* fiber, any a, any b) {
   } else if (any_is_obj(a, OBJ_TYPE_MAPPING)) {
     mapping_get(any_to_ptr(a), b, &result);
     return result;
+  } else if (any_is_obj(a, OBJ_TYPE_OBJECT) && any_is_obj(b, OBJ_TYPE_SYMBOL)) {
+    if (object_get(any_to_ptr(a), any_to_ptr(b), &result))
+      return result;
+    else
+      return any_nil();
   } else if (any_is_int(a) && any_is_int(b)) {
     return any_from_int((any_to_int(a) & (1 << any_to_int(b))) != 0);
   } else {
