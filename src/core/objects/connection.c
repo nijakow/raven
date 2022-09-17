@@ -95,7 +95,7 @@ void connection_close(struct connection* connection) {
 
   connection_any = any_from_ptr(connection);
   raven_call_out(connection_raven(connection),
-                 "/secure/master.c",
+                 "/secure/master",
                  "disconnect",
                  &connection_any,
                  1);

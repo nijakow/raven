@@ -18,6 +18,7 @@ void builtin_sleep(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_fork(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_connection_player(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_print(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_write(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_write_to(struct fiber* fiber, any* arg, unsigned int args);

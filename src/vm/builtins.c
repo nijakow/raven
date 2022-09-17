@@ -99,6 +99,24 @@ void builtin_this_connection(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_connection_player(struct fiber* fiber, any* arg, unsigned int args) {
+  struct connection*  connection;
+  struct fiber*       c_fiber;
+
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_CONNECTION))
+    arg_error(fiber);
+  else {
+    fiber_set_accu(fiber, any_nil());
+
+    connection = any_to_ptr(arg[0]);
+    c_fiber    = connection_fiber(connection);
+
+    if (c_fiber != NULL) {
+      fiber_set_accu(fiber, fiber_vars(c_fiber)->this_player);
+    }
+  }
+}
+
 void builtin_print(struct fiber* fiber, any* arg, unsigned int args) {
   for (unsigned int x = 0; x < args; x++) {
     print_object(raven_log(fiber_raven(fiber)), arg[x]);
