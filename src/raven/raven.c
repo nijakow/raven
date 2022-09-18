@@ -312,7 +312,6 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "print", builtin_print);
   raven_builtin(raven, "write", builtin_write);
   raven_builtin(raven, "write_to", builtin_write_to);
-  raven_builtin(raven, "input_to", builtin_input_to);
   raven_builtin(raven, "input_line", builtin_input_line);
 
   raven_builtin(raven, "_the", builtin_the);

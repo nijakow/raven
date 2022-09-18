@@ -50,7 +50,6 @@ struct fiber {
   struct scheduler*  scheduler;
   raven_time_t       wakeup_time;
   struct connection* connection;
-  struct funcref*    input_to;
   struct fiber_vars  vars;
   struct frame*      top;
   char*              sp;
@@ -110,11 +109,6 @@ static inline struct connection* fiber_connection(struct fiber* fiber) {
 static inline void fiber_set_connection(struct fiber* fiber,
                                         struct connection* connection) {
   fiber->connection = connection;
-}
-
-static inline void fiber_set_inputto(struct fiber* fiber,
-                                     struct funcref* input_to) {
-  fiber->input_to = input_to;
 }
 
 static inline void fiber_set_accu(struct fiber* fiber, any value) {

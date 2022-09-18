@@ -161,14 +161,6 @@ void builtin_write_to(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
-void builtin_input_to(struct fiber* fiber, any* arg, unsigned int args) {
-  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
-    arg_error(fiber);
-  else {
-    fiber_set_inputto(fiber, any_to_ptr(arg[0]));
-  }
-}
-
 void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 0)
     arg_error(fiber);

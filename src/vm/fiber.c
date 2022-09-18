@@ -31,7 +31,6 @@ void fiber_create(struct fiber* fiber, struct scheduler* scheduler) {
   fiber->accu             =  any_nil();
   fiber->scheduler        =  scheduler;
   fiber->connection       =  NULL;
-  fiber->input_to         =  NULL;
   fiber->sp               = &fiber->payload[0];
   fiber->top              =  NULL;
 
@@ -85,7 +84,6 @@ void fiber_mark(struct gc* gc, struct fiber* fiber) {
   }
 
   gc_mark_any(gc, fiber->accu);
-  gc_mark_ptr(gc, fiber->input_to);
   gc_mark_any(gc, fiber->vars.this_player);
   gc_mark_ptr(gc, fiber_connection(fiber));
 }
