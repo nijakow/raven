@@ -34,7 +34,7 @@ static bool stringbuilder_resize(struct stringbuilder* sb) {
     if (data == NULL)
       return false;
     memcpy(data, sb->data, sb->fill);
-    free(sb->data);
+    memory_free(sb->data);
     sb->data  = data;
     sb->alloc = sb->alloc * 2;
   }
@@ -58,9 +58,9 @@ void stringbuilder_append_str(struct stringbuilder* sb, const char* str) {
 
 bool stringbuilder_get(struct stringbuilder* sb, char** loc) {
   if (sb->data == NULL)
-    *loc = strdup("");
+    *loc = memory_strdup("");
   else
-    *loc = strdup(sb->data);
+    *loc = memory_strdup(sb->data);
   return (*loc != NULL);
 }
 
