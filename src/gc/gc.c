@@ -39,6 +39,21 @@
 #include "gc.h"
 
 /*
+ * Create a new GC instance.
+ */
+void gc_create(struct gc* gc, struct raven* raven) {
+  gc->raven     = raven;
+  gc->mark_list = NULL;
+}
+
+/*
+ * Destroy a GC instance.
+ */
+void gc_destroy(struct gc* gc) {
+  gc_clear_mark_list(gc);
+}
+
+/*
  * Remove an object from a garbage collector's gray list,
  * and return it.
  */
@@ -62,16 +77,6 @@ static struct base_obj* gc_pop(struct gc* gc) {
 static void gc_clear_mark_list(struct gc* gc) {
   while (gc->mark_list != NULL)
     base_obj_mark_white(gc_pop(gc));
-}
-
-
-void gc_create(struct gc* gc, struct raven* raven) {
-  gc->raven     = raven;
-  gc->mark_list = NULL;
-}
-
-void gc_destroy(struct gc* gc) {
-  gc_clear_mark_list(gc);
 }
 
 /*
