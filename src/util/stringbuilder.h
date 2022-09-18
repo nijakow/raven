@@ -24,8 +24,9 @@
  *
  *     strjoin(strjoin("a", "b"), "c");
  *
- * This would of course leak memory, so the actual
- * implementation should rather look like this:
+ * Due to the discarded return value of the first strjoin,
+ * this implementation would leak memory, so the actual
+ * version should rather look like this:
  *
  *     char* join3(char* a, char* b, char* c) {
  *         char* tmp;
@@ -60,7 +61,9 @@
  *
  * This frees us of the burden of keeping track of all
  * the memory allocations and deallocations that would
- * happen while building the resulting string.
+ * happen while building the resulting string. It also
+ * allows us to join as many strings as we want,
+ * without having to change the underlying pattern.
  *
  * Stringbuilders are used throughout raven wherever
  * there's any need for resizeable strings or where
