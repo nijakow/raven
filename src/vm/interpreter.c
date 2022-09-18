@@ -475,9 +475,6 @@ void fiber_interpret(struct fiber* fiber) {
   while (fiber->state == FIBER_STATE_RUNNING
          && cycles --> 0) {
     /*
-     *
-     */
-    /*
      * There are cases where the compiler doesn't issue
      * a return opcode at the end, so if we have reached
      * the end of a function, we treat this as a return
