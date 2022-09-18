@@ -452,6 +452,17 @@ void fiber_interpret(struct fiber* fiber) {
   struct symbol*    message;
   struct base_obj*  obj;
   unsigned int      args;
+  unsigned int      cycles;
+
+  /*
+   * If the fiber runs into an infinite loop, we still want
+   * to give back control to the server after a while so that
+   * the system doesn't become completely unresponsive.
+   *
+   * Therefore, we do have a cycle count which causes this
+   * function to return after a certain amount of instructions.
+   */
+  cycles = 4096;
 
   /*
    * As long as the fiber wants to keep running...
@@ -460,9 +471,12 @@ void fiber_interpret(struct fiber* fiber) {
    * fiber after a while in order to switch to a different
    * process. Some processes might even have an upper limit
    * on how many operations they are allowed to perform.
-   * We should keep that in mind for future additions.
    */
-  while (fiber->state == FIBER_STATE_RUNNING) {
+  while (fiber->state == FIBER_STATE_RUNNING
+         && cycles --> 0) {
+    /*
+     *
+     */
     /*
      * There are cases where the compiler doesn't issue
      * a return opcode at the end, so if we have reached
