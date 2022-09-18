@@ -8,6 +8,21 @@
 #ifndef RAVEN_VM_FIBER_H
 #define RAVEN_VM_FIBER_H
 
+/*
+ * Fibers are to Raven what processes and threads are to
+ * an operating system: They provide a way to run LPC code
+ * concurrently.
+ *
+ * When the VM runs, it uses a linked list of fibers to
+ * determine which ones to run, and then executes them for
+ * a certain amount of time.
+ *
+ * A fiber holds the entire execution state of a Raven
+ * process, including the stack frames, its capabilities
+ * and limitations, some bookkeeping and scheduling details,
+ * etc.
+ */
+
 #include "../defs.h"
 #include "../core/any.h"
 #include "scheduler.h"
