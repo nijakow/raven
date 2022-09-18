@@ -519,8 +519,6 @@ bool parsepile_simple_expr(struct parser*   parser,
   } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
     result = parsepile_mapping(parser, compiler);
     parser_set_exprtype_to_mapping(parser);
-  } else {
-    parser_error(parser, "Expected an expression");
   }
   return result;
 }
@@ -1248,8 +1246,11 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
   } else if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
     result = true;
   } else {
-    result = parsepile_expression(parser, compiler)
-          && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+    if (parsepile_expression(parser, compiler)) {
+      result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+    } else {
+      parser_error(parser, "Expected an instruction!");
+    }
   }
 
   return result;
@@ -1285,8 +1286,10 @@ bool parsepile_arglist(struct parser* parser, struct compiler* compiler) {
         compiler_enable_varargs(compiler);
         return parsepile_expect(parser, TOKEN_TYPE_RPAREN);
       }
-      if (!parse_type_and_name(parser, &type, &name))
+      if (!parse_type_and_name(parser, &type, &name)) {
+        parser_error(parser, "Expected a type and name!");
         return false;
+      }
       compiler_add_arg(compiler, type, name);
       compiler_load_var(compiler, name);
       compiler_typecheck(compiler, type);
@@ -1398,7 +1401,11 @@ bool parsepile_inheritance(struct parser*    parser,
         if (blueprint_inherit(into, bp)) {
           parser_advance(parser);
           result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+        } else {
+          parser_error(parser, "Inheritance failed!");
         }
+      } else {
+        parser_error(parser, "File not found!");
       }
     }
   } else {
@@ -1435,8 +1442,8 @@ bool parsepile_include_statement(struct parser*    parser,
   if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
     file = file_resolve_flex(file_parent(blueprint_file(into)),
                              parser_as_cstr(parser));
-    parser_advance(parser);
     if (file != NULL) {
+      parser_advance(parser);
       stringbuilder_create(&sb);
       file_cat(file, &sb);
       {
@@ -1447,6 +1454,8 @@ bool parsepile_include_statement(struct parser*    parser,
         reader_destroy(&reader);
       }
       stringbuilder_destroy(&sb);
+    } else {
+      parser_error(parser, "File not found!");
     }
   }
 
