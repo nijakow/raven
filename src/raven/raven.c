@@ -49,6 +49,7 @@ void raven_destroy(struct raven* raven) {
   server_destroy(raven_server(raven));
   scheduler_destroy(raven_scheduler(raven));
   log_destroy(raven_log(raven));
+  typeset_destroy(raven_types(raven));
   object_table_destroy(raven_objects(raven));
 }
 
