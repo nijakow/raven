@@ -38,6 +38,9 @@
 #include "../raven/raven.h"
 #include "gc.h"
 
+
+void gc_clear_mark_list(struct gc* gc);
+
 /*
  * Create a new GC instance.
  */
@@ -74,7 +77,7 @@ static struct base_obj* gc_pop(struct gc* gc) {
  * since the gray list is usually left empty after a
  * previous garbage collection cycle.
  */
-static void gc_clear_mark_list(struct gc* gc) {
+void gc_clear_mark_list(struct gc* gc) {
   while (gc->mark_list != NULL)
     base_obj_mark_white(gc_pop(gc));
 }
