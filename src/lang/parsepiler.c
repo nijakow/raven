@@ -134,7 +134,8 @@
 
 bool parsepile_file_impl(struct parser*    parser,
                          struct blueprint* into,
-                         bool              inheritance);
+                         bool              inheritance,
+                         enum   token_type stop);
 
 
 void parser_error(struct parser* parser, const char* format, ...) {
@@ -205,6 +206,14 @@ bool parse_symbol(struct parser* parser, struct symbol** loc) {
     parser_advance(parser);
     return *loc != NULL;
   }
+}
+
+bool expect_symbol(struct parser* parser, struct symbol** loc) {
+  if (!parse_symbol(parser, loc)) {
+    parser_error(parser, "Syntax error, expected an identifier!\n");
+    return false;
+  }
+  return true;
 }
 
 bool parse_type(struct parser* parser, struct type** loc) {
@@ -1449,7 +1458,7 @@ bool parsepile_include_statement(struct parser*    parser,
       {
         reader_create(&reader, stringbuilder_get_const(&sb));
         parser_create(&new_parser, parser_raven(parser), &reader, parser_log(parser));
-        result = parsepile_file_impl(&new_parser, into, false);
+        result = parsepile_file_impl(&new_parser, into, false, TOKEN_TYPE_EOF);
         parser_destroy(&new_parser);
         reader_destroy(&reader);
       }
@@ -1459,6 +1468,48 @@ bool parsepile_include_statement(struct parser*    parser,
     }
   }
 
+  return result;
+}
+
+
+/*
+ * Parse a 'class' statement.
+ *
+ * Class statements allow to implement blueprints inside
+ * of other blueprints. This is very useful for inlined
+ * objects.
+ *
+ * A class statement looks like this:
+ *
+ *     class foo {
+ *       inherit "/std/thing";
+ *
+ *       int bar = 42;
+ *
+ *       void baz() {
+ *         // ...
+ *       }
+ *     };
+ */
+bool parsepile_class_statement(struct parser*    parser,
+                               struct blueprint* into) {
+  struct blueprint*  blue;
+  struct symbol*     name;
+  bool               result;
+
+  result = false;
+  // TODO: Expect a symbol
+  if (expect_symbol(parser, &name)
+   && parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
+    blue = blueprint_new(parser_raven(parser), NULL);
+    if (blue != NULL) {
+      result = parsepile_file_impl(parser, into, NULL, TOKEN_TYPE_RCURLY);
+      // TODO: Do something with the value
+      result = result
+            && parsepile_expect(parser, TOKEN_TYPE_RCURLY)
+            && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+    }
+  }
   return result;
 }
 
@@ -1485,7 +1536,8 @@ bool parsepile_include_statement(struct parser*    parser,
  */
 bool parsepile_file_impl(struct parser*    parser,
                          struct blueprint* into,
-                         bool              inheritance) {
+                         bool              inheritance,
+                         enum token_type   stop) {
   struct codewriter  codewriter;
   struct compiler    compiler;
   struct function*   init_function;
@@ -1499,9 +1551,15 @@ bool parsepile_file_impl(struct parser*    parser,
   if (!inheritance || parsepile_inheritance(parser, into, &compiler)) {
     result = true;
 
-    while (!parser_is(parser, TOKEN_TYPE_EOF)) {
+    while (!parser_is(parser, stop)
+        && !parser_is(parser, TOKEN_TYPE_EOF)) {
       if (parser_check(parser, TOKEN_TYPE_KW_INCLUDE)) {
         if (!parsepile_include_statement(parser, into)) {
+          result = false;
+          break;
+        }
+      } else if (parser_check(parser, TOKEN_TYPE_KW_CLASS)) {
+        if (!parsepile_class_statement(parser, into)) {
           result = false;
           break;
         }
@@ -1528,6 +1586,6 @@ bool parsepile_file_impl(struct parser*    parser,
 
 bool parsepile_file(struct parser*    parser,
                     struct blueprint* into) {
-  return parsepile_file_impl(parser, into, true);
+  return parsepile_file_impl(parser, into, true, TOKEN_TYPE_EOF);
 }
 
