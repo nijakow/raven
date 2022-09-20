@@ -1383,6 +1383,48 @@ bool parsepile_file_statement(struct parser*    parser,
 }
 
 /*
+ * Handle the second part of an 'inherit' statement.
+ *
+ * This function is a utility function that performs
+ * all of the lookup and dereferencing operations
+ * associated with an 'inherited' statement.
+ *
+ * It is used in two places:
+ *   - After an 'inherit' token.
+ *   - After a 'class' token (short form).
+ */
+bool parsepile_inheritance_impl(struct parser*    parser,
+                                struct blueprint* into,
+                                const  char*      path,
+                                bool*             has_inheritance) {
+  struct blueprint*  bp;
+  bool               result;
+
+  result = false;
+
+  /* 'inherit;' inherits from nothing - needed for "/secure/base" itself */
+  if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
+    if (has_inheritance != NULL)
+      *has_inheritance = false;
+    result = true;
+  } else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
+    bp = parser_as_relative_blueprint(parser, into);
+    if (bp != NULL) {
+      if (blueprint_inherit(into, bp)) {
+        parser_advance(parser);
+        result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+      } else {
+        parser_error(parser, "Inheritance failed!");
+      }
+    } else {
+      parser_error(parser, "File not found!");
+    }
+  }
+
+  return result;
+}
+
+/*
  * Process an `inherit` statement.
  *
  * This function will recursively load and include all referenced
