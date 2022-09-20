@@ -9,6 +9,7 @@
 #define RAVEN_SERVER_CONNECTION_H
 
 #include "../../defs.h"
+#include "../any.h"
 #include "../../util/ringbuffer.h"
 
 #include "../base_obj.h"

@@ -7,8 +7,9 @@
 
 #include "../defs.h"
 
-#include "../raven/raven.h"
 #include "../core/objects/connection.h"
+#include "../core/objects/funcref.h"
+#include "../raven/raven.h"
 #include "../vm/scheduler.h"
 #include "../vm/fiber.h"
 #include "../vm/interpreter.h"
@@ -70,6 +71,8 @@ void server_accept(struct server* server) {
   struct connection*  connection;
   struct raven*       raven;
   struct fiber*       fiber;
+  struct funcref*     func;
+  any                 connection_any;
 
   fd = accept(server_serversocket(server), NULL, NULL);
 
@@ -80,15 +83,15 @@ void server_accept(struct server* server) {
       close(fd);
     } else {
       raven = server_raven(server);
-      fiber = scheduler_new_fiber(raven_scheduler(raven));
-      if (fiber != NULL) {
-        fiber_set_connection(fiber, connection);
-        connection_set_fiber(connection, fiber);
-        fiber_push(fiber,
-                   any_from_ptr(raven_get_object(raven,
-                                                 "/secure/master")));
-        fiber_push(fiber, any_from_ptr(connection));
-        fiber_send(fiber, raven_find_symbol(raven, "connect"), 1);
+      func  = raven_vars(raven)->connect_func;
+      if (func != NULL) {
+        fiber = scheduler_new_fiber(raven_scheduler(raven));
+        if (fiber != NULL) {
+          fiber_set_connection(fiber, connection);
+          connection_set_fiber(connection, fiber);
+          connection_any = any_from_ptr(connection);
+          funcref_enter(func, fiber, &connection_any, 1);
+        } // TODO: Else error!
       }
     }
   }

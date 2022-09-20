@@ -7,6 +7,7 @@
 
 #include "../../defs.h"
 
+#include "../../core/objects/funcref.h"
 #include "../../raven/raven.h"
 #include "../../server/server.h"
 #include "../../util/memory.h"
@@ -89,16 +90,22 @@ void connection_close_impl(struct connection* connection) {
 }
 
 void connection_close(struct connection* connection) {
-  any  connection_any;
+  struct raven*    raven;
+  struct funcref*  func;
+  struct fiber*    fiber;
+  any              connection_any;
 
   connection_close_impl(connection);
 
+  raven          = connection_raven(connection);
+  func           = raven_vars(raven)->disconnect_func;
   connection_any = any_from_ptr(connection);
-  raven_call_out(connection_raven(connection),
-                 "/secure/master",
-                 "disconnect",
-                 &connection_any,
-                 1);
+  if (func != NULL) {
+    fiber = fiber_new(raven_scheduler(raven));
+    if (fiber != NULL) {
+      funcref_enter(func, fiber, &connection_any, 1);
+    } // TODO: Else error!
+  }
 }
 
 void connection_endofinput(struct connection* connection) {
