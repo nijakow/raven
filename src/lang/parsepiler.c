@@ -1499,15 +1499,38 @@ bool parsepile_class_statement(struct parser*    parser,
   struct symbol*     name;
   struct blueprint*  blue;
   struct object*     object;
+  bool               preresult;
   bool               result;
 
-  result = false;
+  preresult = false;
+  result    = false;
 
-  if (expect_symbol(parser, &name)
-   && parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
+  if (expect_symbol(parser, &name)) {
     blue = blueprint_new(parser_raven(parser), NULL);
     if (blue != NULL) {
-      if (parsepile_file_impl(parser, blue, NULL, TOKEN_TYPE_RCURLY)) {
+      /*
+       * There are two possible notations.
+       *
+       * Either the explicit form:
+       *
+       *     class foo {
+       *       inherit "/std/thing";
+       *
+       *       // ...
+       *     };
+       *
+       * Or the short form:
+       *
+       *     class foo "/std/thing";
+       *
+       */
+      if (parser_check(parser, TOKEN_TYPE_LCURLY)) {
+        if (parsepile_file_impl(parser, blue, true, TOKEN_TYPE_RCURLY)) {
+          preresult = true;
+        }
+      }
+
+      if (preresult) {
         /*
          * TODO, FIXME, XXX: Check for NULL return value!
          */
