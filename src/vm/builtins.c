@@ -169,6 +169,14 @@ void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_close(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_CONNECTION))
+    arg_error(fiber);
+  else {
+    connection_close(any_to_ptr(arg[0]));
+  }
+}
+
 void builtin_the(struct fiber* fiber, any* arg, unsigned int args) {
   any               self;
   struct object*    obj;
