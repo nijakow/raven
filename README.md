@@ -100,6 +100,8 @@ void main() {
   /*
    * This function is called on startup.
    */
+  _connect_func(&connect);
+  _disconnect_func(&disconnect);
   print("The server is now running!\n");
 }
 
