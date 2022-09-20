@@ -265,6 +265,13 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
   case RAVEN_OP_NEGATE:
     fiber_set_accu(fiber, fiber_op_negate(fiber, fiber_get_accu(fiber)));
     break;
+  case RAVEN_OP_DEREF:
+    fiber_push(fiber, frame_self(fiber_top(fiber)));
+    fiber_push(fiber, fiber_get_accu(fiber));
+    fiber_send(fiber,
+               raven_find_symbol(fiber_raven(fiber), "the"),
+               1);
+    break;
   case RAVEN_OP_INDEX:
     fiber_set_accu(fiber, fiber_op_index(fiber,
                                          fiber_pop(fiber),

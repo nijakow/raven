@@ -474,6 +474,9 @@ bool parsepile_simple_expr(struct parser*   parser,
     }
     parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_STAR)) {
+    /*
+     * TODO, FIXME: This is not executed!
+     */
     result = parsepile_expr(parser, compiler, 1);
     compiler_op(compiler, RAVEN_OP_DEREF);
     parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
@@ -719,10 +722,7 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
      compiler_push_self(compiler); /* TODO: Maybe push a special object? */
      if (!parsepile_expr(parser, compiler, 1))
        return false;
-     compiler_push(compiler);
-     compiler_send(compiler,
-                   raven_find_symbol(parser->raven, "the"),
-                   1);
+     compiler_op(compiler, RAVEN_OP_DEREF);
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
     return parsepile_expr(parser, compiler, 1);
   } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
@@ -1515,6 +1515,7 @@ bool parsepile_class_statement(struct parser*    parser,
         types  = raven_types(parser_raven(parser));
         blueprint_add_var(into, typeset_type_object(types), name);
         compiler_load_constant(compiler, any_from_ptr(object));
+        compiler_op(compiler, RAVEN_OP_DEREF);
         compiler_store_var(compiler, name);
         result = parsepile_expect(parser, TOKEN_TYPE_RCURLY)
               && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
