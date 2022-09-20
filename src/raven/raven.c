@@ -19,11 +19,14 @@
  * Make all of Raven's LPC vars point to `nil`.
  */
 static void raven_create_vars(struct raven_vars* vars) {
-  vars->nil_proxy     = any_nil();
-  vars->string_proxy  = any_nil();
-  vars->array_proxy   = any_nil();
-  vars->mapping_proxy = any_nil();
-  vars->symbol_proxy  = any_nil();
+  vars->nil_proxy       = any_nil();
+  vars->string_proxy    = any_nil();
+  vars->array_proxy     = any_nil();
+  vars->mapping_proxy   = any_nil();
+  vars->symbol_proxy    = any_nil();
+
+  vars->connect_func    = NULL;
+  vars->disconnect_func = NULL;
 }
 
 /*
@@ -114,6 +117,9 @@ static void raven_mark_vars(struct gc* gc, struct raven_vars* vars) {
   gc_mark_any(gc, vars->array_proxy);
   gc_mark_any(gc, vars->mapping_proxy);
   gc_mark_any(gc, vars->symbol_proxy);
+
+  gc_mark_ptr(gc, vars->connect_func);
+  gc_mark_ptr(gc, vars->disconnect_func);
 }
 
 /*
@@ -328,6 +334,8 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_array_proxy", builtin_array_proxy);
   raven_builtin(raven, "_mapping_proxy", builtin_mapping_proxy);
   raven_builtin(raven, "_symbol_proxy", builtin_symbol_proxy);
+  raven_builtin(raven, "_connect_func", builtin_connect_func);
+  raven_builtin(raven, "_disconnect_func", builtin_disconnect_func);
 
   raven_builtin(raven, "clone_object", builtin_clone_object);
   raven_builtin(raven, "_object_move", builtin_object_move);

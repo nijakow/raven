@@ -289,6 +289,22 @@ void builtin_symbol_proxy(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
+void builtin_connect_func(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+    arg_error(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->connect_func = any_to_ptr(arg[0]);
+  }
+}
+
+void builtin_disconnect_func(struct fiber* fiber, any* arg, unsigned int args) {
+  if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_FUNCREF))
+    arg_error(fiber);
+  else {
+    raven_vars(fiber_raven(fiber))->disconnect_func = any_to_ptr(arg[0]);
+  }
+}
+
 void builtin_clone_object(struct fiber* fiber, any* arg, unsigned int args) {
   if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
     arg_error(fiber);

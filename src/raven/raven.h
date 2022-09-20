@@ -28,6 +28,9 @@ struct raven_vars {
   any  array_proxy;
   any  mapping_proxy;
   any  symbol_proxy;
+
+  struct funcref*  connect_func;
+  struct funcref*  disconnect_func;
 };
 
 /*

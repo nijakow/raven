@@ -39,6 +39,8 @@ void builtin_string_proxy(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_array_proxy(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_mapping_proxy(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_symbol_proxy(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_connect_func(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_disconnect_func(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_clone_object(struct fiber* fiber, any* arg, unsigned int args);
 
