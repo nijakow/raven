@@ -27,6 +27,7 @@
  */
 struct blueprint {
   struct base_obj    _;
+  struct raven*      raven;
   struct file*       file;
   struct blueprint*  parent;
   struct function*   methods;
@@ -55,6 +56,10 @@ void blueprint_add_func(struct blueprint* blue,
                         struct function*  func);
 
 struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg);
+
+static inline struct raven* blueprint_raven(struct blueprint* blue) {
+  return blue->raven;
+}
 
 static inline struct blueprint* blueprint_parent(struct blueprint* blue) {
   return blue->parent;

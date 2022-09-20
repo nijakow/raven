@@ -40,6 +40,7 @@ struct blueprint* blueprint_new(struct raven* raven, struct file* file) {
                            sizeof(struct blueprint));
 
   if (blueprint != NULL) {
+    blueprint->raven = raven;
     blueprint_create(blueprint, file);
   }
 
@@ -119,7 +120,7 @@ struct blueprint* blueprint_load_relative(struct blueprint* bp,
   struct file*  file;
 
   file = blueprint_file(bp);
-  if (file == NULL) return NULL;
+  if (file == NULL) return raven_get_blueprint(blueprint_raven(bp), path);
 
   file = file_parent(file);
   if (file == NULL) return NULL;

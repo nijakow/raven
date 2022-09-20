@@ -1406,10 +1406,10 @@ bool parsepile_inheritance_impl(struct parser*    parser,
 
   /* 'inherit;' inherits from nothing - needed for "/secure/base" itself */
   if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
-    if (has_inheritance != NULL)
-      *has_inheritance = false;
     result = true;
   } else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
+    if (has_inheritance != NULL)
+      *has_inheritance = true;
     bp = parser_as_relative_blueprint(parser, into);
     if (bp != NULL) {
       if (blueprint_inherit(into, bp)) {
