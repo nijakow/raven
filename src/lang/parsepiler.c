@@ -1395,12 +1395,14 @@ bool parsepile_file_statement(struct parser*    parser,
  */
 bool parsepile_inheritance_impl(struct parser*    parser,
                                 struct blueprint* into,
-                                const  char*      path,
                                 bool*             has_inheritance) {
   struct blueprint*  bp;
   bool               result;
 
   result = false;
+
+  if (has_inheritance != NULL)
+    *has_inheritance = false;
 
   /* 'inherit;' inherits from nothing - needed for "/secure/base" itself */
   if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
@@ -1443,23 +1445,7 @@ bool parsepile_inheritance(struct parser*    parser,
   result          = false;
 
   if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
-    /* 'inherit;' inherits from nothing - needed for "/secure/base" itself */
-    if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
-      has_inheritance = false;
-      result          = true;
-    } else if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
-      bp = parser_as_relative_blueprint(parser, into);
-      if (bp != NULL) {
-        if (blueprint_inherit(into, bp)) {
-          parser_advance(parser);
-          result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
-        } else {
-          parser_error(parser, "Inheritance failed!");
-        }
-      } else {
-        parser_error(parser, "File not found!");
-      }
-    }
+    result = parsepile_inheritance_impl(parser, into, &has_inheritance);
   } else {
     bp = raven_get_blueprint(parser->raven, "/secure/base");
     if (bp != NULL && blueprint_inherit(into, bp)) {
@@ -1540,12 +1526,16 @@ bool parsepile_class_statement(struct parser*    parser,
   struct typeset*    types;
   struct symbol*     name;
   struct blueprint*  blue;
+  struct blueprint*  parent;
   struct object*     object;
   bool               preresult;
   bool               result;
+  bool               postcheck;
+  bool               has_inheritance;
 
   preresult = false;
   result    = false;
+  postcheck = false;
 
   if (expect_symbol(parser, &name)) {
     blue = blueprint_new(parser_raven(parser), NULL);
@@ -1567,8 +1557,20 @@ bool parsepile_class_statement(struct parser*    parser,
        *
        */
       if (parser_check(parser, TOKEN_TYPE_LCURLY)) {
+        postcheck = true;
         if (parsepile_file_impl(parser, blue, true, TOKEN_TYPE_RCURLY)) {
           preresult = true;
+        }
+      } else {
+        if (parsepile_inheritance_impl(parser, blue, &has_inheritance)) {
+          if (!has_inheritance) {
+            parent = raven_get_blueprint(parser->raven, "/secure/base");
+            if (parent != NULL && blueprint_inherit(blue, parent)) {
+              preresult = true;
+            }
+          } else {
+            preresult = true;
+          }
         }
       }
 
@@ -1582,8 +1584,12 @@ bool parsepile_class_statement(struct parser*    parser,
         compiler_load_constant(compiler, any_from_ptr(object));
         compiler_op(compiler, RAVEN_OP_DEREF);
         compiler_store_var(compiler, name);
-        result = parsepile_expect(parser, TOKEN_TYPE_RCURLY)
-              && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+        if (postcheck) {
+          result = parsepile_expect(parser, TOKEN_TYPE_RCURLY)
+                && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+        } else {
+          result = true;
+        }
       }
     }
   }
