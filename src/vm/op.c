@@ -196,6 +196,8 @@ any fiber_op_new(struct fiber* fiber, any a) {
   } else if (any_is_obj(a, OBJ_TYPE_OBJECT)) {
     object    = any_to_ptr(a);
     blueprint = object_blueprint(object);
+  } else if (any_is_obj(a, OBJ_TYPE_BLUEPRINT)) {
+    blueprint = any_to_ptr(a);
   } else {
     return any_nil();
   }
