@@ -37,6 +37,9 @@ struct blueprint* blueprint_new(struct raven* raven, struct file* file);
 void blueprint_mark(struct gc* gc, struct blueprint* blue);
 void blueprint_del(struct blueprint* blueprint);
 
+struct object* blueprint_instantiate(struct blueprint* blueprint,
+                                     struct raven*     raven);
+
 struct blueprint* blueprint_load_relative(struct blueprint* bp,
                                           const char* path);
 

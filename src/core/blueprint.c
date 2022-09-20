@@ -7,6 +7,7 @@
 
 #include "../raven/raven.h"
 #include "../fs/file.h"
+#include "objects/object.h"
 #include "objects/function.h"
 
 #include "blueprint.h"
@@ -62,6 +63,11 @@ void blueprint_mark(struct gc* gc, struct blueprint* blue) {
   gc_mark_ptr(gc, blue->parent);
 
   base_obj_mark(gc, &blue->_);
+}
+
+struct object* blueprint_instantiate(struct blueprint* blueprint,
+                                     struct raven*     raven) {
+  return object_new(raven, blueprint);
 }
 
 unsigned int blueprint_get_instance_size(struct blueprint* bp) {
