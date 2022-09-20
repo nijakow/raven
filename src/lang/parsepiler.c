@@ -1495,8 +1495,10 @@ bool parsepile_include_statement(struct parser*    parser,
 bool parsepile_class_statement(struct parser*    parser,
                                struct blueprint* into,
                                struct compiler*  compiler) {
-  struct blueprint*  blue;
+  struct typeset*    types;
   struct symbol*     name;
+  struct blueprint*  blue;
+  struct object*     object;
   bool               result;
 
   result = false;
@@ -1505,15 +1507,18 @@ bool parsepile_class_statement(struct parser*    parser,
    && parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
     blue = blueprint_new(parser_raven(parser), NULL);
     if (blue != NULL) {
-      result = parsepile_file_impl(parser, blue, NULL, TOKEN_TYPE_RCURLY);
-      blueprint_add_var(into,
-                        typeset_type_any(raven_types(parser_raven(parser))),
-                        name);
-      compiler_load_constant(compiler, any_from_ptr(blue));
-      compiler_store_var(compiler, name);
-      result = result
-            && parsepile_expect(parser, TOKEN_TYPE_RCURLY)
-            && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+      if (parsepile_file_impl(parser, blue, NULL, TOKEN_TYPE_RCURLY)) {
+        /*
+         * TODO, FIXME, XXX: Check for NULL return value!
+         */
+        object = blueprint_instantiate(blue, parser_raven(parser));
+        types  = raven_types(parser_raven(parser));
+        blueprint_add_var(into, typeset_type_object(types), name);
+        compiler_load_constant(compiler, any_from_ptr(object));
+        compiler_store_var(compiler, name);
+        result = parsepile_expect(parser, TOKEN_TYPE_RCURLY)
+              && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
+      }
     }
   }
   return result;
