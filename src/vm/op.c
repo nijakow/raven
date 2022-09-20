@@ -187,18 +187,23 @@ any fiber_op_new(struct fiber* fiber, any a) {
   struct blueprint* blueprint;
   struct string*    string;
   struct object*    object;
+  struct object*    result;
 
-  if (!any_is_obj(a, OBJ_TYPE_STRING))
-    return any_nil();
-  else {
+  if (any_is_obj(a, OBJ_TYPE_STRING)) {
     string    = any_to_ptr(a);
     blueprint = raven_get_blueprint(fiber_raven(fiber),
                                     string_contents(string));
-    if (blueprint != NULL) {
-      object = object_new(fiber_raven(fiber), blueprint);
-      if (object != NULL)
-        return any_from_ptr(object);
-    }
+  } else if (any_is_obj(a, OBJ_TYPE_OBJECT)) {
+    object    = any_to_ptr(a);
+    blueprint = object_blueprint(object);
+  } else {
+    return any_nil();
+  }
+
+  if (blueprint != NULL) {
+    result = object_new(fiber_raven(fiber), blueprint);
+    if (result != NULL)
+      return any_from_ptr(result);
   }
   return any_nil();
 }
