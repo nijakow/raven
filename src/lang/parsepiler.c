@@ -444,24 +444,25 @@ bool parsepile_simple_expr(struct parser*   parser,
     parser_set_exprtype_to_any(parser); /* TODO: Check and infer */
   } else if (parser_check(parser, TOKEN_TYPE_KW_NEW)) {
     if (parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
-      parsepile_expression(parser, compiler);
-      compiler_op(compiler, RAVEN_OP_NEW);
-      compiler_push(compiler);
-      compiler_push(compiler);
-      if (parser_check(parser, TOKEN_TYPE_RPAREN))
-        argcount = 0;
-      else {
-        if (!parsepile_expect(parser, TOKEN_TYPE_COMMA))
-          return false;
+      if (parsepile_expression(parser, compiler)) {
+        compiler_op(compiler, RAVEN_OP_NEW);
+        compiler_push(compiler);
+        compiler_push(compiler);
+        if (parser_check(parser, TOKEN_TYPE_RPAREN))
+          argcount = 0;
         else {
-          parsepile_args(parser, compiler, &argcount, TOKEN_TYPE_RPAREN);
+          if (!parsepile_expect(parser, TOKEN_TYPE_COMMA))
+            return false;
+          else {
+            parsepile_args(parser, compiler, &argcount, TOKEN_TYPE_RPAREN);
+          }
         }
+        compiler_send(compiler,
+                      raven_find_symbol(parser->raven, "create"),
+                      argcount);
+        compiler_pop(compiler);
+        result = true;
       }
-      compiler_send(compiler,
-                    raven_find_symbol(parser->raven, "create"),
-                    argcount);
-      compiler_pop(compiler);
-      result = true;
     }
     parser_set_exprtype_to_object(parser);
   } else if (parser_check(parser, TOKEN_TYPE_SCOPE)) {
@@ -1492,19 +1493,24 @@ bool parsepile_include_statement(struct parser*    parser,
  *     };
  */
 bool parsepile_class_statement(struct parser*    parser,
-                               struct blueprint* into) {
+                               struct blueprint* into,
+                               struct compiler*  compiler) {
   struct blueprint*  blue;
   struct symbol*     name;
   bool               result;
 
   result = false;
-  // TODO: Expect a symbol
+
   if (expect_symbol(parser, &name)
    && parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
     blue = blueprint_new(parser_raven(parser), NULL);
     if (blue != NULL) {
-      result = parsepile_file_impl(parser, into, NULL, TOKEN_TYPE_RCURLY);
-      // TODO: Do something with the value
+      result = parsepile_file_impl(parser, blue, NULL, TOKEN_TYPE_RCURLY);
+      blueprint_add_var(into,
+                        typeset_type_any(raven_types(parser_raven(parser))),
+                        name);
+      compiler_load_constant(compiler, any_from_ptr(blue));
+      compiler_store_var(compiler, name);
       result = result
             && parsepile_expect(parser, TOKEN_TYPE_RCURLY)
             && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
@@ -1559,7 +1565,7 @@ bool parsepile_file_impl(struct parser*    parser,
           break;
         }
       } else if (parser_check(parser, TOKEN_TYPE_KW_CLASS)) {
-        if (!parsepile_class_statement(parser, into)) {
+        if (!parsepile_class_statement(parser, into, &compiler)) {
           result = false;
           break;
         }
