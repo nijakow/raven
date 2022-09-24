@@ -90,9 +90,9 @@ void object_del(struct object* object) {
   if (object->heartbeat_next != NULL)
     object->heartbeat_next->heartbeat_prev = object->heartbeat_prev;
 
+  while (object->children != NULL)
+    object_unlink(object->children);
   object_unlink(object);
-  for (child = object->children; child != NULL; child = child->sibling)
-    object_unlink(child);
 
   if (object->slots != object->payload)
     memory_free(object->slots);
