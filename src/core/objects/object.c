@@ -8,6 +8,7 @@
 #include "../../defs.h"
 
 #include "../../raven/raven.h"
+#include "../../util/memory.h"
 
 #include "../blueprint.h"
 
@@ -162,4 +163,53 @@ void object_link_heartbeat(struct object* object, struct object** list) {
     object->heartbeat_next = *list;
     *list                  =  object;
   }
+}
+
+static void object_resize(struct object* object, unsigned int new_size) {
+  any*          new_slots;
+  any*          old_slots;
+  unsigned int  i;
+
+  old_slots = object_slots(object);
+  new_slots = memory_alloc(sizeof(any) * new_size);
+
+  if (new_slots != NULL) {
+    /*
+     * Copy everything over to the new slots.
+     */
+    for (i = 0; i < new_size; i++) {
+      /*
+       * Initialize every slot properly.
+       */
+      if (i < object->slot_count)
+        new_slots[i] = old_slots[i];
+      else
+        new_slots[i] = any_nil();
+    }
+
+    /*
+     * Install the new slots.
+     */
+    object->slot_count = new_size;
+    object->slots      = new_slots;
+
+    /*
+     * Release the old slots (if they were allocated).
+     */
+    if (old_slots != object->payload) {
+      memory_free(old_slots);
+    }
+  }
+}
+
+void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
+  /*
+   * Resize the object, so that new slots can fit.
+   */
+  object_resize(object, blueprint_get_instance_size(bp_new));
+
+  /*
+   * Do the magic operation!
+   */
+  object->blue = bp_new;
 }

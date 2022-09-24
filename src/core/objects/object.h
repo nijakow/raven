@@ -38,6 +38,8 @@ struct object* object_clone(struct raven* raven, struct object* original);
 void object_move_to(struct object* object, struct object* target);
 void object_link_heartbeat(struct object* object, struct object** list);
 
+void object_switch_blueprint(struct object* object, struct blueprint* bp_new);
+
 static inline bool object_was_initialized(struct object* object) {
   return object->was_initialized;
 }
@@ -64,6 +66,10 @@ static inline struct object* object_children(struct object* object) {
 
 static inline struct blueprint* object_blueprint(struct object* object) {
   return object->blue;
+}
+
+static inline any* object_slots(struct object* object) {
+  return object->slots;
 }
 
 static inline any* object_slot(struct object* object, unsigned int index) {
