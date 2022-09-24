@@ -94,6 +94,9 @@ void object_del(struct object* object) {
   for (child = object->children; child != NULL; child = child->sibling)
     object_unlink(child);
 
+  if (object->slots != object->payload)
+    memory_free(object->slots);
+
   base_obj_del(&object->_);
 }
 
