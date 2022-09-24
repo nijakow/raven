@@ -334,6 +334,7 @@ void raven_setup_builtins(struct raven* raven) {
   raven_builtin(raven, "_the", builtin_the);
   raven_builtin(raven, "_initializedp", builtin_initializedp);
   raven_builtin(raven, "_initialize", builtin_initialize);
+  raven_builtin(raven, "_recompile", builtin_recompile);
 
   raven_builtin(raven, "_arrayp", builtin_arrayp);
   raven_builtin(raven, "_stringp", builtin_stringp);
