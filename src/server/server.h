@@ -21,7 +21,7 @@ void server_destroy(struct server* server);
 
 bool server_serve_on(struct server* server, int port);
 void server_accept(struct server* server);
-void server_tick(struct server* server);
+void server_tick(struct server* server, raven_timeval_t tv);
 
 static inline struct raven* server_raven(struct server* server) {
   return server->raven;

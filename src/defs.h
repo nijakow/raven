@@ -87,6 +87,7 @@ typedef int16_t t_wc; /* word code (must be signed!) */
  * A value for timekeeping.
  */
 typedef time_t raven_time_t;
+typedef struct timeval raven_timeval_t;
 
 
 /*

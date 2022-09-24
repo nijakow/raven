@@ -97,13 +97,12 @@ void server_accept(struct server* server) {
   }
 }
 
-void server_tick(struct server* server) {
+void server_tick(struct server* server, raven_timeval_t tv) {
   int                 maxfd;
   int                 retval;
   size_t              bytes;
   struct connection*  connection;
   fd_set              readable;
-  struct timeval      tv;
   char                buffer[1024];
 
   FD_ZERO(&readable);
@@ -119,9 +118,6 @@ void server_tick(struct server* server) {
     if (connection_socket(connection) > maxfd)
       maxfd = connection_socket(connection);
   }
-
-  tv.tv_sec  = 0;
-  tv.tv_usec = 125000;
 
   retval = select(maxfd + 1, &readable, NULL, NULL, &tv);
 

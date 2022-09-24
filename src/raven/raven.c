@@ -183,7 +183,8 @@ static void print_loading_pattern() {
  * The main loop.
  */
 void raven_loop(struct raven* raven) {
-  unsigned int gc_steps;
+  unsigned int     gc_steps;
+  raven_timeval_t  tv;
 
   /*
    * We count the amount of loop iterations until we trigger the
@@ -207,7 +208,16 @@ void raven_loop(struct raven* raven) {
     if (gc_steps++ % 128 == 0)
       raven_gc(raven);
     scheduler_run(raven_scheduler(raven));
-    server_tick(raven_server(raven));
+
+    if (scheduler_is_sleeping(raven_scheduler(raven))) {
+      tv.tv_sec  = 0;
+      tv.tv_usec = 150000;
+    } else {
+      tv.tv_sec  = 0;
+      tv.tv_usec = 0;
+    }
+
+    server_tick(raven_server(raven), tv);
   }
 }
 

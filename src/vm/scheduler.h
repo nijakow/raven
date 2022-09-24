@@ -38,6 +38,8 @@ void scheduler_mark(struct gc* gc, struct scheduler* scheduler);
 
 struct fiber* scheduler_new_fiber(struct scheduler* scheduler);
 
+bool scheduler_is_sleeping(struct scheduler* scheduler);
+
 void scheduler_run(struct scheduler* scheduler);
 
 static inline struct raven* scheduler_raven(struct scheduler* scheduler) {

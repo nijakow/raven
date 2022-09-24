@@ -35,6 +35,17 @@ struct fiber* scheduler_new_fiber(struct scheduler* scheduler) {
   return fiber_new(scheduler);
 }
 
+bool scheduler_is_sleeping(struct scheduler* scheduler) {
+  struct fiber*  fiber;
+
+  for (fiber = scheduler->fibers; fiber != NULL; fiber = fiber->next) {
+    if (fiber_state(fiber) == FIBER_STATE_RUNNING)
+      return false;
+  }
+
+  return true;
+}
+
 void scheduler_run(struct scheduler* scheduler) {
   struct fiber**  fiber;
   raven_time_t    current_time;
