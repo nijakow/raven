@@ -33,6 +33,11 @@ void vars_mark(struct gc* gc, struct vars* vars) {
   vars_mark(gc, vars->parent);
 }
 
+unsigned int vars_offset(struct vars* vars) {
+  if (vars == NULL) return 0;
+  return vars_count(vars_parent(vars));
+}
+
 unsigned int vars_count(struct vars* vars) {
   unsigned int count;
 
@@ -89,4 +94,10 @@ bool vars_find(struct vars*   vars,
   }
 
   return false;
+}
+
+struct symbol* vars_name_for_local_index(struct vars* vars, unsigned int index) {
+  if (index >= vars->fill)
+    return NULL;
+  return vars->vars[index].name;
 }

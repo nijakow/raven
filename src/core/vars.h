@@ -40,7 +40,9 @@ void vars_destroy(struct vars* vars);
 
 void vars_mark(struct gc* gc, struct vars* vars);
 
+static inline unsigned int vars_count1(struct vars* vars) { return vars->fill; }
 unsigned int vars_count(struct vars* vars);
+unsigned int vars_offset(struct vars* vars);
 
 void vars_reparent(struct vars* vars, struct vars* parent);
 
@@ -50,5 +52,11 @@ bool vars_find(struct vars*   vars,
                struct symbol* name,
                struct type**  type_loc,
                unsigned int*  index_loc);
+
+struct symbol* vars_name_for_local_index(struct vars* vars, unsigned int index);
+
+static inline struct vars* vars_parent(struct vars* vars) {
+  return vars->parent;
+}
 
 #endif

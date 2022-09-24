@@ -59,6 +59,8 @@ struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg);
 
 struct blueprint* blueprint_recompile(struct blueprint* blue);
 
+struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
+
 static inline struct raven* blueprint_raven(struct blueprint* blue) {
   return blue->raven;
 }

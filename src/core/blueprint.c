@@ -141,3 +141,12 @@ struct blueprint* blueprint_recompile(struct blueprint* blue) {
 
   return file_recompile_and_get(file);
 }
+
+struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
+  while (blue != NULL) {
+    if (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL))
+      return blue;
+    blue = blueprint_parent(blue);
+  }
+  return NULL;
+}
