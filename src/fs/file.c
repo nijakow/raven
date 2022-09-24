@@ -325,3 +325,16 @@ void file_load(struct file* file, const char* realpath) {
 
   stringbuilder_destroy(&sb);
 }
+
+struct blueprint* file_recompile_and_get(struct file* file) {
+  struct filesystem*  fs;
+  struct raven*       raven;
+
+  fs    = file_fs(file);
+  raven = filesystem_raven(fs);
+
+  if (!file_recompile(file, raven_log(raven)))
+    return NULL;
+
+  return file_get_blueprint(file);
+}

@@ -202,7 +202,7 @@ static void object_resize(struct object* object, unsigned int new_size) {
   }
 }
 
-void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
+static void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
   /*
    * Resize the object, so that new slots can fit.
    */
@@ -212,4 +212,14 @@ void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
    * Do the magic operation!
    */
   object->blue = bp_new;
+}
+
+void object_recompile(struct object* object) {
+  struct blueprint*  new_bp;
+
+  new_bp = blueprint_recompile(object_blueprint(object));
+
+  if (new_bp != NULL) {
+    object_switch_blueprint(object, new_bp);
+  }
 }

@@ -57,6 +57,8 @@ void blueprint_add_func(struct blueprint* blue,
 
 struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg);
 
+struct blueprint* blueprint_recompile(struct blueprint* blue);
+
 static inline struct raven* blueprint_raven(struct blueprint* blue) {
   return blue->raven;
 }

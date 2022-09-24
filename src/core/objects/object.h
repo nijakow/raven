@@ -38,7 +38,7 @@ struct object* object_clone(struct raven* raven, struct object* original);
 void object_move_to(struct object* object, struct object* target);
 void object_link_heartbeat(struct object* object, struct object** list);
 
-void object_switch_blueprint(struct object* object, struct blueprint* bp_new);
+void object_recompile(struct object* object);
 
 static inline bool object_was_initialized(struct object* object) {
   return object->was_initialized;

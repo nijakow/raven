@@ -44,8 +44,11 @@ char* file_path(struct file* file);
 
 bool file_cat(struct file* file, struct stringbuilder* into);
 bool file_recompile(struct file* file, struct log* log);
+
 struct blueprint* file_get_blueprint(struct file* file);
 struct object* file_get_object(struct file* file);
+
+struct blueprint* file_recompile_and_get(struct file* file);
 
 static inline struct filesystem* file_fs(struct file* file) {
   return file->fs;

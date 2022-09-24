@@ -130,3 +130,14 @@ struct blueprint* blueprint_load_relative(struct blueprint* bp,
 
   return file_get_blueprint(file);
 }
+
+struct blueprint* blueprint_recompile(struct blueprint* blue) {
+  struct file*  file;
+
+  file = blueprint_file(blue);
+
+  if (file == NULL)
+    return NULL;
+
+  return file_recompile_and_get(file);
+}
