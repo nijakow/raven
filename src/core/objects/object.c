@@ -83,8 +83,6 @@ void object_mark(struct gc* gc, struct object* object) {
 }
 
 void object_del(struct object* object) {
-  struct object*  child;
-
   if (object->heartbeat_prev != NULL)
     *(object->heartbeat_prev) = object->heartbeat_next;
   if (object->heartbeat_next != NULL)
