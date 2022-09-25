@@ -18,6 +18,7 @@ src = [
 './src/fs/filesystem.c',
 './src/fs/file.c',
 './src/gc/gc.c',
+'./src/gc/stats.c',
 './src/lang/codewriter.c',
 './src/lang/parsepiler.c',
 './src/lang/parser.c',
@@ -25,6 +26,8 @@ src = [
 './src/lang/compiler.c',
 './src/lang/script.c',
 './src/main.c',
+'./src/raven/channel.c',
+'./src/raven/raven.c',
 './src/server/server.c',
 './src/util/log.c',
 './src/util/ringbuffer.c',
@@ -37,7 +40,6 @@ src = [
 './src/vm/scheduler.c',
 './src/vm/op.c',
 './src/vm/interpreter.c',
-'./src/raven.c'
 ]
 
 includes = include_directories('src')
