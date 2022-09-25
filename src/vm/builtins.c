@@ -626,10 +626,10 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
   }
 }
 
-void builtin_cat(struct fiber* fiber, any* arg, unsigned int args) {
+void builtin_read_file(struct fiber* fiber, any* arg, unsigned int args) {
   struct filesystem*    filesystem;
   struct file*          file;
-  const char*           path;
+  const  char*          path;
   struct string*        result;
   struct stringbuilder  sb;
 
@@ -648,6 +648,31 @@ void builtin_cat(struct fiber* fiber, any* arg, unsigned int args) {
       result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
       stringbuilder_destroy(&sb);
       fiber_set_accu(fiber, any_from_ptr(result));
+    }
+  }
+}
+
+void builtin_write_file(struct fiber* fiber, any* arg, unsigned int args) {
+  struct filesystem*    filesystem;
+  struct file*          file;
+  const  char*          path;
+  const  char*          text;
+
+  if (args != 2
+      || !any_is_obj(arg[0], OBJ_TYPE_STRING)
+      || !any_is_obj(arg[1], OBJ_TYPE_STRING))
+    arg_error(fiber);
+  else {
+    path       = string_contents(any_to_ptr(arg[0]));
+    text       = string_contents(any_to_ptr(arg[1]));
+    filesystem = raven_fs(fiber_raven(fiber));
+    file       = filesystem_resolve(filesystem, path);
+
+    if (file == NULL)
+      fiber_set_accu(fiber, any_from_int(0));
+    else {
+      file_write(file, text);
+      fiber_set_accu(fiber, any_from_int(1));
     }
   }
 }

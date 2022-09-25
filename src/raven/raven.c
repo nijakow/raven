@@ -374,7 +374,9 @@ void raven_setup_builtins(struct raven* raven) {
 
   raven_builtin(raven, "_ls", builtin_ls);
   raven_builtin(raven, "_resolve", builtin_resolve);
-  raven_builtin(raven, "_cat", builtin_cat);
+  raven_builtin(raven, "_cat", builtin_read_file);
+  raven_builtin(raven, "_read_file", builtin_read_file);
+  raven_builtin(raven, "_write_file", builtin_write_file);
   raven_builtin(raven, "_cc", builtin_cc);
   raven_builtin(raven, "_cc_script", builtin_cc_script);
   raven_builtin(raven, "_disassemble", builtin_disassemble);

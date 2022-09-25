@@ -217,6 +217,18 @@ bool file_cat(struct file* file, struct stringbuilder* into) {
   return true;
 }
 
+bool file_write(struct file* file, const char* text) {
+  FILE*   f;
+  size_t  len;
+
+  if (!file_open(file, &f, "w"))
+    return false;
+  len = strlen(text);
+  fwrite(text, sizeof(char), len, f);
+  fclose(f);
+  return true;
+}
+
 bool file_recompile(struct file* file, struct log* log) {
   struct raven*         raven;
   struct reader         reader;
