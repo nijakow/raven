@@ -66,6 +66,13 @@ bool server_serve_on(struct server* server, int port) {
   return server_open_socket(port, &server->server_socket);
 }
 
+static void server_send_socket_error_and_close(struct server* server, int fd) {
+  const char*  msg = "\n    The MUD cannot take any connections right now.\n\n";
+
+  write(fd, msg, strlen(msg));
+  close(fd);
+}
+
 void server_accept(struct server* server) {
   int                 fd;
   struct connection*  connection;
@@ -77,14 +84,16 @@ void server_accept(struct server* server) {
   fd = accept(server_serversocket(server), NULL, NULL);
 
   if (fd >= 0) {
-    connection = connection_new(server_raven(server), server, fd);
-    if (connection == NULL) {
-      /* TODO: Warning */
-      close(fd);
+    raven = server_raven(server);
+    func  = raven_vars(raven)->connect_func;
+    if (func == NULL) {
+      server_send_socket_error_and_close(server, fd);
     } else {
-      raven = server_raven(server);
-      func  = raven_vars(raven)->connect_func;
-      if (func != NULL) {
+      connection = connection_new(server_raven(server), server, fd);
+      if (connection == NULL) {
+        /* TODO: Warning */
+        close(fd);
+      } else {
         fiber = scheduler_new_fiber(raven_scheduler(raven));
         if (fiber != NULL) {
           fiber_set_connection(fiber, connection);
