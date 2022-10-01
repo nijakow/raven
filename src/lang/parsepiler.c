@@ -175,6 +175,8 @@ bool parse_modifier(struct parser* parser, enum raven_modifier* loc) {
     *loc = RAVEN_MODIFIER_PRIVATE;
   } else if (parser_check(parser, TOKEN_TYPE_KW_PROTECTED)) {
     *loc = RAVEN_MODIFIER_PROTECTED;
+  } else if (parser_check(parser, TOKEN_TYPE_KW_PUBLIC)) {
+    *loc = RAVEN_MODIFIER_PUBLIC;
   } else {
     return false;
   }
@@ -1331,10 +1333,19 @@ bool parsepile_file_statement(struct parser*    parser,
   enum   raven_modifier  modifier;
   bool                   result;
 
-  result = false;
+  result   = false;
+  modifier = RAVEN_MODIFIER_NONE;
 
-  if (!parse_modifier(parser, &modifier)) {
-    modifier = RAVEN_MODIFIER_NONE;
+  while (true) {
+    if (parse_modifier(parser, &modifier)) {
+      
+    } else if (parser_check(parser, TOKEN_TYPE_KW_OVERRIDE)) {
+      /* TODO */
+    } else if (parser_check(parser, TOKEN_TYPE_KW_DEPRECATED)) {
+      /* TODO */
+    } else {
+      break;
+    }
   }
 
   if (parse_type_and_name(parser, &type, &name)) {

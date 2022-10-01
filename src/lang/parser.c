@@ -62,6 +62,9 @@ const char* token_type_name(enum token_type type) {
   case TOKEN_TYPE_KW_INHERIT: return "KW_INHERIT";
   case TOKEN_TYPE_KW_PRIVATE: return "KW_PRIVATE";
   case TOKEN_TYPE_KW_PROTECTED: return "KW_PROTECTED";
+  case TOKEN_TYPE_KW_PUBLIC: return "KW_PUBLIC";
+  case TOKEN_TYPE_KW_OVERRIDE: return "KW_OVERRIDE";
+  case TOKEN_TYPE_KW_DEPRECATED: return "KW_DEPRECATED";
   case TOKEN_TYPE_KW_NEW: return "KW_NEW";
   case TOKEN_TYPE_KW_THIS: return "KW_THIS";
   case TOKEN_TYPE_KW_NIL: return "KW_NIL";
@@ -360,6 +363,12 @@ void parser_advance(struct parser* parser) {
       parser_set_type(parser, TOKEN_TYPE_KW_PRIVATE);
     } else if (parser_buffer_is(parser, "protected")) {
       parser_set_type(parser, TOKEN_TYPE_KW_PROTECTED);
+    } else if (parser_buffer_is(parser, "public")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_PUBLIC);
+    } else if (parser_buffer_is(parser, "override")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_OVERRIDE);
+    } else if (parser_buffer_is(parser, "deprecated")) {
+      parser_set_type(parser, TOKEN_TYPE_KW_DEPRECATED);
     } else if (parser_buffer_is(parser, "new")) {
       parser_set_type(parser, TOKEN_TYPE_KW_NEW);
     } else if (parser_buffer_is(parser, "this")) {
