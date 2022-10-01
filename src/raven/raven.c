@@ -170,12 +170,11 @@ void raven_uninterrupt(struct raven* raven) {
 static const char* LOADING_PATTERNS[] = { "|", "/", "-", "\\" };
 
 static void print_loading_pattern() {
-  static unsigned long id = 0;
-         unsigned long size;
+  unsigned long size;
 
   size = sizeof(LOADING_PATTERNS) / sizeof(LOADING_PATTERNS[0]);
 
-  printf("%s\r", LOADING_PATTERNS[id++ % size]);
+  printf("%s\r", LOADING_PATTERNS[time(NULL) % size]);
   fflush(stdout);
 }
 
