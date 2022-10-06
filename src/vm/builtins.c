@@ -741,20 +741,27 @@ void builtin_gc(struct fiber* fiber, any* arg, unsigned int args) {
 }
 
 void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args) {
-  struct blueprint*  blueprint;
-  struct function*   function;
+  struct blueprint*     blueprint;
+  struct function*      function;
+  struct stringbuilder  sb;
+  struct log            log;
 
   if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
     arg_error(fiber);
   else {
+    fiber_set_accu(fiber, any_nil());
     blueprint = any_get_blueprint(arg[0]);
     if (blueprint != NULL) {
       function = blueprint_lookup(blueprint, any_to_ptr(arg[1]));
       if (function != NULL) {
-        function_disassemble(function, raven_log(fiber_raven(fiber)));
+        stringbuilder_create(&sb);
+        log_create_to_stringbuilder(&log, &sb);
+        function_disassemble(function, &log);
+        fiber_set_accu(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
+        log_destroy(&log);
+        stringbuilder_destroy(&sb);
       }
     }
-    /* TODO: Return a string */
   }
 }
 
