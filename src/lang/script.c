@@ -17,7 +17,8 @@
 
 struct function* script_compile(struct raven*   raven,
                                 const  char*    source,
-                                struct mapping* vars) {
+                                struct mapping* vars,
+                                struct log*     log) {
   t_reader           reader;
   struct parser      parser;
   struct codewriter  codewriter;
@@ -26,7 +27,7 @@ struct function* script_compile(struct raven*   raven,
 
   result = NULL;
   reader_create(&reader, source);
-  parser_create(&parser, raven, &reader, raven_log(raven));
+  parser_create(&parser, raven, &reader, log);
   codewriter_create(&codewriter, raven);
   compiler_create(&compiler, raven, &codewriter, NULL);
   if (vars != NULL)

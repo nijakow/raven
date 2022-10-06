@@ -15,6 +15,7 @@ struct log {
 };
 
 void log_create(struct log* log);
+void log_create_to_stringbuilder(struct log* log, struct stringbuilder* sb);
 void log_destroy(struct log* log);
 
 void log_output_to_stringbuilder(struct log* log, struct stringbuilder* sb);

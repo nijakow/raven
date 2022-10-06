@@ -678,9 +678,11 @@ void builtin_write_file(struct fiber* fiber, any* arg, unsigned int args) {
 }
 
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
-  struct filesystem*  filesystem;
-  struct file*        file;
-  const  char*        path;
+  struct filesystem*    filesystem;
+  struct file*          file;
+  const  char*          path;
+  struct stringbuilder  sb;
+  struct log            log;
 
   if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
     arg_error(fiber);
@@ -692,29 +694,40 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
     if (file == NULL)
       fiber_set_accu(fiber, any_from_int(1));
     else {
-      if (file_recompile(file, raven_log(fiber_raven(fiber)))) {
-        fiber_set_accu(fiber, any_nil()); /* Success! */
+      stringbuilder_create(&sb);
+      log_create_to_stringbuilder(&log, &sb);
+      if (file_recompile(file, &log)) {
+        fiber_set_accu(fiber, any_from_int(1));
       } else {
-        fiber_set_accu(fiber, any_from_int(2)); /* Failure! */
+        fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
       }
+      log_destroy(&log);
+      stringbuilder_destroy(&sb);
     }
   }
 }
 
 void builtin_cc_script(struct fiber* fiber, any* arg, unsigned int args) {
-  struct function*  function;
+  struct function*      function;
+  struct stringbuilder  sb;
+  struct log            log;
 
   if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_STRING)
                 || !any_is_obj(arg[1], OBJ_TYPE_MAPPING))
     arg_error(fiber);
   else {
+    stringbuilder_create(&sb);
+    log_create_to_stringbuilder(&log, &sb);
     function = script_compile(fiber_raven(fiber),
                               string_contents(any_to_ptr(arg[0])),
-                              any_to_ptr(arg[1]));
+                              any_to_ptr(arg[1]),
+                              &log);
     if (function == NULL)
-      fiber_set_accu(fiber, any_nil());
+      fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
     else
       fiber_set_accu(fiber, any_from_ptr(function));
+    log_destroy(&log);
+    stringbuilder_destroy(&sb);
   }
 }
 

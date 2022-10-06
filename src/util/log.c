@@ -13,6 +13,11 @@ void log_create(struct log* log) {
   log->sb = NULL;
 }
 
+void log_create_to_stringbuilder(struct log* log, struct stringbuilder* sb) {
+  log_create(log);
+  log_output_to_stringbuilder(log, sb); 
+}
+
 void log_destroy(struct log* log) {
   /* TODO */
 }

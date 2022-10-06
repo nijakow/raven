@@ -12,6 +12,7 @@
 
 struct function* script_compile(struct raven*   raven,
                                 const  char*    source,
-                                struct mapping* vars);
+                                struct mapping* vars,
+                                struct log*     log);
 
 #endif
