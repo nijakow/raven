@@ -1192,12 +1192,14 @@ bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
        compiler_jump(&subcompiler, label);
        compiler_place_catch(&subcompiler);
        if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
-        result2 = false;
-        if (parse_fancy_vardecl(parser, &type, &name)) {
-          compiler_add_var(&subcompiler, type, name);
-          compiler_typecheck(&subcompiler, type);
-          compiler_store_var(&subcompiler, name);
-          result2 = parsepile_expect(parser, TOKEN_TYPE_RPAREN);
+        if (!parser_check(parser, TOKEN_TYPE_RPAREN)) {
+          result2 = false;
+          if (parse_fancy_vardecl(parser, &type, &name)) {
+            compiler_add_var(&subcompiler, type, name);
+            compiler_typecheck(&subcompiler, type);
+            compiler_store_var(&subcompiler, name);
+            result2 = parsepile_expect(parser, TOKEN_TYPE_RPAREN);
+          }
         }
       }
       if (parsepile_instruction(parser, &subcompiler)) {
