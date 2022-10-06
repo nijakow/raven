@@ -5,21 +5,39 @@
  * See README and LICENSE for further information.
  */
 
+#include "stringbuilder.h"
+
 #include "log.h"
 
 void log_create(struct log* log) {
-  /* TODO */
+  log->sb = NULL;
 }
 
 void log_destroy(struct log* log) {
   /* TODO */
 }
 
+void log_output_to_stringbuilder(struct log* log, struct stringbuilder* sb) {
+  log->sb = sb;
+}
+
+void log_putchar(struct log* log, char c) {
+  if (log->sb != NULL)
+    stringbuilder_append_char(log->sb, c);
+  else
+    putchar(c);
+}
+
 void log_vprintf(struct log* log, const char* format, va_list args) {
+  int   index;
+  int   amount;
   char  buffer[1024*16];
 
-  vsnprintf(buffer, sizeof(buffer), format, args);
-  printf("%s", buffer);
+  amount = vsnprintf(buffer, sizeof(buffer), format, args);
+
+  for (index = 0; index < amount; index++) {
+    log_putchar(log, buffer[index]);
+  }
 }
 
 void log_printf(struct log* log, const char* format, ...) {

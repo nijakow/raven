@@ -11,10 +11,15 @@
 #include "../defs.h"
 
 struct log {
+    struct stringbuilder*  sb;
 };
 
 void log_create(struct log* log);
 void log_destroy(struct log* log);
+
+void log_output_to_stringbuilder(struct log* log, struct stringbuilder* sb);
+
+void log_putchar(struct log* log, char c);
 
 void log_vprintf(struct log* log, const char* format, va_list args);
 void log_printf(struct log* log, const char* format, ...);
