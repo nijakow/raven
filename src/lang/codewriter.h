@@ -19,23 +19,23 @@
 typedef t_wc t_cw_label;
 
 struct label {
-  t_cw_label  loc;
-  t_cw_label  target;
+    t_cw_label  loc;
+    t_cw_label  target;
 };
 
 struct codewriter {
-  struct raven*  raven;
-  unsigned int   max_locals;
-  bool           varargs;
-  size_t         alloc;
-  size_t         fill;
-  t_bc*          bytecodes;
-  size_t         ci;
-  size_t         ti;
-  t_cw_label     li;
-  any            constants[CW_MAX_CONSTANTS];
-  struct type*   types[CW_MAX_TYPES];
-  struct label   labels[CW_MAX_LABELS];
+    struct raven*  raven;
+    unsigned int   max_locals;
+    bool           varargs;
+    size_t         alloc;
+    size_t         fill;
+    t_bc*          bytecodes;
+    size_t         ci;
+    size_t         ti;
+    t_cw_label     li;
+    any            constants[CW_MAX_CONSTANTS];
+    struct type*   types[CW_MAX_TYPES];
+    struct label   labels[CW_MAX_LABELS];
 };
 
 void codewriter_create(struct codewriter* writer, struct raven* raven);

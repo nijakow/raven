@@ -13,140 +13,140 @@
 #include "blueprint.h"
 
 struct obj_info BLUEPRINT_INFO = {
-  .type  = OBJ_TYPE_BLUEPRINT,
-  .mark  = (mark_func)  blueprint_mark,
-  .del   = (del_func)   blueprint_del,
-  .stats = (stats_func) base_obj_stats
+    .type  = OBJ_TYPE_BLUEPRINT,
+    .mark  = (mark_func)  blueprint_mark,
+    .del   = (del_func)   blueprint_del,
+    .stats = (stats_func) base_obj_stats
 };
 
 static void blueprint_create(struct blueprint* blue, struct file* file) {
-  blue->file    = file;
-  blue->parent  = NULL;
-  blue->methods = NULL;
-  vars_create(&blue->vars);
+    blue->file    = file;
+    blue->parent  = NULL;
+    blue->methods = NULL;
+    vars_create(&blue->vars);
 }
 
 static void blueprint_destroy(struct blueprint* blue) {
-  while (blue->methods != NULL)
-    function_unlink(blue->methods);
-  vars_destroy(&blue->vars);
+    while (blue->methods != NULL)
+        function_unlink(blue->methods);
+    vars_destroy(&blue->vars);
 }
 
 struct blueprint* blueprint_new(struct raven* raven, struct file* file) {
-  struct blueprint* blueprint;
+    struct blueprint* blueprint;
 
-  blueprint = base_obj_new(raven_objects(raven),
-                           &BLUEPRINT_INFO,
-                           sizeof(struct blueprint));
+    blueprint = base_obj_new(raven_objects(raven),
+                             &BLUEPRINT_INFO,
+                             sizeof(struct blueprint));
 
-  if (blueprint != NULL) {
-    blueprint->raven = raven;
-    blueprint_create(blueprint, file);
-  }
+    if (blueprint != NULL) {
+        blueprint->raven = raven;
+        blueprint_create(blueprint, file);
+    }
 
-  return blueprint;
+    return blueprint;
 }
 
 void blueprint_del(struct blueprint* blueprint) {
-  blueprint_destroy(blueprint);
-  base_obj_del(&blueprint->_);
+    blueprint_destroy(blueprint);
+    base_obj_del(&blueprint->_);
 }
 
 void blueprint_mark(struct gc* gc, struct blueprint* blue) {
-  struct function*  func;
+    struct function*  func;
 
-  if (blue == NULL) return;
+    if (blue == NULL) return;
 
-  for (func = blue->methods; func != NULL; func = func->next_method)
-    gc_mark_ptr(gc, func);
+    for (func = blue->methods; func != NULL; func = func->next_method)
+        gc_mark_ptr(gc, func);
 
-  vars_mark(gc, &blue->vars);
-  gc_mark_ptr(gc, blue->parent);
+    vars_mark(gc, &blue->vars);
+    gc_mark_ptr(gc, blue->parent);
 
-  base_obj_mark(gc, &blue->_);
+    base_obj_mark(gc, &blue->_);
 }
 
 struct object* blueprint_instantiate(struct blueprint* blueprint,
                                      struct raven*     raven) {
-  return object_new(raven, blueprint);
+    return object_new(raven, blueprint);
 }
 
 unsigned int blueprint_get_instance_size(struct blueprint* bp) {
-  return vars_count(blueprint_vars(bp));
+    return vars_count(blueprint_vars(bp));
 }
 
 bool blueprint_inherit(struct blueprint* blue, struct blueprint* parent) {
-  if (blue->parent != NULL)
-    return false;
-  else {
-    blue->parent = parent;
-    vars_reparent(&blue->vars, &parent->vars);
-    return true;
-  }
+    if (blue->parent != NULL)
+        return false;
+    else {
+        blue->parent = parent;
+        vars_reparent(&blue->vars, &parent->vars);
+        return true;
+    }
 }
 
 void blueprint_add_var(struct blueprint* blue,
                        struct type*      type,
                        struct symbol*    name) {
-  vars_add(blueprint_vars(blue), type, name);
+    vars_add(blueprint_vars(blue), type, name);
 }
 
 void blueprint_add_func(struct blueprint* blue,
                         struct symbol*    name,
                         struct function*  func) {
-  function_in_blueprint(func, blue, name);
+    function_in_blueprint(func, blue, name);
 }
 
 struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg) {
-  struct function*  function;
+    struct function*  function;
 
-  while (blue != NULL) {
-    function = blue->methods;
+    while (blue != NULL) {
+        function = blue->methods;
 
-    while (function != NULL) {
-      if (function->name == msg)
-        return function;
-      function = function->next_method;
+        while (function != NULL) {
+            if (function->name == msg)
+                return function;
+            function = function->next_method;
+        }
+
+        blue = blue->parent;
     }
 
-    blue = blue->parent;
-  }
-
-  return NULL;
+    return NULL;
 }
 
 struct blueprint* blueprint_load_relative(struct blueprint* bp,
                                           const  char*      path) {
-  struct file*  file;
+    struct file*  file;
 
-  file = blueprint_file(bp);
-  if (file == NULL) return raven_get_blueprint(blueprint_raven(bp), path);
+    file = blueprint_file(bp);
+    if (file == NULL) return raven_get_blueprint(blueprint_raven(bp), path);
 
-  file = file_parent(file);
-  if (file == NULL) return NULL;
+    file = file_parent(file);
+    if (file == NULL) return NULL;
 
-  file = file_resolve_flex(file, path);
-  if (file == NULL) return NULL;
+    file = file_resolve_flex(file, path);
+    if (file == NULL) return NULL;
 
-  return file_get_blueprint(file);
+    return file_get_blueprint(file);
 }
 
 struct blueprint* blueprint_recompile(struct blueprint* blue) {
-  struct file*  file;
+    struct file*  file;
 
-  file = blueprint_file(blue);
+    file = blueprint_file(blue);
 
-  if (file == NULL)
-    return NULL;
+    if (file == NULL)
+        return NULL;
 
-  return file_recompile_and_get(file);
+    return file_recompile_and_get(file);
 }
 
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
-  while (blue != NULL) {
-    if (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL))
-      return blue;
-    blue = blueprint_parent(blue);
-  }
-  return NULL;
+    while (blue != NULL) {
+        if (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL))
+            return blue;
+        blue = blueprint_parent(blue);
+    }
+    return NULL;
 }

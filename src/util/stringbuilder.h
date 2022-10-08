@@ -71,9 +71,9 @@
  */
 
 struct stringbuilder {
-  unsigned int alloc;
-  unsigned int fill;
-  char*        data;
+    unsigned int alloc;
+    unsigned int fill;
+    char*        data;
 };
 
 void stringbuilder_create(struct stringbuilder* sb);
@@ -87,8 +87,8 @@ bool stringbuilder_get(struct stringbuilder* sb, char** loc);
 void stringbuilder_clear(struct stringbuilder* sb);
 
 static inline const char* stringbuilder_get_const(struct stringbuilder* sb) {
-  if (sb->data == NULL) return "";
-  return sb->data;
+    if (sb->data == NULL) return "";
+    return sb->data;
 }
 
 #endif

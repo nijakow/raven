@@ -26,12 +26,12 @@
  * itself.
  */
 struct blueprint {
-  struct base_obj    _;
-  struct raven*      raven;
-  struct file*       file;
-  struct blueprint*  parent;
-  struct function*   methods;
-  struct vars        vars;
+    struct base_obj    _;
+    struct raven*      raven;
+    struct file*       file;
+    struct blueprint*  parent;
+    struct function*   methods;
+    struct vars        vars;
 };
 
 struct blueprint* blueprint_new(struct raven* raven, struct file* file);
@@ -62,19 +62,19 @@ struct blueprint* blueprint_recompile(struct blueprint* blue);
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
 
 static inline struct raven* blueprint_raven(struct blueprint* blue) {
-  return blue->raven;
+    return blue->raven;
 }
 
 static inline struct blueprint* blueprint_parent(struct blueprint* blue) {
-  return blue->parent;
+    return blue->parent;
 }
 
 static inline struct file* blueprint_file(struct blueprint* blue) {
-  return blue->file;
+    return blue->file;
 }
 
 static inline struct vars* blueprint_vars(struct blueprint* bp) {
-  return &bp->vars;
+    return &bp->vars;
 }
 
 #endif

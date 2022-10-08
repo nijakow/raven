@@ -12,37 +12,37 @@
 #include "../core/any.h"
 
 struct frame {
-  struct frame*     prev;
-  struct function*  function;
-  unsigned int      catch_addr;
-  unsigned int      ip;
-  any*              locals;
+    struct frame*     prev;
+    struct function*  function;
+    unsigned int      catch_addr;
+    unsigned int      ip;
+    any*              locals;
 };
 
 void frame_mark(struct gc* gc, struct frame* frame);
 
 static inline struct frame* frame_prev(struct frame* frame) {
-  return frame->prev;
+    return frame->prev;
 }
 
 static inline struct function* frame_function(struct frame* frame) {
-  return frame->function;
+    return frame->function;
 }
 
 static inline any frame_self(struct frame* frame) {
-  return frame->locals[0];
+    return frame->locals[0];
 }
 
 static inline any* frame_local(struct frame* frame, unsigned int index) {
-  return &frame->locals[index + 1];
+    return &frame->locals[index + 1];
 }
 
 static inline unsigned int frame_catch_addr(struct frame* frame) {
-  return frame->catch_addr;
+    return frame->catch_addr;
 }
 
 static inline void frame_set_catch_addr(struct frame* frame, unsigned int ca) {
-  frame->catch_addr = ca;
+    frame->catch_addr = ca;
 }
 
 #endif

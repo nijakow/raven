@@ -11,10 +11,10 @@
 #include "../defs.h"
 
 struct filesystem {
-  struct raven*  raven;
-  struct file*   files;
-  struct file*   root;
-  const char*    anchor;
+    struct raven*  raven;
+    struct file*   files;
+    struct file*   root;
+    const char*    anchor;
 };
 
 void filesystem_create(struct filesystem* fs, struct raven* raven);
@@ -33,15 +33,15 @@ struct blueprint* filesystem_get_blueprint(struct filesystem* fs,
 struct object* filesystem_get_object(struct filesystem* fs, const char* path);
 
 static inline struct raven* filesystem_raven(struct filesystem* fs) {
-  return fs->raven;
+    return fs->raven;
 }
 
 static inline struct file* filesystem_root(struct filesystem* fs) {
-  return fs->root;
+    return fs->root;
 }
 
 static inline const char* filesystem_anchor(struct filesystem* fs) {
-  return fs->anchor;
+    return fs->anchor;
 }
 
 #endif

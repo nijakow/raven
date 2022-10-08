@@ -12,18 +12,18 @@
 #include "../util/stringbuilder.h"
 
 struct file {
-  struct filesystem*  fs;
-  struct file*        next;
-  struct file**       prev;
+    struct filesystem*  fs;
+    struct file*        next;
+    struct file**       prev;
 
-  struct file*        parent;
-  struct file*        sibling;
-  struct file*        children;
+    struct file*        parent;
+    struct file*        sibling;
+    struct file*        children;
 
-  struct blueprint*   blueprint;
-  struct object*      object;
+    struct blueprint*   blueprint;
+    struct object*      object;
 
-  char                name[];
+    char                name[];
 };
 
 struct file* file_new(struct filesystem* fs,
@@ -52,24 +52,24 @@ struct object* file_get_object(struct file* file);
 struct blueprint* file_recompile_and_get(struct file* file);
 
 static inline struct filesystem* file_fs(struct file* file) {
-  return file->fs;
+    return file->fs;
 }
 
 static inline struct file* file_parent(struct file* file) {
-  if (file == NULL) return NULL;
-  return file->parent;
+    if (file == NULL) return NULL;
+    return file->parent;
 }
 
 static inline struct file* file_sibling(struct file* file) {
-  return file->sibling;
+    return file->sibling;
 }
 
 static inline struct file* file_children(struct file* file) {
-  return file->children;
+    return file->children;
 }
 
 static inline char* file_name(struct file* file) {
-  return file->name;
+    return file->name;
 }
 
 #endif

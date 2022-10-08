@@ -23,14 +23,14 @@
  * the MUD.
  */
 struct raven_vars {
-  any  nil_proxy;
-  any  string_proxy;
-  any  array_proxy;
-  any  mapping_proxy;
-  any  symbol_proxy;
+    any  nil_proxy;
+    any  string_proxy;
+    any  array_proxy;
+    any  mapping_proxy;
+    any  symbol_proxy;
 
-  struct funcref*  connect_func;
-  struct funcref*  disconnect_func;
+    struct funcref*  connect_func;
+    struct funcref*  disconnect_func;
 };
 
 /*
@@ -38,14 +38,14 @@ struct raven_vars {
  * This struct contains everything.
  */
 struct raven {
-  struct object_table  objects;
-  struct typeset       types;
-  struct log           log;
-  struct scheduler     scheduler;
-  struct server        server;
-  struct filesystem    fs;
-  struct raven_vars    vars;
-  bool                 was_interrupted;
+    struct object_table  objects;
+    struct typeset       types;
+    struct log           log;
+    struct scheduler     scheduler;
+    struct server        server;
+    struct filesystem    fs;
+    struct raven_vars    vars;
+    bool                 was_interrupted;
 };
 
 void raven_create(struct raven* raven);
@@ -81,40 +81,40 @@ bool raven_call_out_func(struct raven*   raven,
 void raven_setup_builtins(struct raven* raven);
 
 static inline struct object_table* raven_objects(struct raven* raven) {
-  return &raven->objects;
+    return &raven->objects;
 }
 
 static inline struct typeset* raven_types(struct raven* raven) {
-  return &raven->types;
+    return &raven->types;
 }
 
 static inline struct log* raven_log(struct raven* raven) {
-  return &raven->log;
+    return &raven->log;
 }
 
 static inline struct scheduler* raven_scheduler(struct raven* raven) {
-  return &raven->scheduler;
+    return &raven->scheduler;
 }
 
 static inline struct server* raven_server(struct raven* raven) {
-  return &raven->server;
+    return &raven->server;
 }
 
 static inline struct filesystem* raven_fs(struct raven* raven) {
-  return &raven->fs;
+    return &raven->fs;
 }
 
 static inline struct raven_vars* raven_vars(struct raven* raven) {
-  return &raven->vars;
+    return &raven->vars;
 }
 
 static inline bool raven_was_interrupted(struct raven* raven) {
-  return raven->was_interrupted;
+    return raven->was_interrupted;
 }
 
 static inline raven_time_t raven_time(struct raven* raven) {
-  (void) raven;
-  return time(NULL);
+    (void) raven;
+    return time(NULL);
 }
 
 #endif

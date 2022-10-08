@@ -11,8 +11,8 @@
 #include "../util/log.h"
 
 struct channel {
-  char*        name;
-  struct log   log;
+    char*        name;
+    struct log   log;
 };
 
 void channel_create(struct channel* channel, const char* name);

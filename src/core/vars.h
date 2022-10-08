@@ -24,15 +24,15 @@
 #define VARS_MAX_ENTRIES 64
 
 struct var {
-  struct type*   type;
-  struct symbol* name;
+    struct type*   type;
+    struct symbol* name;
 };
 
 struct vars {
-  struct vars*  parent;
-  unsigned int  fill;
-  unsigned int  alloc;
-  struct var*   vars;
+    struct vars*  parent;
+    unsigned int  fill;
+    unsigned int  alloc;
+    struct var*   vars;
 };
 
 void vars_create(struct vars* vars);
@@ -56,7 +56,7 @@ bool vars_find(struct vars*   vars,
 struct symbol* vars_name_for_local_index(struct vars* vars, unsigned int index);
 
 static inline struct vars* vars_parent(struct vars* vars) {
-  return vars->parent;
+    return vars->parent;
 }
 
 #endif

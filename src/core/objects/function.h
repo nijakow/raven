@@ -15,21 +15,21 @@
 
 
 struct function {
-  struct base_obj      _;
-  struct blueprint*    blueprint;
-  struct symbol*       name;
-  struct function**    prev_method;
-  struct function*     next_method;
-  enum raven_modifier  modifier;
-  unsigned int         locals;
-  bool                 varargs;
-  unsigned int         bytecode_count;
-  t_bc*                bytecodes;
-  unsigned int         constant_count;
-  any*                 constants;
-  unsigned int         type_count;
-  struct type**        types;
-  char                 payload[];
+    struct base_obj      _;
+    struct blueprint*    blueprint;
+    struct symbol*       name;
+    struct function**    prev_method;
+    struct function*     next_method;
+    enum raven_modifier  modifier;
+    unsigned int         locals;
+    bool                 varargs;
+    unsigned int         bytecode_count;
+    t_bc*                bytecodes;
+    unsigned int         constant_count;
+    any*                 constants;
+    unsigned int         type_count;
+    struct type**        types;
+    char                 payload[];
 };
 
 struct function* function_new(struct raven* raven,
@@ -55,52 +55,52 @@ void function_disassemble(struct function* function, struct log* log);
 
 
 static inline struct symbol* function_name(struct function* func) {
-  return func->name;
+    return func->name;
 }
 
 static inline enum raven_modifier function_modifier(struct function* func) {
-  return func->modifier;
+    return func->modifier;
 }
 
 static inline void function_set_modifier(struct function* func, enum raven_modifier mod) {
-  func->modifier = mod;
+    func->modifier = mod;
 }
 
 static inline struct blueprint* function_blueprint(struct function* func) {
-  return func->blueprint;
+    return func->blueprint;
 }
 
 static inline t_bc function_bc_at(struct function* func, unsigned int index) {
-  return func->bytecodes[index];
+    return func->bytecodes[index];
 }
 
 static inline t_wc function_wc_at(struct function* func, unsigned int index) {
-  return *((t_wc*) &func->bytecodes[index]);
+    return *((t_wc*) &func->bytecodes[index]);
 }
 
 static inline any function_const_at(struct function* func, unsigned int index) {
-  return func->constants[index];
+    return func->constants[index];
 }
 
 static inline struct type* function_type_at(struct function* func,
                                             unsigned int     index) {
-  return func->types[index];
+    return func->types[index];
 }
 
 static inline unsigned int function_bytecode_count(struct function* func) {
-  return func->bytecode_count;
+    return func->bytecode_count;
 }
 
 static inline unsigned int function_local_count(struct function* func) {
-  return func->locals;
+    return func->locals;
 }
 
 static inline bool function_has_varargs(struct function* func) {
-  return func->varargs;
+    return func->varargs;
 }
 
 static inline bool function_oob(struct function* func, unsigned int index) {
-  return index >= func->bytecode_count;
+    return index >= func->bytecode_count;
 }
 
 #endif

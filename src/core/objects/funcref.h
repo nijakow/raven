@@ -13,9 +13,9 @@
 #include "../base_obj.h"
 
 struct funcref {
-  struct base_obj  _;
-  any              receiver;
-  struct symbol*   message;
+    struct base_obj  _;
+    any              receiver;
+    struct symbol*   message;
 };
 
 struct funcref* funcref_new(struct raven*  raven,

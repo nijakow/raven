@@ -23,8 +23,8 @@
 #include "../core/base_obj.h"
 
 struct gc {
-  struct raven*     raven;
-  struct base_obj*  mark_list;
+    struct raven*     raven;
+    struct base_obj*  mark_list;
 };
 
 void gc_create(struct gc* gc, struct raven* raven);
@@ -36,7 +36,7 @@ void gc_mark_any(struct gc* gc, any value);
 void gc_run(struct gc* gc);
 
 static inline struct raven* gc_raven(struct gc* gc) {
-  return gc->raven;
+    return gc->raven;
 }
 
 #endif

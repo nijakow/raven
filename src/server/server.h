@@ -11,9 +11,9 @@
 #include "../defs.h"
 
 struct server {
-  struct raven*      raven;
-  struct connection* connections;
-  int                server_socket;
+    struct raven*      raven;
+    struct connection* connections;
+    int                server_socket;
 };
 
 void server_create(struct server* server, struct raven* raven);
@@ -24,11 +24,11 @@ void server_accept(struct server* server);
 void server_tick(struct server* server, raven_timeval_t tv);
 
 static inline struct raven* server_raven(struct server* server) {
-  return server->raven;
+    return server->raven;
 }
 
 static inline int server_serversocket(struct server* server) {
-  return server->server_socket;
+    return server->server_socket;
 }
 
 #endif

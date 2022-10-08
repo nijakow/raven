@@ -4,8 +4,8 @@
 #include "../defs.h"
 
 struct obj_stats {
-  unsigned long  count;
-  size_t         size;
+    unsigned long  count;
+    size_t         size;
 };
 
 void obj_stats_create(struct obj_stats* stats);
@@ -15,7 +15,7 @@ void obj_stats_inc_count(struct obj_stats* stats);
 
 
 struct stats {
-  struct obj_stats object_stats[OBJ_TYPE_MAX];
+    struct obj_stats object_stats[OBJ_TYPE_MAX];
 };
 
 void stats_create(struct stats* stats);

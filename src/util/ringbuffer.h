@@ -73,10 +73,10 @@
 #define RINGBUFFER_SIZE 1024
 
 struct ringbuffer {
-  unsigned int  lines;
-  unsigned int  read_head;
-  unsigned int  write_head;
-  char          data[RINGBUFFER_SIZE];
+    unsigned int  lines;
+    unsigned int  read_head;
+    unsigned int  write_head;
+    char          data[RINGBUFFER_SIZE];
 };
 
 void ringbuffer_create(struct ringbuffer* ringbuffer);

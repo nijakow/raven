@@ -45,15 +45,15 @@ void gc_clear_mark_list(struct gc* gc);
  * Create a new GC instance.
  */
 void gc_create(struct gc* gc, struct raven* raven) {
-  gc->raven     = raven;
-  gc->mark_list = NULL;
+    gc->raven     = raven;
+    gc->mark_list = NULL;
 }
 
 /*
  * Destroy a GC instance.
  */
 void gc_destroy(struct gc* gc) {
-  gc_clear_mark_list(gc);
+    gc_clear_mark_list(gc);
 }
 
 /*
@@ -61,12 +61,12 @@ void gc_destroy(struct gc* gc) {
  * and return it.
  */
 static struct base_obj* gc_pop(struct gc* gc) {
-  struct base_obj*  obj;
+    struct base_obj*  obj;
 
-  obj           = gc->mark_list;
-  gc->mark_list = base_obj_forward(obj);
+    obj           = gc->mark_list;
+    gc->mark_list = base_obj_forward(obj);
 
-  return obj;
+    return obj;
 }
 
 /*
@@ -78,31 +78,31 @@ static struct base_obj* gc_pop(struct gc* gc) {
  * previous garbage collection cycle.
  */
 void gc_clear_mark_list(struct gc* gc) {
-  while (gc->mark_list != NULL)
-    base_obj_mark_white(gc_pop(gc));
+    while (gc->mark_list != NULL)
+        base_obj_mark_white(gc_pop(gc));
 }
 
 /*
  * Add an object to the gray list (if needed).
  */
 void gc_mark_ptr(struct gc* gc, void* ptr) {
-  if (ptr != NULL)
-    base_obj_dispatch_mark(gc, ptr);
+    if (ptr != NULL)
+        base_obj_dispatch_mark(gc, ptr);
 }
 
 /*
  * Add the object stored in an `any` to the gray list.
  */
 void gc_mark_any(struct gc* gc, any value) {
-  if (any_is_ptr(value))
-    gc_mark_ptr(gc, any_to_ptr(value));
+    if (any_is_ptr(value))
+        gc_mark_ptr(gc, any_to_ptr(value));
 }
 
 /*
  * Insert all toplevel objects into the gray list.
  */
 void gc_mark_roots(struct gc* gc) {
-  raven_mark(gc, gc_raven(gc));
+    raven_mark(gc, gc_raven(gc));
 }
 
 /*
@@ -113,13 +113,13 @@ void gc_mark_roots(struct gc* gc) {
  * children and add them into the gray list, if required.
  */
 void gc_mark_loop(struct gc* gc) {
-  struct base_obj*  obj;
+    struct base_obj*  obj;
 
-  while (gc->mark_list != NULL) {
-    obj = gc_pop(gc);
-    base_obj_mark_children(gc, obj);
-    base_obj_mark_black(obj);
-  }
+    while (gc->mark_list != NULL) {
+        obj = gc_pop(gc);
+        base_obj_mark_children(gc, obj);
+        base_obj_mark_black(obj);
+    }
 }
 
 /*
@@ -131,20 +131,20 @@ void gc_mark_loop(struct gc* gc) {
  * the pointer to the next pointer in the list.
  */
 void gc_collect(struct gc* gc) {
-  struct base_obj**  ptr;
-  struct base_obj*   obj;
+    struct base_obj**  ptr;
+    struct base_obj*   obj;
 
-  ptr = &raven_objects(gc_raven(gc))->objects;
-  while (*ptr != NULL) {
-    obj = *ptr;
-    if (base_obj_is_marked(obj)) {
-      base_obj_mark_white(obj);
-      ptr = &(obj->next);
-    } else {
-      *ptr = obj->next;
-      base_obj_dispatch_del(obj);
+    ptr = &raven_objects(gc_raven(gc))->objects;
+    while (*ptr != NULL) {
+        obj = *ptr;
+        if (base_obj_is_marked(obj)) {
+            base_obj_mark_white(obj);
+            ptr = &(obj->next);
+        } else {
+            *ptr = obj->next;
+            base_obj_dispatch_del(obj);
+        }
     }
-  }
 }
 
 /*
@@ -155,8 +155,8 @@ void gc_collect(struct gc* gc) {
  *   3) Collect all WHITE objects. Then, turn every BLACK object back to WHITE.
  */
 void gc_run(struct gc* gc) {
-  gc_clear_mark_list(gc);
-  gc_mark_roots(gc);
-  gc_mark_loop(gc);
-  gc_collect(gc);
+    gc_clear_mark_list(gc);
+    gc_mark_roots(gc);
+    gc_mark_loop(gc);
+    gc_collect(gc);
 }

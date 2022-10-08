@@ -13,11 +13,11 @@
 #include "../base_obj.h"
 
 struct symbol {
-  struct base_obj  _;
-  struct symbol*   next;
-  struct symbol**  prev;
-  builtin_func     builtin;
-  char             name[];
+    struct base_obj  _;
+    struct symbol*   next;
+    struct symbol**  prev;
+    builtin_func     builtin;
+    char             name[];
 };
 
 void symbol_mark(struct gc* gc, struct symbol* symbol);
@@ -27,15 +27,15 @@ struct symbol* symbol_find_in(struct object_table* table, const char* name);
 struct symbol* symbol_gensym(struct object_table* table);
 
 static inline const char* symbol_name(struct symbol* symbol) {
-  return symbol->name;
+    return symbol->name;
 }
 
 static inline builtin_func symbol_builtin(struct symbol* symbol) {
-  return symbol->builtin;
+    return symbol->builtin;
 }
 
 static inline void symbol_set_builtin(struct symbol* symbol, builtin_func f) {
-  symbol->builtin = f;
+    symbol->builtin = f;
 }
 
 #endif

@@ -18,10 +18,10 @@ typedef bool (*type_check_func)(struct type*, any value);
 typedef bool (*type_cast_func)(struct type*, any* value);
 
 struct type {
-  struct typeset*  typeset;
-  struct type*     parent;
-  type_check_func  check_func;
-  type_cast_func   cast_func;
+    struct typeset*  typeset;
+    struct type*     parent;
+    type_check_func  check_func;
+    type_cast_func   cast_func;
 };
 
 void type_create(struct type*     type,
@@ -37,82 +37,82 @@ bool type_check(struct type* type, any value);
 bool type_cast(struct type* type, any* value);
 
 static inline struct typeset* type_typeset(struct type* type) {
-  return type->typeset;
+    return type->typeset;
 }
 
 static inline struct type* type_parent(struct type* type) {
-  return type->parent;
+    return type->parent;
 }
 
 static inline type_check_func type_type_check_func(struct type* type) {
-  return type->check_func;
+    return type->check_func;
 }
 
 static inline type_cast_func type_type_cast_func(struct type* type) {
-  return type->cast_func;
+    return type->cast_func;
 }
 
 
 struct typeset {
-  struct raven* raven;
+    struct raven* raven;
 
-  struct type   void_type;
-  struct type   any_type;
+    struct type   void_type;
+    struct type   any_type;
 
-  struct type   int_type;
-  struct type   char_type;
-  struct type   string_type;
-  struct type   symbol_type;
-  struct type   object_type;
-  struct type   funcref_type;
-  struct type   mapping_type;
+    struct type   int_type;
+    struct type   char_type;
+    struct type   string_type;
+    struct type   symbol_type;
+    struct type   object_type;
+    struct type   funcref_type;
+    struct type   mapping_type;
 };
 
 void typeset_create(struct typeset* ts, struct raven* raven);
 void typeset_destroy(struct typeset* ts);
 
 static inline struct raven* typeset_raven(struct typeset* ts) {
-  return ts->raven;
+    return ts->raven;
 }
 
 static inline struct type* typeset_type_void(struct typeset* ts) {
-  return &ts->void_type;
+    return &ts->void_type;
 }
 
 static inline struct type* typeset_type_any(struct typeset* ts) {
-  return &ts->any_type;
+    return &ts->any_type;
 }
 
 static inline struct type* typeset_type_bool(struct typeset* ts) {
-  return &ts->int_type;
+    return &ts->int_type;
 }
 
 static inline struct type* typeset_type_int(struct typeset* ts) {
-  return &ts->int_type;
+    return &ts->int_type;
 }
 
 static inline struct type* typeset_type_char(struct typeset* ts) {
-  return &ts->char_type;
+    return &ts->char_type;
 }
 
 static inline struct type* typeset_type_string(struct typeset* ts) {
-  return &ts->string_type;
+    return &ts->string_type;
 }
 
 static inline struct type* typeset_type_symbol(struct typeset* ts) {
-  return &ts->symbol_type;
+    return &ts->symbol_type;
 }
 
 static inline struct type* typeset_type_object(struct typeset* ts) {
-  return &ts->object_type;
+    return &ts->object_type;
 }
 
 static inline struct type* typeset_type_funcref(struct typeset* ts) {
-  return &ts->funcref_type;
+    return &ts->funcref_type;
 }
 
 static inline struct type* typeset_type_mapping(struct typeset* ts) {
-  return &ts->mapping_type;
+    return &ts->mapping_type;
 }
 
 #endif

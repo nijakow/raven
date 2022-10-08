@@ -12,9 +12,9 @@
 #include "../base_obj.h"
 
 struct string {
-  struct base_obj  _;
-  unsigned int     length;
-  char             contents[];
+    struct base_obj  _;
+    unsigned int     length;
+    char             contents[];
 };
 
 struct string* string_new(struct raven* raven, const char* contents);
@@ -38,17 +38,17 @@ struct string* string_substr(struct string* string,
                              struct raven*  raven);
 
 static inline unsigned int string_length(struct string* string) {
-  return string->length;
+    return string->length;
 }
 
 static inline const char* string_contents(struct string* string) {
-  return string->contents;
+    return string->contents;
 }
 
 static inline char string_at(struct string* string, unsigned int index) {
-  if (index >= string_length(string))
-    return '\0';
-  return string_contents(string)[index];
+    if (index >= string_length(string))
+        return '\0';
+    return string_contents(string)[index];
 }
 
 #endif

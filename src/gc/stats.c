@@ -4,8 +4,8 @@
 
 
 void obj_stats_create(struct obj_stats* stats) {
-  stats->count = 0;
-  stats->size  = 0;
+    stats->count = 0;
+    stats->size  = 0;
 }
 
 void obj_stats_destroy(struct obj_stats* stats) {
@@ -13,16 +13,16 @@ void obj_stats_destroy(struct obj_stats* stats) {
 }
 
 void obj_stats_inc_count(struct obj_stats* stats) {
-  stats->count++;
+    stats->count++;
 }
 
 
 void stats_create(struct stats* stats) {
-  unsigned int  index;
+    unsigned int  index;
 
-  for (index = 0; index < OBJ_TYPE_MAX; index++) {
-    obj_stats_create(&stats->object_stats[index]);
-  }
+    for (index = 0; index < OBJ_TYPE_MAX; index++) {
+        obj_stats_create(&stats->object_stats[index]);
+    }
 }
 
 void stats_destroy(struct stats* stats) {
@@ -30,6 +30,6 @@ void stats_destroy(struct stats* stats) {
 }
 
 void stats_gaze_at(struct stats* stats, void* object) {
-  base_obj_dispatch_stats(object, &stats->object_stats[base_obj_type(object)]);
+    base_obj_dispatch_stats(object, &stats->object_stats[base_obj_type(object)]);
 }
 

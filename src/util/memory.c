@@ -22,23 +22,23 @@
 #include "memory.h"
 
 void* memory_alloc(size_t size) {
-  if (size == 0)
-    size = 1;
-  return malloc(size);
+    if (size == 0)
+        size = 1;
+    return malloc(size);
 }
 
 void* memory_realloc(void* ptr, size_t new_size) {
-  if (ptr == NULL)
-    return memory_alloc(new_size);
-  return realloc(ptr, new_size);
+    if (ptr == NULL)
+        return memory_alloc(new_size);
+    return realloc(ptr, new_size);
 }
 
 void memory_free(void* ptr) {
-  if (ptr != NULL)
-    free(ptr);
+    if (ptr != NULL)
+        free(ptr);
 }
 
 
 char* memory_strdup(const char* ptr) {
-  return strdup(ptr);
+    return strdup(ptr);
 }

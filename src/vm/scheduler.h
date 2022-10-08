@@ -19,16 +19,16 @@
  * The actual `scheduler` definition.
  */
 struct scheduler {
-  /*
-   * A backpointer to the Raven instance.
-   */
-  struct raven*  raven;
+    /*
+     * A backpointer to the Raven instance.
+     */
+    struct raven*  raven;
 
-  /*
-   * A linked list of all the fibers registered for
-   * this scheduler.
-   */
-  struct fiber*  fibers;
+    /*
+     * A linked list of all the fibers registered for
+     * this scheduler.
+     */
+    struct fiber*  fibers;
 };
 
 void scheduler_create(struct scheduler* scheduler, struct raven* raven);
@@ -43,7 +43,7 @@ bool scheduler_is_sleeping(struct scheduler* scheduler);
 void scheduler_run(struct scheduler* scheduler);
 
 static inline struct raven* scheduler_raven(struct scheduler* scheduler) {
-  return scheduler->raven;
+    return scheduler->raven;
 }
 
 #endif

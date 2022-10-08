@@ -21,16 +21,16 @@
 typedef t_cw_label t_compiler_label;
 
 struct compiler {
-  struct raven*       raven;
-  struct compiler*    parent;
-  struct codewriter*  cw;
-  struct blueprint*   bp;
-  struct mapping*     mapping_vars;
-  struct vars         vars;
-  t_cw_label          break_label;
-  t_cw_label          continue_label;
-  t_cw_label          catch_labels[COMPILER_MAX_CATCH];
-  unsigned int        catch_count;
+    struct raven*       raven;
+    struct compiler*    parent;
+    struct codewriter*  cw;
+    struct blueprint*   bp;
+    struct mapping*     mapping_vars;
+    struct vars         vars;
+    t_cw_label          break_label;
+    t_cw_label          continue_label;
+    t_cw_label          catch_labels[COMPILER_MAX_CATCH];
+    unsigned int        catch_count;
 };
 
 void compiler_create(struct compiler*   compiler,

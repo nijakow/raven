@@ -16,15 +16,15 @@
 
 
 struct connection {
-  struct base_obj     _;
-  struct raven*       raven;
-  struct server*      server;
-  struct connection*  next;
-  struct connection** prev;
-  struct fiber*       fiber;
-  int                 socket;
-  struct ringbuffer   in_buffer;
-  any                 player_object;
+    struct base_obj     _;
+    struct raven*       raven;
+    struct server*      server;
+    struct connection*  next;
+    struct connection** prev;
+    struct fiber*       fiber;
+    int                 socket;
+    struct ringbuffer   in_buffer;
+    any                 player_object;
 };
 
 struct connection* connection_new(struct raven* raven,
@@ -42,38 +42,38 @@ void connection_input(struct connection* connection, char* b, unsigned int n);
 void connection_output_str(struct connection* connection, const char* str);
 
 static inline struct raven* connection_raven(struct connection* connection) {
-  return connection->raven;
+    return connection->raven;
 }
 
 static inline struct server* connection_server(struct connection* connection) {
-  return connection->server;
+    return connection->server;
 }
 
 static inline struct connection*
-    connection_next(struct connection* connection) {
-  return connection->next;
+connection_next(struct connection* connection) {
+    return connection->next;
 }
 
 static inline int connection_socket(struct connection* connection) {
-  return connection->socket;
+    return connection->socket;
 }
 
 static inline struct fiber* connection_fiber(struct connection* connection) {
-  return connection->fiber;
+    return connection->fiber;
 }
 
 static inline void connection_set_fiber(struct connection* connection,
                                         struct fiber*      fiber) {
-  connection->fiber = fiber;
+    connection->fiber = fiber;
 }
 
 static inline any connection_player_object(struct connection* connection) {
-  return connection->player_object;
+    return connection->player_object;
 }
 
 static inline void connection_set_player_object(struct connection* connection,
                                                 any                value) {
-  connection->player_object = value;
+    connection->player_object = value;
 }
 
 #endif
