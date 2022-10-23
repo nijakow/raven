@@ -721,7 +721,6 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
          * In practice, this will just be a hidden call to the
          * method `the(...)`.
          */
-        compiler_push_self(compiler); /* TODO: Maybe push a special object? */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_DEREF);
