@@ -96,11 +96,21 @@ void fiber_push_frame(struct fiber*    fiber,
     unsigned int   index;
     struct frame*  frame;
     any*           locals;
+    struct array*  varargs;
     int            missing; /* Must be signed! */
 
     fixed_arg_count   = function_arg_count(func);
     local_count       = function_local_count(func);
     locals            = (any*) (fiber->sp - (args + 1) * sizeof(any));
+    varargs           = NULL;
+
+    /* Store varargs in an array, if needed */
+    if (args > fixed_arg_count && function_has_varargs(func)) {
+        varargs = array_new(fiber_raven(fiber), args - fixed_arg_count);
+        for (index = 0; index < (args - fixed_arg_count); index++)
+            array_put(varargs, index, locals[fixed_arg_count + index + 1]);
+    }
+
     missing           = local_count - ((int) args + 1);
     frame             = (struct frame*) (fiber->sp + (missing * sizeof(any)));
     fiber->sp         = fiber->sp + (missing * sizeof(any)) + sizeof(struct frame);
@@ -109,15 +119,8 @@ void fiber_push_frame(struct fiber*    fiber,
     frame->catch_addr = 0;
     frame->ip         = 0;
     frame->locals     = locals;
-    frame->varargs    = NULL;
+    frame->varargs    = varargs;
     fiber->top        = frame;
-
-    /* Store varargs in an array, if needed */
-    if (args > fixed_arg_count && function_has_varargs(func)) {
-        frame->varargs = array_new(fiber_raven(fiber), args - fixed_arg_count);
-        for (index = 0; index < (args - fixed_arg_count); index++)
-            array_put(frame->varargs, index, frame->locals[args + index]);
-    }
 
     /* Initialize all uninitialized variables */
     while (local_count --> args + 1)
