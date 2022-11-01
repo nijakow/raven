@@ -884,26 +884,6 @@ bool parsepile_do_while(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
-bool parsepile_for_init(struct parser* parser, struct compiler* compiler) {
-    struct symbol* symbol;
-    struct type*   type;
-    bool           result;
-
-    result = false;
-    if (parse_fancy_vardecl(parser, &type, &symbol)) {
-        compiler_add_var(compiler, type, symbol);
-        if (parsepile_expect(parser, TOKEN_TYPE_ASSIGNMENT)) {
-            if (parsepile_expression(parser, compiler)) {
-                result = parsepile_store_var(parser, compiler, symbol);
-            }
-        }
-    } else {
-        result = parsepile_expression(parser, compiler);
-    }
-
-    return result;
-}
-
 bool parsepile_for(struct parser* parser, struct compiler* compiler) {
     struct symbol*   symbol;
     struct type*     type;
@@ -929,7 +909,7 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
     if (parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
         iresult = false;
         if (parse_fancy_vardecl(parser, &type, &symbol)) {
-            compiler_add_var(compiler, type, symbol);
+            compiler_add_var(&subcompiler, type, symbol);
             if (parser_check(parser, TOKEN_TYPE_COLON)) {
                 /*
                  * We now parse a for-each statement
@@ -972,12 +952,12 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
                 }
                 // TODO: Iresult is false, result may be true
             } else if (parsepile_expect(parser, TOKEN_TYPE_ASSIGNMENT)) {
-                if (parsepile_expression(parser, compiler)) {
-                    iresult = parsepile_store_var(parser, compiler, symbol);
+                if (parsepile_expression(parser, &subcompiler)) {
+                    iresult = parsepile_store_var(parser, &subcompiler, symbol);
                 }
             }
         } else {
-            iresult = parsepile_expression(parser, compiler);
+            iresult = parsepile_expression(parser, &subcompiler);
         }
 
         if (iresult && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON)) {
