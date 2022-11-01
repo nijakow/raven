@@ -417,6 +417,8 @@ void parser_advance(struct parser* parser) {
             parser_set_type(parser, TOKEN_TYPE_KW_DO);
         } else if (parser_buffer_is(parser, "for")) {
             parser_set_type(parser, TOKEN_TYPE_KW_FOR);
+        } else if (parser_buffer_is(parser, "foreach")) {
+            parser_set_type(parser, TOKEN_TYPE_KW_FOREACH);
         } else if (parser_buffer_is(parser, "switch")) {
             parser_set_type(parser, TOKEN_TYPE_KW_SWITCH);
         } else if (parser_buffer_is(parser, "case")) {

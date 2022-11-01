@@ -534,6 +534,10 @@ bool parsepile_simple_expr(struct parser*   parser,
     } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
         result = parsepile_mapping(parser, compiler);
         parser_set_exprtype_to_mapping(parser);
+    } else if (parser_check(parser, TOKEN_TYPE_ELLIPSIS)) {
+        result = true;
+        compiler_op(compiler, RAVEN_OP_ARGS);
+        parser_set_exprtype_to_array(parser);
     }
     return result;
 }
@@ -1243,6 +1247,8 @@ bool parsepile_instruction(struct parser* parser, struct compiler* compiler) {
     } else if (parser_check(parser, TOKEN_TYPE_KW_DO)) {
         result = parsepile_do_while(parser, compiler);
     } else if (parser_check(parser, TOKEN_TYPE_KW_FOR)) {
+        result = parsepile_for(parser, compiler);
+    } else if (parser_check(parser, TOKEN_TYPE_KW_FOREACH)) {
         result = parsepile_for(parser, compiler);
     } else if (parser_check(parser, TOKEN_TYPE_KW_SWITCH)) {
         result = parsepile_switch(parser, compiler);

@@ -10,6 +10,7 @@
 
 #include "../defs.h"
 #include "../core/any.h"
+#include "../core/objects/array.h"
 
 struct frame {
     struct frame*     prev;
@@ -17,6 +18,7 @@ struct frame {
     unsigned int      catch_addr;
     unsigned int      ip;
     any*              locals;
+    struct array*     varargs;
 };
 
 void frame_mark(struct gc* gc, struct frame* frame);

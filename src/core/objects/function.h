@@ -95,6 +95,10 @@ static inline unsigned int function_local_count(struct function* func) {
     return func->locals;
 }
 
+static inline unsigned int function_arg_count(struct function* func) {
+    return func->locals;
+}
+
 static inline bool function_has_varargs(struct function* func) {
     return func->varargs;
 }
