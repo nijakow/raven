@@ -295,7 +295,7 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
         fiber_set_accu(fiber, fiber_op_new(fiber, fiber_get_accu(fiber)));
         break;
     case RAVEN_OP_ARGS:
-        fiber_set_accu(fiber, fiber_top(fiber)->varargs == NULL ? any_nil() : any_from_ptr(fiber_top(fiber)->varargs));
+        fiber_set_accu(fiber, (fiber_top(fiber)->varargs == NULL) ? any_nil() : any_from_ptr(fiber_top(fiber)->varargs));
         break;
     default:
         fiber_crash_msg(fiber, "Undefined operation!");

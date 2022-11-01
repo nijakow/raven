@@ -55,8 +55,8 @@ void compiler_set_mapping_vars(struct compiler* compiler,
 void compiler_add_arg(struct compiler* compiler,
                       struct type*     type,
                       struct symbol*   name) {
-    /* TODO: Increase arg count */
     compiler_add_var(compiler, type, name);
+    codewriter_report_arg(compiler->cw);
 }
 
 void compiler_add_var(struct compiler* compiler,

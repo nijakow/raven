@@ -26,6 +26,7 @@ struct label {
 struct codewriter {
     struct raven*  raven;
     unsigned int   max_locals;
+    unsigned int   args;
     bool           varargs;
     size_t         alloc;
     size_t         fill;
@@ -44,6 +45,7 @@ void codewriter_destroy(struct codewriter* writer);
 struct function* codewriter_finish(struct codewriter* writer);
 
 void codewriter_report_locals(struct codewriter* writer, unsigned int locals);
+void codewriter_report_arg(struct codewriter* writer);
 void codewriter_enable_varargs(struct codewriter* writer);
 
 void codewriter_load_self(struct codewriter* writer);

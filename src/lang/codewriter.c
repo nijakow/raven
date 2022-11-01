@@ -14,6 +14,7 @@
 void codewriter_create(struct codewriter* writer, struct raven* raven) {
     writer->raven      = raven;
     writer->max_locals = 0;
+    writer->args       = 0;
     writer->varargs    = false;
     writer->alloc      = 128;
     writer->fill       = 0;
@@ -31,6 +32,7 @@ void codewriter_destroy(struct codewriter* writer) {
 struct function* codewriter_finish(struct codewriter* writer) {
     return function_new(writer->raven,
                         writer->max_locals + 1, /* + 1 for SELF */
+                        writer->args,
                         writer->varargs,
                         writer->fill,
                         writer->bytecodes,
@@ -43,6 +45,10 @@ struct function* codewriter_finish(struct codewriter* writer) {
 void codewriter_report_locals(struct codewriter* writer, unsigned int locals) {
     if (locals > writer->max_locals)
         writer->max_locals = locals;
+}
+
+void codewriter_report_arg(struct codewriter* writer) {
+    writer->args++;
 }
 
 void codewriter_enable_varargs(struct codewriter* writer) {

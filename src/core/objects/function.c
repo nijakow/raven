@@ -24,6 +24,7 @@ struct obj_info FUNCTION_INFO = {
 
 struct function* function_new(struct raven* raven,
                               unsigned int  locals,
+                              unsigned int  args,
                               bool          varargs,
                               unsigned int  bytecode_count,
                               t_bc*         bytecodes,
@@ -48,6 +49,7 @@ struct function* function_new(struct raven* raven,
         function->next_method    =          NULL;
         function->modifier       =          RAVEN_MODIFIER_NONE;
         function->locals         =          locals;
+        function->args           =          args;
         function->varargs        =          varargs;
         function->bytecode_count =          bytecode_count;
         function->bytecodes      = (t_bc*) &function->payload[0];

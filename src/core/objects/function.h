@@ -22,6 +22,7 @@ struct function {
     struct function*     next_method;
     enum raven_modifier  modifier;
     unsigned int         locals;
+    unsigned int         args;
     bool                 varargs;
     unsigned int         bytecode_count;
     t_bc*                bytecodes;
@@ -34,6 +35,7 @@ struct function {
 
 struct function* function_new(struct raven* raven,
                               unsigned int  locals,
+                              unsigned int  args,
                               bool          varargs,
                               unsigned int  bytecode_count,
                               t_bc*         bytecodes,
@@ -96,7 +98,7 @@ static inline unsigned int function_local_count(struct function* func) {
 }
 
 static inline unsigned int function_arg_count(struct function* func) {
-    return func->locals;
+    return func->args;
 }
 
 static inline bool function_has_varargs(struct function* func) {

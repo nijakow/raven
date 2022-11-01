@@ -114,7 +114,7 @@ void fiber_push_frame(struct fiber*    fiber,
 
     /* Store varargs in an array, if needed */
     if (args > fixed_arg_count && function_has_varargs(func)) {
-        frame->varargs = array_new(fiber_raven(fiber), args);
+        frame->varargs = array_new(fiber_raven(fiber), args - fixed_arg_count);
         for (index = 0; index < (args - fixed_arg_count); index++)
             array_put(frame->varargs, index, frame->locals[args + index]);
     }
