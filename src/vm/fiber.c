@@ -104,8 +104,19 @@ void fiber_push_frame(struct fiber*    fiber,
     locals            = (any*) (fiber->sp - (args + 1) * sizeof(any));
     varargs           = NULL;
 
-    /* Store varargs in an array, if needed */
-    if (args > fixed_arg_count && function_has_varargs(func)) {
+    /*
+     * Check for incorrect arguments.
+     */
+    if (args != fixed_arg_count) {
+        if (args < fixed_arg_count || !function_has_varargs(func)) {
+            fiber_crash_msg(fiber, "Argument error!");
+            return;
+        }
+
+        /*
+         * We now know that args > fixed_arg_count and varargs are allowed,
+         * so we can store the varargs in an array.
+         */
         varargs = array_new(fiber_raven(fiber), args - fixed_arg_count);
         for (index = 0; index < (args - fixed_arg_count); index++)
             array_put(varargs, index, locals[fixed_arg_count + index + 1]);

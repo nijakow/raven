@@ -82,8 +82,8 @@ void builtin_fork(struct fiber* fiber, any* arg, unsigned int args) {
     else {
         raven_call_out_func(fiber_raven(fiber),
                             any_to_ptr(arg[0]),
-                            arg,
-                            args);
+                            arg + 1,
+                            args - 1);
         fiber_set_accu(fiber, any_nil());
     }
 }
