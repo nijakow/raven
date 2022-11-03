@@ -9,6 +9,7 @@
 
 #include "../raven/raven.h"
 #include "../core/objects/function.h"
+#include "../core/objects/mapping.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"
 #include "../fs/file.h"
@@ -22,8 +23,11 @@
 #include "fiber.h"
 
 
-static void fiber_create_vars(struct fiber_vars* vars) {
+static void fiber_create_vars(struct fiber* fiber) {
+    struct fiber_vars* vars = fiber_vars(fiber);
+
     vars->this_player  = any_nil();
+    vars->fiber_locals = mapping_new(fiber_raven(fiber));
 }
 
 void fiber_create(struct fiber* fiber, struct scheduler* scheduler) {
@@ -34,7 +38,7 @@ void fiber_create(struct fiber* fiber, struct scheduler* scheduler) {
     fiber->sp               = &fiber->payload[0];
     fiber->top              =  NULL;
 
-    fiber_create_vars(&fiber->vars);
+    fiber_create_vars(fiber);
 
     if (scheduler->fibers != NULL)
         scheduler->fibers->prev = &fiber->next;
