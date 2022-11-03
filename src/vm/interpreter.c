@@ -150,7 +150,7 @@ void fiber_send(struct fiber*  fiber,
     /*
      * Extract the function to call.
      */
-    function = any_resolve_func(new_self, message);
+    function = any_resolve_func(new_self, message, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
 
     /*
      * Call the function. Or, if it wasn't found, a builtin.
@@ -187,7 +187,7 @@ void fiber_super_send(struct fiber*      fiber,
     if (func_bp == NULL || blueprint_parent(func_bp) == NULL)
         fiber_crash_msg(fiber, "Unable to super-send message - parent not found!");
     else {
-        function = blueprint_lookup(blueprint_parent(func_bp), message);
+        function = blueprint_lookup(blueprint_parent(func_bp), message, true);
 
         if (function == NULL)
             fiber_crash_msg(fiber, "Unable to super-send message - func not found!");

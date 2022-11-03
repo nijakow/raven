@@ -97,14 +97,18 @@ void blueprint_add_func(struct blueprint* blue,
     function_in_blueprint(func, blue, name);
 }
 
-struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg) {
+static bool raven_modifier_is_hidden(enum raven_modifier mod) {
+    return (mod == RAVEN_MODIFIER_PRIVATE) || (mod == RAVEN_MODIFIER_PROTECTED);
+}
+
+struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, bool allow_private) {
     struct function*  function;
 
     while (blue != NULL) {
         function = blue->methods;
 
         while (function != NULL) {
-            if (function->name == msg)
+            if (function->name == msg && (!raven_modifier_is_hidden(function->modifier) || allow_private))
                 return function;
             function = function->next_method;
         }

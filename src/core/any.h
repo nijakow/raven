@@ -272,6 +272,6 @@ struct blueprint* any_get_blueprint(any a);
 /*
  * Extracts a member function of the object held by an `any`.
  */
-struct function* any_resolve_func(any a, struct symbol* message);
+struct function* any_resolve_func(any a, struct symbol* message, bool allow_private);
 
 #endif
