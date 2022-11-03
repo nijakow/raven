@@ -117,6 +117,14 @@ void builtin_connection_player(struct fiber* fiber, any* arg, unsigned int args)
     }
 }
 
+void builtin_this_locals(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        fiber_set_accu(fiber, any_from_ptr(fiber_locals(fiber)));
+    }
+}
+
 void builtin_print(struct fiber* fiber, any* arg, unsigned int args) {
     for (unsigned int x = 0; x < args; x++) {
         print_object(raven_log(fiber_raven(fiber)), arg[x]);

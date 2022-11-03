@@ -89,6 +89,7 @@ void fiber_mark(struct gc* gc, struct fiber* fiber) {
 
     gc_mark_any(gc, fiber->accu);
     gc_mark_any(gc, fiber->vars.this_player);
+    gc_mark_ptr(gc, fiber->vars.fiber_locals);
     gc_mark_ptr(gc, fiber_connection(fiber));
 }
 

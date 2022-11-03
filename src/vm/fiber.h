@@ -146,6 +146,10 @@ static inline struct fiber_vars* fiber_vars(struct fiber* fiber) {
     return &fiber->vars;
 }
 
+static inline struct mapping* fiber_locals(struct fiber* fiber) {
+    return fiber_vars(fiber)->fiber_locals;
+}
+
 static inline void fiber_sleep_until(struct fiber* fiber, raven_time_t when) {
     fiber_set_state(fiber, FIBER_STATE_SLEEPING);
     fiber->wakeup_time = when;

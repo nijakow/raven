@@ -324,6 +324,7 @@ void raven_setup_builtins(struct raven* raven) {
 
     raven_builtin(raven, "_this_connection", builtin_this_connection);
     raven_builtin(raven, "_connection_player", builtin_connection_player);
+    raven_builtin(raven, "_this_locals", builtin_this_locals);
     raven_builtin(raven, "print", builtin_print);
     raven_builtin(raven, "write", builtin_write);
     raven_builtin(raven, "write_to", builtin_write_to);
