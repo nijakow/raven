@@ -165,9 +165,9 @@ struct file* file_resolve_flex(struct file* file, const char* path) {
     return file_resolve(file, path);
 }
 
-bool file_write_path(struct file* file, struct stringbuilder* sb) {
+static bool file_write_path_helper(struct file* file, struct stringbuilder* sb) {
     if (file->parent != NULL) {
-        if (!file_write_path(file->parent, sb))
+        if (!file_write_path_helper(file->parent, sb))
             return false;
         stringbuilder_append_str(sb, "/");
     }
@@ -175,6 +175,15 @@ bool file_write_path(struct file* file, struct stringbuilder* sb) {
     stringbuilder_append_str(sb, file->name);
 
     return true;
+}
+
+bool file_write_path(struct file* file, struct stringbuilder* sb) {
+    if (file->parent == NULL) {
+        stringbuilder_append_str(sb, "/");
+        return true;
+    } else {
+        return file_write_path_helper(file, sb);
+    }
 }
 
 char* file_path(struct file* file) {

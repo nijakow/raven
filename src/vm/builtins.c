@@ -618,7 +618,7 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
         if (file == NULL)
             fiber_set_accu(fiber, any_nil());
         else {
-            file        = file_resolve(file, direction);
+            file = file_resolve(file, direction);
             if (file == NULL)
                 fiber_set_accu(fiber, any_nil());
             else {
