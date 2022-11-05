@@ -27,6 +27,15 @@ and is considered to be a successor to the _Four_ project.
 
 Raven is licensed under the [GNU GPL v2](./LICENSE).
 
+## What is the current state of the project?
+
+_Raven_ already successfully compiles and runs a sophisticated programming
+language similar to LDMUD's _LPC_. It is possible to build rooms with it,
+log in with multiple users at the same time, and experience a full text-based
+game.
+
+However, things like a persistent database are still (actively) being worked on.
+
 ## Quickstart Info
 
 Getting the MUD to run is relatively simple:
@@ -37,18 +46,15 @@ cd raven/src
 make run
 ```
 
+Alternatively, you can use Docker:
+
+```
+docker build -t raven https://github.com/nijakow/raven.git
+docker run -e RAVEN_MUDLIB=/var/raven -v /path/to/your/mudlib/src:/var/raven -p 4242:4242 -it raven
+```
+
 This of course assumes that you have set the `$RAVEN_MUDLIB` environment
 variable to point to a valid Raven Mudlib.
-
-## What is the current state of the project?
-
-_Raven_ already successfully compiles and runs a sophisticated programming
-language similar to LDMUD's _LPC_. It is possible to build rooms with it,
-log in with multiple users at the same time, and experience a full text-based
-game.
-
-However, things like a persistent database, user accounts and some language
-primitives are still missing. They will be added in the future.
 
 ## What is a mudlib and how do I add one?
 
