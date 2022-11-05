@@ -101,14 +101,16 @@ static bool raven_modifier_is_hidden(enum raven_modifier mod) {
     return (mod == RAVEN_MODIFIER_PRIVATE) || (mod == RAVEN_MODIFIER_PROTECTED);
 }
 
-struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, bool allow_private) {
+struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, unsigned int args, bool allow_private) {
     struct function*  function;
 
     while (blue != NULL) {
         function = blue->methods;
 
         while (function != NULL) {
-            if (function->name == msg && (!raven_modifier_is_hidden(function->modifier) || allow_private))
+            if (function->name == msg
+                && (!raven_modifier_is_hidden(function->modifier) || allow_private)
+                && function_takes_args(function, args))
                 return function;
             function = function->next_method;
         }

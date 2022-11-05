@@ -55,7 +55,7 @@ void blueprint_add_func(struct blueprint* blue,
                         struct symbol*    name,
                         struct function*  func);
 
-struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, bool allow_private);
+struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, unsigned int args, bool allow_private);
 
 struct blueprint* blueprint_recompile(struct blueprint* blue);
 

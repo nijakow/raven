@@ -63,13 +63,13 @@ struct blueprint* any_get_blueprint(any a) {
     return NULL;
 }
 
-struct function* any_resolve_func(any a, struct symbol* message, bool allow_private) {
+struct function* any_resolve_func(any a, struct symbol* message, unsigned int args, bool allow_private) {
     struct blueprint*  blueprint;
 
     blueprint = any_get_blueprint(a);
 
     if (blueprint != NULL) {
-        return blueprint_lookup(blueprint, message, allow_private);
+        return blueprint_lookup(blueprint, message, args, allow_private);
     } else {
         return NULL;
     }

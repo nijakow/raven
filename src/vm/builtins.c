@@ -530,10 +530,10 @@ void builtin_wrap(struct fiber* fiber, any* arg, unsigned int args) {
 void builtin_implements(struct fiber* fiber, any* arg, unsigned int args) {
     bool result;
 
-    if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
+    if (args != 3 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL) || !any_is_int(arg[2]))
         arg_error(fiber);
     else {
-        result = (any_resolve_func(arg[0], any_to_ptr(arg[1]), true) != NULL);
+        result = (any_resolve_func(arg[0], any_to_ptr(arg[1]), (unsigned int) any_to_int(arg[2]), true) != NULL);
         fiber_set_accu(fiber, any_from_int(result));
     }
 }
@@ -760,7 +760,7 @@ void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args) {
         fiber_set_accu(fiber, any_nil());
         blueprint = any_get_blueprint(arg[0]);
         if (blueprint != NULL) {
-            function = blueprint_lookup(blueprint, any_to_ptr(arg[1]), true);
+            function = blueprint_lookup(blueprint, any_to_ptr(arg[1]), args, true);
             if (function != NULL) {
                 stringbuilder_create(&sb);
                 log_create_to_stringbuilder(&log, &sb);

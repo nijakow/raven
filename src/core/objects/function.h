@@ -109,4 +109,8 @@ static inline bool function_oob(struct function* func, unsigned int index) {
     return index >= func->bytecode_count;
 }
 
+static inline bool function_takes_args(struct function* func, unsigned int args) {
+    return ((func->args == args) || ((args > func->args) && function_has_varargs(func)));
+}
+
 #endif
