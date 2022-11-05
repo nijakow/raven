@@ -61,10 +61,14 @@ void raven_destroy(struct raven* raven) {
  */
 void raven_banner(struct raven* raven) {
     log_printf(raven_log(raven), "\n");
-    log_printf(raven_log(raven), "        R a v e n\n");
+    log_printf(raven_log(raven), "        8b,dPPYba, ,adPPYYba, 8b       d8  ,adPPYba, 8b,dPPYba,\n");
+    log_printf(raven_log(raven), "        88P'   \"Y8 \"\"     `Y8 `8b     d8' a8P_____88 88P'   `\"8a\n");
+    log_printf(raven_log(raven), "        88         ,adPPPPP88  `8b   d8'  8PP\"\"\"\"\"\"\" 88       88\n");
+    log_printf(raven_log(raven), "        88         88,    ,88   `8b,d8'   \"8b,   ,aa 88       88\n");
+    log_printf(raven_log(raven), "        88         `\"8bbdP\"Y8     \"8\"      `\"Ybbd8\"' 88       88\n");
     log_printf(raven_log(raven), "\n");
-    log_printf(raven_log(raven), "        The Raven MUD driver\n");
-    log_printf(raven_log(raven), "        Version %s\n", RAVEN_VERSION);
+    log_printf(raven_log(raven), "    The Raven MUD driver\n");
+    log_printf(raven_log(raven), "    Version %s\n", RAVEN_VERSION);
     log_printf(raven_log(raven), "\n");
 }
 
