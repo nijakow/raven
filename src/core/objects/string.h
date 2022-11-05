@@ -31,6 +31,7 @@ struct string* string_multiply(struct raven*  raven,
                                unsigned int   count);
 
 bool string_eq(struct string* a, struct string* b);
+bool string_less(struct string* a, struct string* b);
 
 struct string* string_substr(struct string* string,
                              unsigned int   from,

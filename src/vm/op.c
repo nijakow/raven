@@ -29,35 +29,22 @@ bool fiber_op_less(struct fiber* fiber, any a, any b) {
         return any_to_int(a) < any_to_int(b);
     else if (any_is_char(a) && any_is_char(b))
         return any_to_char(a) < any_to_char(b);
+    else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_obj(a, OBJ_TYPE_STRING))
+        return string_less(any_to_ptr(a), any_to_ptr(b));
     else
         return false;
 }
 
 bool fiber_op_leq(struct fiber* fiber, any a, any b) {
-    if (any_is_int(a) && any_is_int(b))
-        return any_to_int(a) <= any_to_int(b);
-    else if (any_is_char(a) && any_is_char(b))
-        return any_to_char(a) <= any_to_char(b);
-    else
-        return false;
+    return fiber_op_less(fiber, a, b) || fiber_op_eq(fiber, a, b);
 }
 
 bool fiber_op_greater(struct fiber* fiber, any a, any b) {
-    if (any_is_int(a) && any_is_int(b))
-        return any_to_int(a) > any_to_int(b);
-    else if (any_is_char(a) && any_is_char(b))
-        return any_to_char(a) > any_to_char(b);
-    else
-        return false;
+    return !fiber_op_leq(fiber, a, b);
 }
 
 bool fiber_op_geq(struct fiber* fiber, any a, any b) {
-    if (any_is_int(a) && any_is_int(b))
-        return any_to_int(a) >= any_to_int(b);
-    else if (any_is_char(a) && any_is_char(b))
-        return any_to_char(a) >= any_to_char(b);
-    else
-        return false;
+    return !fiber_op_less(fiber, a, b);
 }
 
 

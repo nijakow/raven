@@ -96,6 +96,10 @@ bool string_eq(struct string* a, struct string* b) {
     return strcmp(string_contents(a), string_contents(b)) == 0;
 }
 
+bool string_less(struct string* a, struct string* b) {
+    return strcmp(string_contents(a), string_contents(b)) < 0;
+}
+
 struct string* string_substr(struct string* string,
                              unsigned int   from,
                              unsigned int   to,
