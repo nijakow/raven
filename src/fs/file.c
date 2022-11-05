@@ -272,7 +272,7 @@ bool file_recompile(struct file* file, struct log* log) {
     stringbuilder_create(&sb);
     file_write_path(file, &sb);
     log_printf(raven_log(filesystem_raven(file_fs(file))),
-               RAVEN_VT100_ITALICS "]%s\n" RAVEN_VT100_RESET,
+               "]%s\n",
                stringbuilder_get_const(&sb));
     stringbuilder_destroy(&sb);
 

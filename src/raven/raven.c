@@ -171,17 +171,6 @@ void raven_uninterrupt(struct raven* raven) {
     raven->was_interrupted = false;
 }
 
-static const char* LOADING_PATTERNS[] = { "|", "/", "-", "\\" };
-
-static void print_loading_pattern() {
-    unsigned long size;
-
-    size = sizeof(LOADING_PATTERNS) / sizeof(LOADING_PATTERNS[0]);
-
-    printf("%s\r", LOADING_PATTERNS[time(NULL) % size]);
-    fflush(stdout);
-}
-
 /*
  * The main loop.
  */
@@ -207,7 +196,6 @@ void raven_loop(struct raven* raven) {
      * connections and sessions.
      */
     while (!raven_was_interrupted(raven)) {
-        print_loading_pattern();
         if (gc_steps++ % 128 == 0)
             raven_gc(raven);
         scheduler_run(raven_scheduler(raven));
