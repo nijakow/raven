@@ -754,13 +754,13 @@ void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args) {
     struct stringbuilder  sb;
     struct log            log;
 
-    if (args != 2 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL))
+    if (args != 3 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL) || !any_is_int(arg[2]))
         arg_error(fiber);
     else {
         fiber_set_accu(fiber, any_nil());
         blueprint = any_get_blueprint(arg[0]);
         if (blueprint != NULL) {
-            function = blueprint_lookup(blueprint, any_to_ptr(arg[1]), args, true);
+            function = blueprint_lookup(blueprint, any_to_ptr(arg[1]), (unsigned int) any_to_int(arg[2]), true);
             if (function != NULL) {
                 stringbuilder_create(&sb);
                 log_create_to_stringbuilder(&log, &sb);
