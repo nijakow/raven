@@ -625,6 +625,16 @@ bool parsepile_op(struct parser*   parser,
             compiler_send(compiler, symbol, args);
         }
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
+    } else if (pr >= 1 && parser_check(parser, TOKEN_TYPE_DOT)) {
+        result = false;
+        compiler_op(compiler, RAVEN_OP_DEREF);
+        compiler_push(compiler);
+        if (parse_symbol(parser, &symbol)
+            && parsepile_expect(parser, TOKEN_TYPE_LPAREN)) {
+            result = parsepile_args(parser, compiler, &args, TOKEN_TYPE_RPAREN);
+            compiler_send(compiler, symbol, args);
+        }
+        parser_set_exprtype_to_any(parser); /* TODO: Infer */
     } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
         compiler_push(compiler);
         parsepile_expression(parser, compiler);
