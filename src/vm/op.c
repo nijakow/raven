@@ -102,17 +102,27 @@ any fiber_op_mul(struct fiber* fiber, any a, any b) {
 }
 
 any fiber_op_div(struct fiber* fiber, any a, any b) {
-    if (any_is_int(a) && any_is_int(b))
+    if (any_is_int(a) && any_is_int(b)) {
+        if (any_to_int(b) == 0) {
+            fiber_crash_msg(fiber, "Division by zero!");
+            return any_nil();
+        }
         return any_from_int(any_to_int(a) / any_to_int(b));
-    else
+    } else {
         return any_nil();
+    }
 }
 
 any fiber_op_mod(struct fiber* fiber, any a, any b) {
-    if (any_is_int(a) && any_is_int(b))
+    if (any_is_int(a) && any_is_int(b)) {
+        if (any_to_int(b) == 0) {
+            fiber_crash_msg(fiber, "Division by zero!");
+            return any_nil();
+        }
         return any_from_int(any_to_int(a) % any_to_int(b));
-    else
+    } else {
         return any_nil();
+    }
 }
 
 any fiber_op_negate(struct fiber* fiber, any a) {
