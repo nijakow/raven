@@ -250,6 +250,15 @@ bool parse_type(struct parser* parser, struct type** loc) {
              * to `any`.
              */
             *loc = typeset_type_any(raven_types(parser_raven(parser)));
+        } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
+            if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
+                return false;
+
+            /*
+             * For now, we don't have array types yet, so we default
+             * to `any`.
+             */
+            *loc = typeset_type_any(raven_types(parser_raven(parser)));
         } else if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
             parser_check(parser, TOKEN_TYPE_ELLIPSIS);
             if (!parser_check(parser, TOKEN_TYPE_RPAREN))
