@@ -603,7 +603,7 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
     struct string*      result_str;
     const char*         base_path;
     const char*         direction;
-    char*         result_path;
+    char*               result_path;
 
     if (args != 2
         || !any_is_obj(arg[0], OBJ_TYPE_STRING)
@@ -630,6 +630,26 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
                 free(result_path);
                 fiber_set_accu(fiber, any_from_ptr(result_str));
             }
+        }
+    }
+}
+
+void builtin_file_is_directory(struct fiber* fiber, any* arg, unsigned int args) {
+    struct filesystem*    filesystem;
+    struct file*          file;
+    const  char*          path;
+
+    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+        arg_error(fiber);
+    else {
+        filesystem = raven_fs(fiber_raven(fiber));
+        path       = string_contents(any_to_ptr(arg[0]));
+        file       = filesystem_resolve(filesystem, path);
+
+        if (file == NULL)
+            fiber_set_accu(fiber, any_from_int(0));
+        else {
+            fiber_set_accu(fiber, any_from_int(file_is_directory(file) ? 1 : 0));
         }
     }
 }

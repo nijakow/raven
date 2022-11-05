@@ -42,6 +42,8 @@ struct file* file_resolve_flex(struct file* file, const char* name);
 bool  file_write_path(struct file* file, struct stringbuilder* sb);
 char* file_path(struct file* file);
 
+bool file_is_directory(struct file* file);
+
 bool file_cat(struct file* file, struct stringbuilder* into);
 bool file_write(struct file* file, const char* text);
 bool file_recompile(struct file* file, struct log* log);

@@ -199,6 +199,23 @@ static bool file_open(struct file* file, FILE** fp, const char* mode) {
     return *fp != NULL;
 }
 
+bool file_is_directory(struct file* file) {
+    struct stringbuilder  sb;
+    struct stat           stats;
+    bool                  result;
+
+    result = false;
+
+    stringbuilder_create(&sb);
+    stringbuilder_append_str(&sb, filesystem_anchor(file_fs(file)));
+    file_write_path(file, &sb);
+    if (stat(stringbuilder_get_const(&sb), &stats) == 0) {
+        result = S_ISDIR(stats.st_mode) ? true : false;
+    }
+    stringbuilder_destroy(&sb);
+    return result;
+}
+
 bool file_cat(struct file* file, struct stringbuilder* into) {
     FILE*   f;
     size_t  byte;
