@@ -1,5 +1,7 @@
 EXECUTABLE = ./raven.exe
 
+INSTALL_DIR = /usr/local/bin
+
 SOURCES = $(shell find . -name "*.c")
 HEADERS = $(shell find . -name "*.h")
 
@@ -16,6 +18,10 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(EXECUTABLE)
 
 all: $(EXECUTABLE)
+
+.phony: install
+install: all
+	cp $(EXECUTABLE) $(INSTALL_DIR)
 
 .phony: run
 run: all
