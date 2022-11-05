@@ -82,6 +82,7 @@ void compiler_super_send(struct compiler* compiler,
 
 void compiler_return(struct compiler* compiler);
 
+void compiler_typeis(struct compiler* compiler, struct type* type);
 void compiler_typecheck(struct compiler* compiler, struct type* type);
 void compiler_typecast(struct compiler* compiler, struct type* type);
 

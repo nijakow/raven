@@ -80,6 +80,7 @@ void       codewriter_clear_catch(struct codewriter* writer);
 
 void       codewriter_return(struct codewriter* writer);
 
+void       codewriter_typeis(struct codewriter* writer, struct type* type);
 void       codewriter_typecheck(struct codewriter* writer, struct type* type);
 void       codewriter_typecast(struct codewriter* writer, struct type* type);
 

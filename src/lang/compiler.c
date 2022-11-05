@@ -194,6 +194,10 @@ void compiler_return(struct compiler* compiler) {
     codewriter_return(compiler->cw);
 }
 
+void compiler_typeis(struct compiler* compiler, struct type* type) {
+    codewriter_typeis(compiler->cw, type);
+}
+
 void compiler_typecheck(struct compiler* compiler, struct type* type) {
     codewriter_typecheck(compiler->cw, type);
 }

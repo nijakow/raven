@@ -600,6 +600,7 @@ bool parsepile_op(struct parser*   parser,
                   int              pr,
                   bool*            should_continue) {
     struct symbol*  symbol;
+    struct type*    type;
     unsigned int    args;
     bool            result;
 
@@ -689,6 +690,11 @@ bool parsepile_op(struct parser*   parser,
         result = parsepile_expr(parser, compiler, 2);
         compiler_op(compiler, RAVEN_OP_MOD);
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
+    } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_KW_IS)) {
+        compiler_push(compiler);
+        result = parse_type(parser, &type);
+        compiler_typeis(compiler, type);
+        parser_set_exprtype_to_int(parser);
     } else {
         *should_continue = false;
     }

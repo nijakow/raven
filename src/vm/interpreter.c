@@ -679,6 +679,12 @@ void fiber_interpret(struct fiber* fiber) {
             fiber_pop_frame(fiber);
             break;
             /*
+             * Compute if the accumulator is of a specific type.
+             */
+        case RAVEN_BYTECODE_TYPEIS:
+            fiber_set_accu(fiber, any_from_int(fiber_op_typecheck(fiber, fiber_get_accu(fiber), next_type(fiber))));
+            break;
+            /*
              * Ensure that the accumulator is of a specific type.
              * If it isn't, crash.
              */

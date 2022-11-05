@@ -218,6 +218,9 @@ void function_disassemble(struct function* function, struct log* log) {
         case RAVEN_BYTECODE_RETURN:
             log_printf(log, "RETURN");
             break;
+        case RAVEN_BYTECODE_TYPEIS:
+            log_printf(log, "TYPEIS %d", next_wc(function, &ip));
+            break;
         case RAVEN_BYTECODE_TYPECHECK:
             log_printf(log, "TYPECHECK %d", next_wc(function, &ip));
             break;

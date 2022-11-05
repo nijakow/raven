@@ -71,6 +71,7 @@ const char* token_type_name(enum token_type type) {
     case TOKEN_TYPE_KW_TRUE: return "KW_TRUE";
     case TOKEN_TYPE_KW_FALSE: return "KW_FALSE";
     case TOKEN_TYPE_KW_SIZEOF: return "KW_SIZEOF";
+    case TOKEN_TYPE_KW_IS: return "KW_IS";
     case TOKEN_TYPE_KW_CLASS: return "KW_CLASS";
     case TOKEN_TYPE_KW_VOID: return "KW_VOID";
     case TOKEN_TYPE_KW_CHAR: return "KW_CHAR";
@@ -381,6 +382,8 @@ void parser_advance(struct parser* parser) {
             parser_set_type(parser, TOKEN_TYPE_KW_FALSE);
         } else if (parser_buffer_is(parser, "sizeof")) {
             parser_set_type(parser, TOKEN_TYPE_KW_SIZEOF);
+        } else if (parser_buffer_is(parser, "is")) {
+            parser_set_type(parser, TOKEN_TYPE_KW_IS);
         } else if (parser_buffer_is(parser, "class")) {
             parser_set_type(parser, TOKEN_TYPE_KW_CLASS);
         } else if (parser_buffer_is(parser, "void")) {
