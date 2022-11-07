@@ -66,6 +66,6 @@ void filesystem_set_anchor(struct filesystem* fs, const char* anchor) {
     fs->anchor = anchor;
 }
 
-void filesystem_load(struct filesystem* fs) {
-    file_load(filesystem_root(fs), filesystem_anchor(fs));
+bool filesystem_load(struct filesystem* fs) {
+    return file_load(filesystem_root(fs), filesystem_anchor(fs));
 }
