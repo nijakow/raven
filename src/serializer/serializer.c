@@ -104,10 +104,7 @@ void serializer_write_object(struct serializer* serializer, struct object* objec
     serializer_write_any(serializer, any_from_ptr(object_parent(object)));
     serializer_write_any(serializer, any_from_ptr(object_sibling(object)));
     serializer_write_any(serializer, any_from_ptr(object_children(object)));
-    serializer_write_uint(serializer, object_slot_count(object));
-    for (size_t i = 0; i < object_slot_count(object); i++) {
-        serializer_write_any(serializer, *object_slot(object, i));
-    }
+    serializer_write_any(serializer, object_stash(object));
 }
 
 void serializer_write_ptr(struct serializer* serializer, void* obj) {

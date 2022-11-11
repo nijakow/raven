@@ -20,6 +20,7 @@ struct object {
     struct object*     parent;
     struct object*     sibling;
     struct object*     children;
+    any                stash;
     unsigned int       slot_count;
     any*               slots;
     bool               was_initialized;
@@ -66,6 +67,10 @@ static inline struct object* object_children(struct object* object) {
 
 static inline struct blueprint* object_blueprint(struct object* object) {
     return object->blue;
+}
+
+static inline any object_stash(struct object* object) {
+    return object->stash;
 }
 
 static inline unsigned int object_slot_count(struct object* object) {

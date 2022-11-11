@@ -61,6 +61,7 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
         object->parent          = NULL;
         object->sibling         = NULL;
         object->children        = NULL;
+        object->stash           = any_nil();
         object->slot_count      = instance_size;
         object->slots           = object->payload;
         for (index = 0; index < instance_size; index++)
@@ -79,6 +80,7 @@ void object_mark(struct gc* gc, struct object* object) {
         gc_mark_any(gc, object->slots[i]);
     for (child = object->children; child != NULL; child = child->sibling)
         gc_mark_ptr(gc, child);
+    gc_mark_any(gc, object->stash);
     base_obj_mark(gc, &object->_);
 }
 
