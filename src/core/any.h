@@ -31,6 +31,8 @@
 
 #include "../defs.h"
 
+#include "../util/utf8.h"
+
 /*
  * The different tags, each corresponding to a field
  * in the union type below.
@@ -81,7 +83,7 @@ static inline any any_from_int(int integer) {
 /*
  * Create an `any` that holds a character.
  */
-static inline any any_from_char(char ch) {
+static inline any any_from_char(raven_rune_t ch) {
     return RAVEN_ANY_TYPE_SHL(ANY_TYPE_CHAR) | (ch & 0xffffffff);
 }
 
@@ -102,8 +104,8 @@ static inline int any_to_int(any a) {
 /*
  * Convert an `any` into a character.
  */
-static inline char any_to_char(any a) {
-    return (char) (RAVEN_ANY_PAYLOAD(a) & 0xffffffff);
+static inline raven_rune_t any_to_char(any a) {
+    return (raven_rune_t) (RAVEN_ANY_PAYLOAD(a) & 0xffffffff);
 }
 
 #else
@@ -112,9 +114,9 @@ static inline char any_to_char(any a) {
  * The union type.
  */
 union any_value {
-    void* pointer;
-    int   integer;
-    char  character;
+    void*         pointer;
+    int           integer;
+    raven_rune_t  character;
 };
 
 /*
@@ -169,7 +171,7 @@ static inline any any_from_int(int integer) {
 /*
  * Create an `any` that holds a character.
  */
-static inline any any_from_char(char ch) {
+static inline any any_from_char(raven_rune_t ch) {
     any a;
 
     a.type            = ANY_TYPE_CHAR;
@@ -195,7 +197,7 @@ static inline int any_to_int(any a) {
 /*
  * Convert an `any` into a character.
  */
-static inline char any_to_char(any a) {
+static inline raven_rune_t any_to_char(any a) {
     return a.value.character;
 }
 
