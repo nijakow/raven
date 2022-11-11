@@ -9,7 +9,11 @@
 #define RAVEN_OBJECTS_STRING_H
 
 #include "../../defs.h"
+
+#include "../../util/utf8.h"
+
 #include "../base_obj.h"
+
 
 struct string {
     struct base_obj  _;
@@ -51,5 +55,7 @@ static inline char string_at(struct string* string, unsigned int index) {
         return '\0';
     return string_contents(string)[index];
 }
+
+raven_rune_t string_at_rune(struct string* string, unsigned int index);
 
 #endif

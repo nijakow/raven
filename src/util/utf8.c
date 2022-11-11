@@ -10,7 +10,10 @@
 raven_rune_t utf8_decode(const char* str, size_t* len) {
     raven_rune_t rune = 0;
 
-    if (str[0] < 0x80) {
+    if (str[0] == '\0') {
+        rune = 0;
+        if (len) *len = 0;
+    } else if (str[0] < 0x80) {
         rune = str[0];
         if (len) *len = 1;
     } else if ((str[0] & 0xE0) == 0xC0) {

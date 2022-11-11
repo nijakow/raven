@@ -11,6 +11,7 @@
 #include "../core/objects/string.h"
 #include "../core/type.h"
 #include "../raven/raven.h"
+#include "../util/utf8.h"
 
 #include "fiber.h"
 
