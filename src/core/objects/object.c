@@ -76,10 +76,11 @@ void object_mark(struct gc* gc, struct object* object) {
     unsigned int    i;
 
     gc_mark_ptr(gc, object->blue);
+    gc_mark_ptr(gc, object->parent);
+    gc_mark_ptr(gc, object->sibling);
+    gc_mark_ptr(gc, object->children);
     for (i = 0; i < object->slot_count; i++)
         gc_mark_any(gc, object->slots[i]);
-    for (child = object->children; child != NULL; child = child->sibling)
-        gc_mark_ptr(gc, child);
     gc_mark_any(gc, object->stash);
     base_obj_mark(gc, &object->_);
 }
