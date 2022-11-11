@@ -109,6 +109,7 @@ void parser_create(struct parser* parser,
                    struct log*    log) {
     parser->raven          = raven;
     parser->reader         = reader;
+    parser->file_name      = NULL;
     parser->file_pos.line  = 0;
     parser->file_pos.caret = 0;
     parser->log            = log;
@@ -120,6 +121,14 @@ void parser_create(struct parser* parser,
 }
 
 void parser_destroy(struct parser* parser) {
+}
+
+const char* parser_file_name(struct parser* parser) {
+    return parser->file_name;
+}
+
+void parser_set_file_name(struct parser* parser, const char* name) {
+    parser->file_name = (char*) name;
 }
 
 

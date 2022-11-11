@@ -119,6 +119,7 @@ const char* token_type_name(enum token_type type);
 struct parser {
     struct raven*   raven;
     t_reader*       reader;
+    char*           file_name;
     struct file_pos file_pos;
     struct log*     log;
     enum token_type token_type;
@@ -134,6 +135,9 @@ void parser_create(struct parser* parser,
                    t_reader*      reader,
                    struct log*    log);
 void parser_destroy(struct parser* parser);
+
+const char* parser_file_name(struct parser* parser);
+void        parser_set_file_name(struct parser* parser, const char* name);
 
 bool parser_is(struct parser* parser, enum token_type type);
 bool parser_check(struct parser* parser, enum token_type type);

@@ -143,7 +143,7 @@ void parser_error(struct parser* parser, const char* format, ...) {
 
     va_start(args, format);
     log_vprintf_error(parser_log(parser),
-                      "LPC Source Code (file unknown)",
+                      (parser_file_name(parser) == NULL) ? "LPC Source Code (file unknown)" : parser_file_name(parser),
                       parser_src(parser),
                       parser_line(parser),
                       parser_caret(parser),

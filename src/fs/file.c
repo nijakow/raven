@@ -261,6 +261,7 @@ bool file_recompile(struct file* file, struct log* log) {
     struct parser         parser;
     struct blueprint*     blueprint;
     FILE*                 f;
+    char*                 path;
     char*                 code;
     char*                 code_copy;
     bool                  result;
@@ -295,7 +296,10 @@ bool file_recompile(struct file* file, struct log* log) {
     blueprint = blueprint_new(raven, file);
     reader_create(&reader, code);
     parser_create(&parser, raven, &reader, log);
+    path      = file_path(file);
+    parser_set_file_name(&parser, path);
     result    = parsepile_file(&parser, blueprint);
+    memory_free(path);
     parser_destroy(&parser);
     reader_destroy(&reader);
     memory_free(code_copy);
