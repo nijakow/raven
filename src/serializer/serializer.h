@@ -3,13 +3,17 @@
 
 #include "../defs.h"
 
+#include "../core/any.h"
+
 
 enum serializer_tag {
     SERIALIZER_TAG_NONE,
     SERIALIZER_TAG_NIL,
     SERIALIZER_TAG_INT,
+    SERIALIZER_TAG_CHAR8,
     SERIALIZER_TAG_STRING,
-    SERIALIZER_TAG_OBJECT
+    SERIALIZER_TAG_OBJECT,
+    SERIALIZER_TAG_ERROR = 0xff
 };
 
 
@@ -30,5 +34,7 @@ void serializer_write_int(struct serializer* serializer, int32_t value);
 void serializer_write_cstr(struct serializer* serializer, const char* str);
 
 void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag);
+
+void serializer_write_any(struct serializer* serializer, any any);
 
 #endif

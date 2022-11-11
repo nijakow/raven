@@ -39,3 +39,13 @@ void serializer_write_cstr(struct serializer* serializer, const char* str) {
 void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag) {
     serializer_write_uint8(serializer, tag);
 }
+
+void serializer_write_any(struct serializer* serializer, any any) {
+         if (any_is_nil(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_NIL); }
+    else if (any_is_int(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_INT);
+                                 serializer_write_int(serializer, any_to_int(any)); }
+    else if (any_is_char(any)) { serializer_write_tag(serializer, SERIALIZER_TAG_CHAR8);
+                                 serializer_write_uint8(serializer, any_to_char(any)); }
+    else if (any_is_ptr(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+    else                       { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+}
