@@ -10,6 +10,7 @@
 #include "../raven/raven.h"
 #include "../core/objects/function.h"
 #include "../core/objects/mapping.h"
+#include "../core/objects/string.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"
 #include "../fs/file.h"
@@ -178,10 +179,20 @@ void fiber_do_crash(struct fiber* fiber,
                     const  char*  message,
                     const  char*  file,
                     int           line) {
-    log_printf(raven_log(fiber_raven(fiber)),
-               "Error (%s:%d): %s\n", file, line, message);
-    fiber_print_backtrace(fiber, raven_log(fiber_raven(fiber)));
-    fiber_throw(fiber, any_nil());
+    struct stringbuilder  sb;
+    struct log            log;
+
+    stringbuilder_create(&sb);
+    log_create_to_stringbuilder(&log, &sb);
+
+    log_printf(&log, "Error (%s:%d): %s\n", file, line, message);
+    fiber_print_backtrace(fiber, &log);
+
+    log_printf(raven_log(fiber_raven(fiber)), "%s", stringbuilder_get_const(&sb));
+    fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
+
+    log_destroy(&log);
+    stringbuilder_destroy(&sb);
 }
 
 /*
