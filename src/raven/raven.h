@@ -54,7 +54,7 @@ void raven_destroy(struct raven* raven);
 void raven_mark(struct gc* gc, struct raven* raven);
 void raven_gc(struct raven* raven);
 
-void raven_serve_on(struct raven* raven, int port);
+bool raven_serve_on(struct raven* raven, int port);
 
 void raven_interrupt(struct raven* raven);
 void raven_loop(struct raven* raven);

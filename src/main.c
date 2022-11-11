@@ -36,7 +36,6 @@ void raven_main(struct raven* raven, int argc, char *argv[]) {
      * If it worked, enable a port and start the main loop.
      */
     if (raven_boot(raven, mudlib_path)) {
-        raven_serve_on(raven, 4242);
         raven_run(raven);
     }
 }

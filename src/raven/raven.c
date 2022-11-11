@@ -150,11 +150,17 @@ void raven_gc(struct raven* raven) {
 /*
  * Assign a port to Raven's server.
  */
-void raven_serve_on(struct raven* raven, int port) {
-    if (server_serve_on(raven_server(raven), port))
+bool raven_serve_on(struct raven* raven, int port) {
+    bool  result;
+
+    result = server_serve_on(raven_server(raven), port);
+
+    if (result)
         log_printf(raven_log(raven), "Now serving on port %d...\n", port);
     else
         log_printf(raven_log(raven), "NOT serving on port %d!\n", port);
+    
+    return true;
 }
 
 /*
@@ -310,6 +316,8 @@ void raven_setup_builtins(struct raven* raven) {
      * Essentially, we allocate a symbol and set its builtin pointer
      * to the corresponding function.
      */
+    raven_builtin(raven, "_open_port", builtin_open_port);
+
     raven_builtin(raven, "_throw", builtin_throw);
     raven_builtin(raven, "_sleep", builtin_sleep);
     raven_builtin(raven, "fork", builtin_fork);

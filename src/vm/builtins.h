@@ -13,6 +13,8 @@
 
 typedef void (*builtin_func)(struct fiber*, any*, unsigned int);
 
+void builtin_open_port(struct fiber* fiber, any* arg, unsigned int args);
+
 void builtin_throw(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_sleep(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_fork(struct fiber* fiber, any* arg, unsigned int args);

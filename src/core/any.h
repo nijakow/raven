@@ -202,6 +202,20 @@ static inline char any_to_char(any a) {
 #endif
 
 /*
+ * Create an any representing `true`.
+ */
+static inline any any_true() {
+    return any_from_int(1);
+}
+
+/*
+ * Create an any representing `false`.
+ */
+static inline any any_false() {
+    return any_from_int(0);
+}
+
+/*
  * Check if an `any` holds a specific type.
  */
 static inline bool any_is(any a, enum any_type type) {

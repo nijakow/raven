@@ -57,6 +57,17 @@ void print_object(struct log* log, any object) {
     }
 }
 
+void builtin_open_port(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 1 || !any_is_int(arg[0]))
+        arg_error(fiber);
+    else {
+        if (raven_serve_on(fiber_raven(fiber), any_to_int(arg[0])))
+            fiber_set_accu(fiber, any_true());
+        else
+            fiber_set_accu(fiber, any_false());
+    }
+}
+
 void builtin_throw(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 1)
         arg_error(fiber);
