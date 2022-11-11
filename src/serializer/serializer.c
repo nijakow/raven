@@ -98,6 +98,18 @@ void serializer_write_blueprint(struct serializer* serializer, struct blueprint*
         serializer_write_ptr(serializer, blueprint_parent(blueprint));
 }
 
+void serializer_write_object(struct serializer* serializer, struct object* object) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_OBJECT);
+    serializer_write_ptr(serializer, object_blueprint(object));
+    serializer_write_any(serializer, any_from_ptr(object_parent(object)));
+    serializer_write_any(serializer, any_from_ptr(object_sibling(object)));
+    serializer_write_any(serializer, any_from_ptr(object_children(object)));
+    serializer_write_uint(serializer, object_slot_count(object));
+    for (size_t i = 0; i < object_slot_count(object); i++) {
+        serializer_write_any(serializer, *object_slot(object, i));
+    }
+}
+
 void serializer_write_ptr(struct serializer* serializer, void* obj) {
     if (serializer_write_ref(serializer, obj)) {
         return;

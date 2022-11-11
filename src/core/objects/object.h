@@ -68,6 +68,10 @@ static inline struct blueprint* object_blueprint(struct object* object) {
     return object->blue;
 }
 
+static inline unsigned int object_slot_count(struct object* object) {
+    return object->slot_count;
+}
+
 static inline any* object_slots(struct object* object) {
     return object->slots;
 }
