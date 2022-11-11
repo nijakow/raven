@@ -1,3 +1,5 @@
+#include "../core/objects/string.h"
+
 #include "serializer.h"
 
 
@@ -40,12 +42,29 @@ void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag
     serializer_write_uint8(serializer, tag);
 }
 
+bool serializer_write_ref(struct serializer* serializer, any any) {
+    return false;
+}
+
+void serializer_write_string(struct serializer* serializer, struct string* string) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_STRING);
+    serializer_write_with_size(serializer, string_contents(string), string_length(string));
+}
+
+void serializer_write_obj(struct serializer* serializer, any any) {
+    if (serializer_write_ref(serializer, any)) {
+        return;
+    }
+
+         if (any_is_obj(any, OBJ_TYPE_STRING)) { serializer_write_string(serializer, any_to_ptr(any)); }
+    else                                       { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+}
+
 void serializer_write_any(struct serializer* serializer, any any) {
          if (any_is_nil(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_NIL); }
     else if (any_is_int(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_INT);
                                  serializer_write_int(serializer, any_to_int(any)); }
     else if (any_is_char(any)) { serializer_write_tag(serializer, SERIALIZER_TAG_CHAR8);
                                  serializer_write_uint8(serializer, any_to_char(any)); }
-    else if (any_is_ptr(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
-    else                       { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+    else                       { serializer_write_obj(serializer, any); }
 }
