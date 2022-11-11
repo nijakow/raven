@@ -100,6 +100,15 @@ unsigned int mapping_size(struct mapping* mapping) {
     return mapping->entry_count;
 }
 
+inline any mapping_key(struct mapping* mapping, unsigned int index) {
+    return mapping->entries[index].key;
+}
+
+inline any mapping_value(struct mapping* mapping, unsigned int index) {
+    return mapping->entries[index].value;
+}
+
+
 bool mapping_get(struct mapping* mapping, any key, any* value) {
     struct mapping_entry*  entry;
 

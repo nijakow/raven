@@ -24,6 +24,9 @@ struct funcref* funcref_new(struct raven*  raven,
 void   funcref_mark(struct gc* gc, void* funcref);
 void   funcref_del(void* funcref);
 
+any            funcref_receiver(struct funcref* funcref);
+struct symbol* funcref_message(struct funcref* funcref);
+
 void funcref_enter(struct funcref* funcref,
                    struct fiber*   fiber,
                    any*            args,

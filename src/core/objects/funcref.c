@@ -55,6 +55,15 @@ void funcref_del(void* funcref) {
 }
 
 
+any funcref_receiver(struct funcref* funcref) {
+    return funcref->receiver;
+}
+
+struct symbol* funcref_message(struct funcref* funcref) {
+    return funcref->message;
+}
+
+
 void funcref_enter(struct funcref* funcref,
                    struct fiber*   fiber,
                    any*            args,

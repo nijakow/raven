@@ -1,4 +1,8 @@
+#include "../core/objects/array.h"
+#include "../core/objects/mapping.h"
 #include "../core/objects/string.h"
+#include "../core/objects/symbol.h"
+#include "../core/objects/funcref.h"
 
 #include "serializer.h"
 
@@ -48,7 +52,35 @@ bool serializer_write_ref(struct serializer* serializer, any any) {
 
 void serializer_write_string(struct serializer* serializer, struct string* string) {
     serializer_write_tag(serializer, SERIALIZER_TAG_STRING);
-    serializer_write_with_size(serializer, string_contents(string), string_length(string));
+    serializer_write_cstr(serializer, string_contents(string));
+}
+
+void serializer_write_symbol(struct serializer* serializer, struct symbol* symbol) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_SYMBOL);
+    serializer_write_cstr(serializer, symbol_name(symbol));
+}
+
+void serializer_write_array(struct serializer* serializer, struct array* array) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_ARRAY);
+    serializer_write_uint(serializer, array_size(array));
+    for (size_t i = 0; i < array_size(array); i++) {
+        serializer_write_any(serializer, array_get(array, i));
+    }
+}
+
+void serializer_write_mapping(struct serializer* serializer, struct mapping* mapping) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_MAPPING);
+    serializer_write_uint(serializer, mapping_size(mapping));
+    for (size_t i = 0; i < mapping_size(mapping); i++) {
+        serializer_write_any(serializer, mapping_key(mapping, i));
+        serializer_write_any(serializer, mapping_value(mapping, i));
+    }
+}
+
+void serializer_write_funcref(struct serializer* serializer, struct funcref* funcref) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_FUNCREF);
+    serializer_write_any(serializer, funcref_receiver(funcref));
+    serializer_write_symbol(serializer, funcref_message(funcref));
 }
 
 void serializer_write_obj(struct serializer* serializer, any any) {
@@ -56,8 +88,11 @@ void serializer_write_obj(struct serializer* serializer, any any) {
         return;
     }
 
-         if (any_is_obj(any, OBJ_TYPE_STRING)) { serializer_write_string(serializer, any_to_ptr(any)); }
-    else                                       { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+         if (any_is_obj(any, OBJ_TYPE_STRING))  { serializer_write_string(serializer, any_to_ptr(any));   }
+    else if (any_is_obj(any, OBJ_TYPE_SYMBOL))  { serializer_write_symbol(serializer, any_to_ptr(any));   }
+    else if (any_is_obj(any, OBJ_TYPE_ARRAY))   { serializer_write_array(serializer, any_to_ptr(any));    }
+    else if (any_is_obj(any, OBJ_TYPE_FUNCREF)) { serializer_write_funcref(serializer, any_to_ptr(any));  }
+    else                                        { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
 }
 
 void serializer_write_any(struct serializer* serializer, any any) {

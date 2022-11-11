@@ -28,6 +28,8 @@ void            mapping_mark(struct gc* gc, struct mapping* mapping);
 void            mapping_del(struct mapping* mapping);
 
 unsigned int    mapping_size(struct mapping* mapping);
+any             mapping_key(struct mapping* mapping, unsigned int index);
+any             mapping_value(struct mapping* mapping, unsigned int index);
 
 bool mapping_get(struct mapping* mapping, any key, any* value);
 bool mapping_put(struct mapping* mapping, any key, any value);
