@@ -74,6 +74,18 @@ static any fiber_op_add_char_str(struct fiber* fiber, raven_rune_t rune, struct 
     return any_from_ptr(result);
 }
 
+static any fiber_op_add_char_char(struct fiber* fiber, raven_rune_t r1, raven_rune_t r2) {
+    struct stringbuilder  sb;
+    struct string*        result;
+
+    stringbuilder_create(&sb);
+    stringbuilder_append_rune(&sb, r1);
+    stringbuilder_append_rune(&sb, r2);
+    result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
+    stringbuilder_destroy(&sb);
+    return any_from_ptr(result);
+}
+
 any fiber_op_add(struct fiber* fiber, any a, any b) {
     if (any_is_int(a) && any_is_int(b))
         return any_from_int(any_to_int(a) + any_to_int(b));
@@ -82,7 +94,7 @@ any fiber_op_add(struct fiber* fiber, any a, any b) {
     else if (any_is_char(a) && any_is_int(b))
         return any_from_char(any_to_char(a) + any_to_int(b));
     else if (any_is_char(a) && any_is_char(b))
-        return any_from_char(any_to_char(a) + any_to_char(b));
+        return fiber_op_add_char_char(fiber, any_to_char(a), any_to_char(b));
     else if (any_is_char(a) && any_is_obj(b, OBJ_TYPE_STRING))
         return fiber_op_add_char_str(fiber, any_to_char(a), any_to_ptr(b));
     else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_char(b))
