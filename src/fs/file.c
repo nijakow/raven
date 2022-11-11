@@ -334,17 +334,19 @@ struct object* file_get_object(struct file* file) {
     return file->object;
 }
 
-void file_load(struct file* file, const char* realpath) {
+bool file_load(struct file* file, const char* realpath) {
     DIR*                  dirp;
     struct dirent*        entry;
     struct stringbuilder  sb;
     char*                 path;
     struct file*          f;
+    bool                  result;
 
     dirp = opendir(realpath);
     stringbuilder_create(&sb);
+    result = false;
 
-    if (dirp) {
+    if (dirp != NULL) {
         while ((entry = readdir(dirp)) != NULL) {
             if ((strcmp(entry->d_name, ".") != 0)
                 && (strcmp(entry->d_name, "..") != 0)){
@@ -355,8 +357,10 @@ void file_load(struct file* file, const char* realpath) {
                 stringbuilder_get(&sb, &path);
                 if (path != NULL) {
                     f = file_new(file_fs(file), file, entry->d_name);
-                    if (f != NULL)
+                    if (f != NULL) {
                         file_load(f, path);
+                        result = true;
+                    }
                     memory_free(path);
                 }
             }
@@ -366,6 +370,7 @@ void file_load(struct file* file, const char* realpath) {
     }
 
     stringbuilder_destroy(&sb);
+    return result;
 }
 
 struct blueprint* file_recompile_and_get(struct file* file) {

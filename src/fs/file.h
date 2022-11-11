@@ -33,7 +33,7 @@ void file_delete(struct file* file);
 
 void file_mark(struct gc* gc, struct file* file);
 
-void file_load(struct file* file, const char* realpath);
+bool file_load(struct file* file, const char* realpath);
 
 struct file* file_resolve1(struct file* file, const char* name);
 struct file* file_resolve(struct file* file, const char* name);

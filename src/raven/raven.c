@@ -94,12 +94,17 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
      * Set up the filesystem anchor, and load all files in the directory.
      */
     filesystem_set_anchor(&raven->fs, mudlib);
-    filesystem_load(&raven->fs);
+    if (!filesystem_load(&raven->fs)) {
+        log_printf(raven_log(raven), "Could not load mudlib: %s.\n", strerror(errno));
+    }
 
     /*
      * Spawn a new fiber, calling "/secure/master"->main()
      */
     result = raven_call_out(raven, "/secure/master", "main", NULL, 0);
+    if (!result) {
+        log_printf(raven_log(raven), "Could not call out to \"/secure/master\".main()!\n");
+    }
 
     return result;
 }

@@ -23,7 +23,7 @@ void filesystem_destroy(struct filesystem* fs);
 void filesystem_mark(struct gc* gc, struct filesystem* fs);
 
 void filesystem_set_anchor(struct filesystem* fs, const char* anchor);
-void filesystem_load(struct filesystem* fs);
+bool filesystem_load(struct filesystem* fs);
 
 struct file* filesystem_resolve(struct filesystem* fs, const char* path);
 struct file* filesystem_resolve_flex(struct filesystem* fs, const char* path);
