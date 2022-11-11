@@ -1,3 +1,6 @@
+#include "../core/blueprint.h"
+#include "../core/objects/object.h"
+
 #include "../core/objects/array.h"
 #include "../core/objects/mapping.h"
 #include "../core/objects/string.h"
@@ -46,8 +49,12 @@ void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag
     serializer_write_uint8(serializer, tag);
 }
 
-bool serializer_write_ref(struct serializer* serializer, any any) {
+bool serializer_write_ref(struct serializer* serializer, void* ptr) {
     return false;
+}
+
+void serializer_write_nil(struct serializer* serializer) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_NIL);
 }
 
 void serializer_write_string(struct serializer* serializer, struct string* string) {
@@ -83,23 +90,33 @@ void serializer_write_funcref(struct serializer* serializer, struct funcref* fun
     serializer_write_symbol(serializer, funcref_message(funcref));
 }
 
-void serializer_write_obj(struct serializer* serializer, any any) {
-    if (serializer_write_ref(serializer, any)) {
+void serializer_write_blueprint(struct serializer* serializer, struct blueprint* blueprint) {
+    serializer_write_tag(serializer, SERIALIZER_TAG_BLUEPRINT);
+    if (blueprint_parent(blueprint) == NULL)
+        serializer_write_nil(serializer);
+    else
+        serializer_write_ptr(serializer, blueprint_parent(blueprint));
+}
+
+void serializer_write_ptr(struct serializer* serializer, void* obj) {
+    if (serializer_write_ref(serializer, obj)) {
         return;
     }
 
-         if (any_is_obj(any, OBJ_TYPE_STRING))  { serializer_write_string(serializer, any_to_ptr(any));   }
-    else if (any_is_obj(any, OBJ_TYPE_SYMBOL))  { serializer_write_symbol(serializer, any_to_ptr(any));   }
-    else if (any_is_obj(any, OBJ_TYPE_ARRAY))   { serializer_write_array(serializer, any_to_ptr(any));    }
-    else if (any_is_obj(any, OBJ_TYPE_FUNCREF)) { serializer_write_funcref(serializer, any_to_ptr(any));  }
-    else                                        { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
+         if (base_obj_is(obj, OBJ_TYPE_STRING))    { serializer_write_string(serializer, obj);               }
+    else if (base_obj_is(obj, OBJ_TYPE_SYMBOL))    { serializer_write_symbol(serializer, obj);               }
+    else if (base_obj_is(obj, OBJ_TYPE_ARRAY))     { serializer_write_array(serializer, obj);                }
+    else if (base_obj_is(obj, OBJ_TYPE_MAPPING))   { serializer_write_mapping(serializer, obj);              }
+    else if (base_obj_is(obj, OBJ_TYPE_FUNCREF))   { serializer_write_funcref(serializer, obj);              }
+    else if (base_obj_is(obj, OBJ_TYPE_BLUEPRINT)) { serializer_write_blueprint(serializer, obj);            }
+    else                                           { serializer_write_tag(serializer, SERIALIZER_TAG_ERROR); }
 }
 
 void serializer_write_any(struct serializer* serializer, any any) {
-         if (any_is_nil(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_NIL); }
+         if (any_is_nil(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_NIL);   }
     else if (any_is_int(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_INT);
-                                 serializer_write_int(serializer, any_to_int(any)); }
+                                 serializer_write_int(serializer, any_to_int(any));      }
     else if (any_is_char(any)) { serializer_write_tag(serializer, SERIALIZER_TAG_CHAR8);
-                                 serializer_write_uint8(serializer, any_to_char(any)); }
-    else                       { serializer_write_obj(serializer, any); }
+                                 serializer_write_uint8(serializer, any_to_char(any));   }
+    else                       { serializer_write_ptr(serializer, any_to_ptr(any));      }
 }

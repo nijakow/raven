@@ -18,6 +18,7 @@ enum serializer_tag {
     SERIALIZER_TAG_MAPPING,
     SERIALIZER_TAG_FUNCREF,
     SERIALIZER_TAG_BLUEPRINT,
+    SERIALIZER_TAG_OBJECT,
     SERIALIZER_TAG_ERROR = 0xff
 };
 
@@ -40,6 +41,7 @@ void serializer_write_cstr(struct serializer* serializer, const char* str);
 
 void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag);
 
+void serializer_write_ptr(struct serializer* serializer, void* obj);
 void serializer_write_any(struct serializer* serializer, any any);
 
 #endif
