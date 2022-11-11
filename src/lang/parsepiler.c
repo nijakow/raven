@@ -753,6 +753,7 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_DEREF);
+        parser_set_exprtype_to_any(parser);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
         return parsepile_expr(parser, compiler, 1);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
