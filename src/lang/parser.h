@@ -12,6 +12,7 @@
 #include "../core/type.h"
 #include "../raven/raven.h"
 #include "../util/log.h"
+#include "../util/utf8.h"
 
 #include "reader.h"
 
@@ -150,7 +151,7 @@ struct blueprint* parser_as_relative_blueprint(struct parser* parser,
 int parser_as_int(struct parser* parser);
 struct string* parser_as_string(struct parser* parser);
 struct symbol* parser_as_symbol(struct parser* parser);
-char parser_as_char(struct parser* parser);
+raven_rune_t parser_as_char(struct parser* parser);
 
 unsigned int parser_unary_prec(struct parser* parser);
 unsigned int parser_binary_prec(struct parser* parser);

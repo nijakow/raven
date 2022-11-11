@@ -44,7 +44,7 @@ bool any_is_obj(any a, enum obj_type type) {
 
 unsigned int any_op_sizeof(any a) {
     if (any_is_obj(a, OBJ_TYPE_STRING))
-        return string_length(any_to_ptr(a));
+        return string_rune_length(any_to_ptr(a));
     else if (any_is_obj(a, OBJ_TYPE_ARRAY))
         return array_size(any_to_ptr(a));
     else

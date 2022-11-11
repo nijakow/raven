@@ -121,6 +121,10 @@ struct string* string_substr(struct string* string,
     return result;
 }
 
+unsigned int string_rune_length(struct string* string) {
+    return (unsigned int) utf8_string_length(string_contents(string));
+}
+
 raven_rune_t string_at_rune(struct string* string, unsigned int index) {
     size_t        byte_index;
     size_t        delta;

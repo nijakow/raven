@@ -46,6 +46,8 @@ static inline unsigned int string_length(struct string* string) {
     return string->length;
 }
 
+unsigned int string_rune_length(struct string* string);
+
 static inline const char* string_contents(struct string* string) {
     return string->contents;
 }

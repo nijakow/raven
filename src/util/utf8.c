@@ -59,3 +59,14 @@ size_t utf8_encode(raven_rune_t rune, char* str) {
 
     return 0;
 }
+
+size_t utf8_string_length(const char* str) {
+    size_t  index;
+    size_t  count;
+
+    count = 0;
+    for (index = 0; str[index] != '\0'; index++) {
+        count += (str[index] & 0xc0) != 0x80;
+    }
+    return count;
+}

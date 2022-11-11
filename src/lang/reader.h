@@ -10,6 +10,8 @@
 
 #include "../defs.h"
 
+#include "../util/utf8.h"
+
 struct file_pos {
     unsigned int  line;
     unsigned int  caret;
@@ -67,6 +69,15 @@ static inline char reader_advance(t_reader* reader) {
         return *((*reader_ptr(reader))++);
     }
     return '\0';
+}
+
+static inline raven_rune_t reader_advance_rune(t_reader* reader) {
+    size_t        amount;
+    raven_rune_t  rune;
+
+    rune = utf8_decode(reader->position, &amount);
+    reader->position += amount;
+    return rune;
 }
 
 static inline bool reader_check(t_reader* reader, char c) {

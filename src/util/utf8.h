@@ -15,4 +15,6 @@ typedef uint32_t raven_rune_t;
 raven_rune_t utf8_decode(const char* str, size_t* len);
 size_t       utf8_encode(raven_rune_t rune, char* str);
 
+size_t       utf8_string_length(const char* str);
+
 #endif

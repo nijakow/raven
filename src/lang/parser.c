@@ -152,6 +152,16 @@ static void parser_buffer_append(struct parser* parser, char c) {
     }
 }
 
+static void parser_buffer_append_rune(struct parser* parser, raven_rune_t rune) {
+    char utf8[5];
+    size_t len;
+    size_t index;
+    
+    len = utf8_encode(rune, utf8);
+    for (index = 0; index < len; index++)
+        parser_buffer_append(parser, utf8[index]);
+}
+
 static bool parser_buffer_is(struct parser* parser, const char* str) {
     unsigned int i;
 
@@ -175,11 +185,11 @@ bool parser_check(struct parser* parser, enum token_type type) {
     return false;
 }
 
-char parser_read_escaped_char(struct parser* parser) {
-    char  c;
+raven_rune_t parser_read_escaped_char(struct parser* parser) {
+    raven_rune_t  c;
 
     if (reader_check(parser->reader, '\\')) {
-        c = reader_advance(parser->reader);
+        c = reader_advance_rune(parser->reader);
         switch (c) {
         case 't': return '\t';
         case 'r': return '\r';
@@ -190,13 +200,21 @@ char parser_read_escaped_char(struct parser* parser) {
         default: return c;
         }
     } else {
-        return reader_advance(parser->reader);
+        return reader_advance_rune(parser->reader);
     }
 }
 
 void parser_read_until(struct parser* parser, const char* stop) {
+    raven_rune_t  rune;
+    size_t        index;
+    size_t        size;
+    char          utf8[5];
+
     while (reader_has(parser->reader) && !reader_checks(parser->reader, stop)) {
-        parser_buffer_append(parser, parser_read_escaped_char(parser));
+        rune = parser_read_escaped_char(parser);
+        size = utf8_encode(rune, utf8);
+        for (index = 0; index < size; index++)
+            parser_buffer_append(parser, utf8[index]);
     }
 }
 
@@ -235,10 +253,10 @@ void parser_read_raw_string(struct parser* parser) {
 }
 
 void parser_read_character(struct parser* parser) {
-    char c;
+    raven_rune_t c;
 
     c = parser_read_escaped_char(parser);
-    parser_buffer_append(parser, c);
+    parser_buffer_append_rune(parser, c);
     /* TODO: This must be '\''! Otherwise: Error! */
     reader_advance(parser->reader);
 }
@@ -484,8 +502,10 @@ struct symbol* parser_set_exprtype_as_symbol(struct parser* parser) {
     return raven_find_symbol(parser->raven, parser->buffer);
 }
 
-char parser_as_char(struct parser* parser) {
-    return parser->buffer[0];
+raven_rune_t parser_as_char(struct parser* parser) {
+    size_t        amount;
+
+    return utf8_decode(parser->buffer, &amount);
 }
 
 void parser_set_returntype(struct parser* parser, struct type* type) {
