@@ -11,6 +11,7 @@
 #include "../core/objects/string.h"
 #include "../core/type.h"
 #include "../raven/raven.h"
+#include "../util/stringbuilder.h"
 #include "../util/utf8.h"
 
 #include "fiber.h"
@@ -49,6 +50,30 @@ bool fiber_op_geq(struct fiber* fiber, any a, any b) {
 }
 
 
+static any fiber_op_add_str_char(struct fiber* fiber, struct string* str, raven_rune_t rune) {
+    struct stringbuilder  sb;
+    struct string*        result;
+
+    stringbuilder_create(&sb);
+    stringbuilder_append_str(&sb, string_contents(str));
+    stringbuilder_append_rune(&sb, rune);
+    result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
+    stringbuilder_destroy(&sb);
+    return any_from_ptr(result);
+}
+
+static any fiber_op_add_char_str(struct fiber* fiber, raven_rune_t rune, struct string* str) {
+    struct stringbuilder  sb;
+    struct string*        result;
+
+    stringbuilder_create(&sb);
+    stringbuilder_append_rune(&sb, rune);
+    stringbuilder_append_str(&sb, string_contents(str));
+    result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
+    stringbuilder_destroy(&sb);
+    return any_from_ptr(result);
+}
+
 any fiber_op_add(struct fiber* fiber, any a, any b) {
     if (any_is_int(a) && any_is_int(b))
         return any_from_int(any_to_int(a) + any_to_int(b));
@@ -58,6 +83,10 @@ any fiber_op_add(struct fiber* fiber, any a, any b) {
         return any_from_char(any_to_char(a) + any_to_int(b));
     else if (any_is_char(a) && any_is_char(b))
         return any_from_char(any_to_char(a) + any_to_char(b));
+    else if (any_is_char(a) && any_is_obj(b, OBJ_TYPE_STRING))
+        return fiber_op_add_char_str(fiber, any_to_char(a), any_to_ptr(b));
+    else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_char(b))
+        return fiber_op_add_str_char(fiber, any_to_ptr(a), any_to_char(b));
     else if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_obj(b, OBJ_TYPE_STRING))
         return any_from_ptr(string_append(fiber_raven(fiber),
                                           any_to_ptr(a),
