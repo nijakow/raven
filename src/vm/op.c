@@ -118,12 +118,10 @@ any fiber_op_add(struct fiber* fiber, any a, any b) {
 any fiber_op_sub(struct fiber* fiber, any a, any b) {
     if (any_is_int(a) && any_is_int(b))
         return any_from_int(any_to_int(a) - any_to_int(b));
-    else if (any_is_int(a) && any_is_char(b))
-        return any_from_char(any_to_int(a) - any_to_char(b));
     else if (any_is_char(a) && any_is_int(b))
         return any_from_char(any_to_char(a) - any_to_int(b));
     else if (any_is_char(a) && any_is_char(b))
-        return any_from_char(any_to_char(a) - any_to_char(b));
+        return any_from_int(any_to_char(a) - any_to_char(b));
     else
         return any_nil();
 }
