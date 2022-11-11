@@ -160,7 +160,6 @@ static void builtin_write_to_hlp(struct fiber*      fiber,
                 snprintf(buf, sizeof(buf), "%p", any_to_ptr(arg[x]));
             } else if (any_is_char(arg[x])) {
                 buf[utf8_encode(any_to_char(arg[x]), buf)] = '\0';
-                snprintf(buf, sizeof(buf), "%c", any_to_char(arg[x]));
             } else {
                 snprintf(buf, sizeof(buf), "???");
             }

@@ -137,7 +137,7 @@ any fiber_op_index(struct fiber* fiber, any a, any b) {
     any  result;
 
     if (any_is_obj(a, OBJ_TYPE_STRING) && any_is_int(b)) {
-        return any_from_char(string_at(any_to_ptr(a), any_to_int(b)));
+        return any_from_char(string_at_rune(any_to_ptr(a), any_to_int(b)));
     } else if (any_is_obj(a, OBJ_TYPE_ARRAY) && any_is_int(b)) {
         return array_get(any_to_ptr(a), any_to_int(b));
     } else if (any_is_obj(a, OBJ_TYPE_MAPPING)) {
