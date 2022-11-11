@@ -10,6 +10,8 @@
 
 #include "../defs.h"
 
+#include "utf8.h"
+
 /*
  * Stringbuilders are objects that help us with the
  * instantiation and concatenation of strings.
@@ -80,6 +82,7 @@ void stringbuilder_create(struct stringbuilder* sb);
 void stringbuilder_destroy(struct stringbuilder* sb);
 
 void stringbuilder_append_char(struct stringbuilder* sb, char c);
+void stringbuilder_append_rune(struct stringbuilder* sb, raven_rune_t rune);
 void stringbuilder_append_str(struct stringbuilder* sb, const char* str);
 
 bool stringbuilder_get(struct stringbuilder* sb, char** loc);

@@ -49,6 +49,16 @@ void stringbuilder_append_char(struct stringbuilder* sb, char c) {
     sb->data[sb->fill] = '\0';
 }
 
+void stringbuilder_append_rune(struct stringbuilder* sb, raven_rune_t rune) {
+    char    buf[5];
+    size_t  index;
+    size_t  length;
+
+    length = utf8_encode(rune, buf);
+    for (index = 0; index < length; index++)
+        stringbuilder_append_char(sb, buf[index]);
+}
+
 void stringbuilder_append_str(struct stringbuilder* sb, const char* str) {
     unsigned int i;
 
