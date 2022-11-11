@@ -12,19 +12,25 @@ raven_rune_t utf8_decode(const char* str, size_t* len) {
 
     if (str[0] == '\0') {
         rune = 0;
-        if (len) *len = 0;
-    } else if (str[0] < 0x80) {
+        if (len != NULL) *len = 0;
+    } else if ((str[0] & 0xf8) == 0xf0) {
+        rune = (str[0] & 0x07);
+        rune = (rune << 6) | (str[1] & 0x3f);
+        rune = (rune << 6) | (str[2] & 0x3f);
+        rune = (rune << 6) | (str[3] & 0x3f);
+        if (len != NULL) *len = 4;
+    } else if ((str[0] & 0xf0) == 0xe0) {
+        rune = (str[0] & 0x0f);
+        rune = (rune << 6) | (str[1] & 0x3f);
+        rune = (rune << 6) | (str[2] & 0x3f);
+        if (len != NULL) *len = 3;
+    } else if ((str[0] & 0xe0) == 0xc0) {
+        rune = (str[0] & 0x1f);
+        rune = (rune << 6) | (str[1] & 0x3f);
+        if (len != NULL) *len = 2;
+    } else {
         rune = str[0];
-        if (len) *len = 1;
-    } else if ((str[0] & 0xE0) == 0xC0) {
-        rune = (str[0] & 0x1F) << 6 | (str[1] & 0x3F);
-        if (len) *len = 2;
-    } else if ((str[0] & 0xF0) == 0xE0) {
-        rune = (str[0] & 0x0F) << 12 | (str[1] & 0x3F) << 6 | (str[2] & 0x3F);
-        if (len) *len = 3;
-    } else if ((str[0] & 0xF8) == 0xF0) {
-        rune = (str[0] & 0x07) << 18 | (str[1] & 0x3F) << 12 | (str[2] & 0x3F) << 6 | (str[3] & 0x3F);
-        if (len) *len = 4;
+        if (len != NULL) *len = 1;
     }
 
     return rune;
@@ -35,19 +41,19 @@ size_t utf8_encode(raven_rune_t rune, char* str) {
         str[0] = rune;
         return 1;
     } else if (rune < 0x800) {
-        str[0] = 0xC0 | (rune >> 6);
-        str[1] = 0x80 | (rune & 0x3F);
+        str[0] = 0xc0 | (rune >> 6);
+        str[1] = 0x80 | (rune & 0x3f);
         return 2;
     } else if (rune < 0x10000) {
-        str[0] = 0xE0 | (rune >> 12);
-        str[1] = 0x80 | ((rune >> 6) & 0x3F);
-        str[2] = 0x80 | (rune & 0x3F);
+        str[0] = 0xe0 | (rune >> 12);
+        str[1] = 0x80 | ((rune >> 6) & 0x3f);
+        str[2] = 0x80 | (rune & 0x3f);
         return 3;
     } else if (rune < 0x110000) {
-        str[0] = 0xF0 | (rune >> 18);
-        str[1] = 0x80 | ((rune >> 12) & 0x3F);
-        str[2] = 0x80 | ((rune >> 6) & 0x3F);
-        str[3] = 0x80 | (rune & 0x3F);
+        str[0] = 0xf0 | (rune >> 18);
+        str[1] = 0x80 | ((rune >> 12) & 0x3f);
+        str[2] = 0x80 | ((rune >> 6) & 0x3f);
+        str[3] = 0x80 | (rune & 0x3f);
         return 4;
     }
 

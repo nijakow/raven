@@ -125,7 +125,7 @@ raven_rune_t string_at_rune(struct string* string, unsigned int index) {
     size_t        byte_index;
     size_t        delta;
 
-    byte_index= 0;
+    byte_index = 0;
     while (index --> 0) {
         utf8_decode(string_contents(string) + byte_index, &delta);
         if (delta == 0)
