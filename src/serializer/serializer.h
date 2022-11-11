@@ -4,6 +4,15 @@
 #include "../defs.h"
 
 
+enum serializer_tag {
+    SERIALIZER_TAG_NONE,
+    SERIALIZER_TAG_NIL,
+    SERIALIZER_TAG_INT,
+    SERIALIZER_TAG_STRING,
+    SERIALIZER_TAG_OBJECT
+};
+
+
 struct serializer {
 
 };
@@ -11,5 +20,15 @@ struct serializer {
 void serializer_create(struct serializer* serializer);
 void serializer_destroy(struct serializer* serializer);
 
+void serializer_write(struct serializer* serializer, const void* data, size_t size);
+void serializer_write_with_size(struct serializer* serializer, const void* data, size_t size);
+
+void serializer_write_uint8(struct serializer* serializer, uint8_t value);
+void serializer_write_uint(struct serializer* serializer, uint32_t value);
+void serializer_write_int(struct serializer* serializer, int32_t value);
+
+void serializer_write_cstr(struct serializer* serializer, const char* str);
+
+void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag);
 
 #endif
