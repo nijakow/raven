@@ -51,9 +51,9 @@ bool server_open_socket(int port, int* socket_loc) {
 
 
 void server_create(struct server* server, struct raven* raven) {
-    server->raven         = raven;
-    server->connections   = NULL;
-    server->server_socket = -1;
+    server->raven               = raven;
+    server->connections         = NULL;
+    server->server_socket_count = 0;
 }
 
 void server_destroy(struct server* server) {
@@ -62,8 +62,8 @@ void server_destroy(struct server* server) {
 }
 
 bool server_serve_on(struct server* server, int port) {
-    if (server->server_socket != -1) return false;
-    return server_open_socket(port, &server->server_socket);
+    if (server->server_socket_count >= RAVEN_SERVER_SOCKETS_MAX) return false;
+    return server_open_socket(port, &server->server_sockets[server->server_socket_count++]);
 }
 
 static void server_send_socket_error_and_close(struct server* server, int fd) {
@@ -73,7 +73,7 @@ static void server_send_socket_error_and_close(struct server* server, int fd) {
     close(fd);
 }
 
-void server_accept(struct server* server) {
+void server_accept(struct server* server, int socket_fd) {
     int                 fd;
     struct connection*  connection;
     struct raven*       raven;
@@ -81,7 +81,7 @@ void server_accept(struct server* server) {
     struct funcref*     func;
     any                 connection_any;
 
-    fd = accept(server_serversocket(server), NULL, NULL);
+    fd = accept(socket_fd, NULL, NULL);
 
     if (fd >= 0) {
         raven = server_raven(server);
@@ -111,14 +111,19 @@ void server_tick(struct server* server, raven_timeval_t tv) {
     int                 retval;
     size_t              bytes;
     struct connection*  connection;
+    unsigned int        index;
     fd_set              readable;
     char                buffer[1024];
 
     FD_ZERO(&readable);
 
-    maxfd = server_serversocket(server);
+    maxfd = 0;
 
-    FD_SET(server_serversocket(server), &readable);
+    for (index = 0; index < server->server_socket_count; ++index) {
+        if (server->server_sockets[index] > maxfd)
+            maxfd = server->server_sockets[index];
+        FD_SET(server->server_sockets[index], &readable);
+    }
 
     for (connection = server->connections;
          connection != NULL;
@@ -131,8 +136,10 @@ void server_tick(struct server* server, raven_timeval_t tv) {
     retval = select(maxfd + 1, &readable, NULL, NULL, &tv);
 
     if (retval > 0) {
-        if (FD_ISSET(server_serversocket(server), &readable))
-            server_accept(server);
+        for (index = 0; index < server->server_socket_count; ++index) {
+            if (FD_ISSET(server->server_sockets[index], &readable))
+                server_accept(server, server->server_sockets[index]);
+        }
         for (connection = server->connections;
              connection != NULL;
              connection = connection_next(connection)) {
