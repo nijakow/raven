@@ -8,6 +8,7 @@
 #include "../defs.h"
 
 #include "../raven/raven.h"
+#include "../core/objects/connection.h"
 #include "../core/objects/function.h"
 #include "../core/objects/mapping.h"
 #include "../core/objects/string.h"
@@ -49,6 +50,8 @@ void fiber_create(struct fiber* fiber, struct scheduler* scheduler) {
 }
 
 void fiber_destroy(struct fiber* fiber) {
+    if (fiber_connection(fiber) != NULL)
+        fiber_connection(fiber)->fiber = NULL;
     if (fiber->next != NULL)
         fiber->next->prev = fiber->prev;
     *fiber->prev = fiber->next;
