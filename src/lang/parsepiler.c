@@ -604,6 +604,38 @@ bool parsepile_ternary(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+
+/*
+ * Parse a "null aware" operator, which is an operator inspired by dart.
+ *
+ * The nullaware operator is written like this:
+ * 
+ *     expr1 ?? expr2
+ * 
+ * and is more-or-less equivalent to:
+ * 
+ *     expr1 ? expr1 : expr2
+ */
+bool parsepile_nullaware(struct parser* parser, struct compiler* compiler) {
+    t_compiler_label  end;
+    bool              result;
+
+    end    = compiler_open_label(compiler);
+    result = false;
+
+    compiler_jump_if(compiler, end);
+
+    result = parsepile_expr(parser, compiler, 12);
+
+    compiler_place_label(compiler, end);
+
+    compiler_close_label(compiler, end);
+
+    parser_set_exprtype_to_any(parser); /* TODO: Infer */
+
+    return result;
+}
+
 bool parsepile_op(struct parser*   parser,
                   struct compiler* compiler,
                   int              pr,
@@ -650,6 +682,8 @@ bool parsepile_op(struct parser*   parser,
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
     } else if (pr >= 13 && parser_check(parser, TOKEN_TYPE_QUESTION)) {
         result = parsepile_ternary(parser, compiler);
+    } else if (pr >= 13 && parser_check(parser, TOKEN_TYPE_QUESTIONQUESTION)) {
+        result = parsepile_nullaware(parser, compiler);
     } else if (pr >= 12 && parser_check(parser, TOKEN_TYPE_OR)) {
         result = parsepile_or(parser, compiler);
     } else if (pr >= 11 && parser_check(parser, TOKEN_TYPE_AND)) {
