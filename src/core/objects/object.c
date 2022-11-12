@@ -72,7 +72,6 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
 }
 
 void object_mark(struct gc* gc, struct object* object) {
-    struct object*  child;
     unsigned int    i;
 
     gc_mark_ptr(gc, object->blue);
