@@ -236,7 +236,7 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
                 path = file_path(file);
             }
         }
-        log_printf(log, "   - %s@<%s>\n", name, (path == NULL) ? "unknown" : path);
+        log_printf(log, "   - %s(...) in %s\n", name, (path == NULL) ? "unknown" : path);
         if (path != NULL) memory_free(path);
         frame = frame_prev(frame);
     }
