@@ -109,7 +109,7 @@ void server_accept(struct server* server, int socket_fd) {
 void server_tick(struct server* server, raven_timeval_t tv) {
     int                 maxfd;
     int                 retval;
-    size_t              bytes;
+    ssize_t             bytes;
     struct connection*  connection;
     unsigned int        index;
     fd_set              readable;
