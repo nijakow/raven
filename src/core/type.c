@@ -67,7 +67,7 @@ static bool type_cast_func_char(struct type* type, any* value) {
     if (type_check_func_char(type, *value))
         return true;
     else if (any_is_int(*value)) {
-        *value = any_from_char(any_to_int(*value));
+        *value = any_from_char(any_to_char(*value));
         return true;
     }
     else
@@ -79,12 +79,13 @@ static bool type_check_func_string(struct type* type, any value) {
 }
 
 static bool type_cast_func_string(struct type* type, any* value) {
-    char  c[2];
+    size_t  size;
+    char    c[8];
 
     if (any_is_char(*value)) {
-        c[0]   = any_to_char(*value);
-        c[1]   = '\0';
-        *value = any_from_ptr(string_new(typeset_raven(type_typeset(type)), c));
+        size    = utf8_encode(any_to_char(*value), c);
+        c[size] = '\0';
+        *value  = any_from_ptr(string_new(typeset_raven(type_typeset(type)), c));
         return true;
     }
     return type_check_func_string(type, *value);
