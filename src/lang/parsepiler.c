@@ -692,6 +692,26 @@ bool parsepile_op(struct parser*   parser,
         result = parsepile_or(parser, compiler);
     } else if (pr >= 11 && parser_check(parser, TOKEN_TYPE_AND)) {
         result = parsepile_and(parser, compiler);
+    } else if (pr >= 10 && parser_check(parser, TOKEN_TYPE_PIPE)) {
+        compiler_push(compiler);
+        result = parsepile_expr(parser, compiler, 9);
+        compiler_op(compiler, RAVEN_OP_BITOR);
+        parser_set_exprtype_to_any(parser); /* TODO: Infer */
+    } else if (pr >= 8 && parser_check(parser, TOKEN_TYPE_AMPERSAND)) {
+        compiler_push(compiler);
+        result = parsepile_expr(parser, compiler, 7);
+        compiler_op(compiler, RAVEN_OP_BITAND);
+        parser_set_exprtype_to_any(parser); /* TODO: Infer */
+    } else if (pr >= 5 && parser_check(parser, TOKEN_TYPE_LEFTSHIFT)) {
+        compiler_push(compiler);
+        result = parsepile_expr(parser, compiler, 4);
+        compiler_op(compiler, RAVEN_OP_LEFTSHIFT);
+        parser_set_exprtype_to_any(parser); /* TODO: Infer */
+    } else if (pr >= 5 && parser_check(parser, TOKEN_TYPE_RIGHTSHIFT)) {
+        compiler_push(compiler);
+        result = parsepile_expr(parser, compiler, 4);
+        compiler_op(compiler, RAVEN_OP_RIGHTSHIFT);
+        parser_set_exprtype_to_any(parser); /* TODO: Infer */
     } else if (pr >= 7 && parser_check(parser, TOKEN_TYPE_EQUALS)) {
         compiler_push(compiler);
         result = parsepile_expr(parser, compiler, 6);

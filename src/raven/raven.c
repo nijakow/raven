@@ -331,8 +331,7 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$connection_player", builtin_connection_player);
     raven_builtin(raven, "$this_locals", builtin_this_locals);
     raven_builtin(raven, "$print", builtin_print);
-    raven_builtin(raven, "$write", builtin_write);
-    raven_builtin(raven, "$write_to", builtin_write_to);
+    raven_builtin(raven, "$write_byte_to", builtin_write_byte_to);
     raven_builtin(raven, "$input_line", builtin_input_line);
     raven_builtin(raven, "$close", builtin_close);
 

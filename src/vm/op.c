@@ -172,6 +172,34 @@ any fiber_op_negate(struct fiber* fiber, any a) {
         return any_nil();
 }
 
+any fiber_op_bitand(struct fiber* fiber, any a, any b) {
+    if (any_is_int(a) && any_is_int(b))
+        return any_from_int(any_to_int(a) & any_to_int(b));
+    else
+        return any_nil();
+}
+
+any fiber_op_bitor(struct fiber* fiber, any a, any b) {
+    if (any_is_int(a) && any_is_int(b))
+        return any_from_int(any_to_int(a) | any_to_int(b));
+    else
+        return any_nil();
+}
+
+any fiber_op_leftshift(struct fiber* fiber, any a, any b) {
+    if (any_is_int(a) && any_is_int(b))
+        return any_from_int(any_to_int(a) << any_to_int(b));
+    else
+        return any_nil();
+}
+
+any fiber_op_rightshift(struct fiber* fiber, any a, any b) {
+    if (any_is_int(a) && any_is_int(b))
+        return any_from_int(any_to_int(a) >> any_to_int(b));
+    else
+        return any_nil();
+}
+
 any fiber_op_index(struct fiber* fiber, any a, any b) {
     any  result;
 

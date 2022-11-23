@@ -142,41 +142,11 @@ void builtin_print(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
-static void builtin_write_to_hlp(struct fiber*      fiber,
-                                 any*               arg,
-                                 unsigned int       args,
-                                 struct connection* connection) {
-    char buf[1024*8];
-
-    if (connection != NULL) {
-        for (unsigned int x = 0; x < args; x++) {
-            if (any_is_int(arg[x])) {
-                snprintf(buf, sizeof(buf), "%d", any_to_int(arg[x]));
-            } else if (any_is_obj(arg[x], OBJ_TYPE_STRING)) {
-                snprintf(buf, sizeof(buf), "%s", string_contents(any_to_ptr(arg[x])));
-            } else if (any_is_nil(arg[x])) {
-                snprintf(buf, sizeof(buf), "(nil)");
-            } else if (any_is_ptr(arg[x])) {
-                snprintf(buf, sizeof(buf), "%p", any_to_ptr(arg[x]));
-            } else if (any_is_char(arg[x])) {
-                buf[utf8_encode(any_to_char(arg[x]), buf)] = '\0';
-            } else {
-                snprintf(buf, sizeof(buf), "???");
-            }
-            connection_write_cstr(connection, buf);
-        }
-    }
-}
-
-void builtin_write(struct fiber* fiber, any* arg, unsigned int args) {
-    builtin_write_to_hlp(fiber, arg, args, fiber_connection(fiber));
-}
-
-void builtin_write_to(struct fiber* fiber, any* arg, unsigned int args) {
-    if (args < 1 || !any_is_obj(arg[0], OBJ_TYPE_CONNECTION))
+void builtin_write_byte_to(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args < 1 || !any_is_obj(arg[0], OBJ_TYPE_CONNECTION) || !any_is_int(arg[1]))
         arg_error(fiber);
     else {
-        builtin_write_to_hlp(fiber, arg + 1, args - 1, any_to_ptr(arg[0]));
+        connection_write_byte(any_to_ptr(arg[0]), any_to_int(arg[1]));
     }
 }
 

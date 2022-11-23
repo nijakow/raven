@@ -265,6 +265,18 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
     case RAVEN_OP_NEGATE:
         fiber_set_accu(fiber, fiber_op_negate(fiber, fiber_get_accu(fiber)));
         break;
+    case RAVEN_OP_BITAND:
+        fiber_set_accu(fiber, fiber_op_bitand(fiber, fiber_pop(fiber), fiber_get_accu(fiber)));
+        break;
+    case RAVEN_OP_BITOR:
+        fiber_set_accu(fiber, fiber_op_bitor(fiber, fiber_pop(fiber), fiber_get_accu(fiber)));
+        break;
+    case RAVEN_OP_LEFTSHIFT:
+        fiber_set_accu(fiber, fiber_op_leftshift(fiber, fiber_pop(fiber), fiber_get_accu(fiber)));
+        break;
+    case RAVEN_OP_RIGHTSHIFT:
+        fiber_set_accu(fiber, fiber_op_rightshift(fiber, fiber_pop(fiber), fiber_get_accu(fiber)));
+        break;
     case RAVEN_OP_DEREF:
         fiber_push(fiber, frame_self(fiber_top(fiber)));
         fiber_push(fiber, fiber_get_accu(fiber));

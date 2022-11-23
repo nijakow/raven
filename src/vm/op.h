@@ -27,6 +27,12 @@ any fiber_op_mod(struct fiber* fiber, any a, any b);
 
 any fiber_op_negate(struct fiber* fiber, any a);
 
+any fiber_op_bitand(struct fiber* fiber, any a, any b);
+any fiber_op_bitor(struct fiber* fiber, any a, any b);
+
+any fiber_op_leftshift(struct fiber* fiber, any a, any b);
+any fiber_op_rightshift(struct fiber* fiber, any a, any b);
+
 any fiber_op_index(struct fiber* fiber, any a, any b);
 any fiber_op_index_assign(struct fiber* fiber, any a, any b, any c);
 any fiber_op_deref(struct fiber* fiber, any a);

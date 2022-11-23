@@ -35,6 +35,8 @@ const char* token_type_name(enum token_type type) {
     case TOKEN_TYPE_ELLIPSIS: return "ELLIPSIS";
     case TOKEN_TYPE_EQUALS: return "EQUALS";
     case TOKEN_TYPE_NOT_EQUALS: return "NOT_EQUALS";
+    case TOKEN_TYPE_LEFTSHIFT: return "LEFTSHIFT";
+    case TOKEN_TYPE_RIGHTSHIFT: return "RIGHTSHIFT";
     case TOKEN_TYPE_LESS: return "LESS";
     case TOKEN_TYPE_LEQ: return "LEQ";
     case TOKEN_TYPE_GREATER: return "GREATER";
@@ -45,6 +47,7 @@ const char* token_type_name(enum token_type type) {
     case TOKEN_TYPE_ASSIGNMENT: return "ASSIGNMENT";
     case TOKEN_TYPE_ARROW: return "ARROW";
     case TOKEN_TYPE_AMPERSAND: return "AMPERSAND";
+    case TOKEN_TYPE_PIPE: return "PIPE";
     case TOKEN_TYPE_QUESTIONQUESTION: return "QUESTIONQUESTION";
     case TOKEN_TYPE_QUESTION: return "QUESTION";
     case TOKEN_TYPE_INC: return "INC";
@@ -229,13 +232,44 @@ bool parser_isdigit(char c) {
     return (c >= '0' && c <= '9');
 }
 
-void parser_read_int(struct parser* parser) {
+bool parser_checkdigit(char c, const char* base, unsigned int* digit) {
+    unsigned int i;
+
+    for (i = 0; base[i] != '\0'; i++) {
+        if (c == base[i]) {
+            *digit = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void parser_read_int_base(struct parser* parser, const char* base) {
+    size_t        base_num;
+    unsigned int  digit;
+
+    base_num = strlen(base);
+    
     parser->integer = 0;
     while (reader_has(parser->reader)
-           && parser_isdigit(reader_peek(parser->reader))) {
-        parser->integer *= 10;
-        parser->integer += reader_advance(parser->reader) - '0';
+           && parser_checkdigit(reader_peek(parser->reader), base, &digit)) {
+        parser->integer *= (int) base_num;
+        parser->integer += digit;
+        reader_advance(parser->reader);
     }
+}
+
+void parser_read_int_base16(struct parser* parser) {
+    parser_read_int_base(parser, "0123456789abcdef");
+}
+
+void parser_read_int_base10(struct parser* parser) {
+    parser_read_int_base(parser, "0123456789");
+}
+
+void parser_read_int(struct parser* parser) {
+    parser_read_int_base10(parser);
 }
 
 void parser_read_string(struct parser* parser, const char* stop) {
@@ -318,6 +352,10 @@ void parser_advance(struct parser* parser) {
         parser_set_type(parser, TOKEN_TYPE_EQUALS);
     } else if (reader_checks(parser->reader, "!=")) {
         parser_set_type(parser, TOKEN_TYPE_NOT_EQUALS);
+    } else if (reader_checks(parser->reader, "<<")) {
+        parser_set_type(parser, TOKEN_TYPE_LEFTSHIFT);
+    } else if (reader_checks(parser->reader, ">>")) {
+        parser_set_type(parser, TOKEN_TYPE_RIGHTSHIFT);
     } else if (reader_checks(parser->reader, "<=")) {
         parser_set_type(parser, TOKEN_TYPE_LEQ);
     } else if (reader_checks(parser->reader, "<")) {
@@ -338,6 +376,8 @@ void parser_advance(struct parser* parser) {
         parser_set_type(parser, TOKEN_TYPE_ARROW);
     } else if (reader_checks(parser->reader, "&")) {
         parser_set_type(parser, TOKEN_TYPE_AMPERSAND);
+    } else if (reader_checks(parser->reader, "|")) {
+        parser_set_type(parser, TOKEN_TYPE_PIPE);
     } else if (reader_checks(parser->reader, "??")) {
         parser_set_type(parser, TOKEN_TYPE_QUESTIONQUESTION);
     } else if (reader_checks(parser->reader, "?")) {
@@ -378,6 +418,9 @@ void parser_advance(struct parser* parser) {
     } else if (reader_checks(parser->reader, "#:")) {
         parser_set_type(parser, TOKEN_TYPE_SYMBOL);
         parser_read_symbol(parser);
+    } else if (reader_checks(parser->reader, "0x")) {
+        parser_set_type(parser, TOKEN_TYPE_INT);
+        parser_read_int_base16(parser);
     } else if (parser_isdigit(reader_peek(parser->reader))) {
         parser_set_type(parser, TOKEN_TYPE_INT);
         parser_read_int(parser);
