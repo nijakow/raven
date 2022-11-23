@@ -160,7 +160,7 @@ void fiber_send(struct fiber*  fiber,
      * the stack frame.
      */
     if (function == NULL)
-        fiber_builtin(fiber, message, args);
+        fiber_crash_msg(fiber, "Method was not found!");
     else
         fiber_push_frame(fiber, function, args);
 }
