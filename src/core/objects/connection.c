@@ -134,9 +134,13 @@ void connection_input(struct connection* connection, char* b, unsigned int n) {
     }
 }
 
-void connection_output_str(struct connection* connection, const char* str) {
-    size_t  len;
+void connection_write_byte(struct connection* connection, char byte) {
+    write(connection_socket(connection), &byte, 1);
+}
 
-    len = strlen(str);
-    write(connection_socket(connection), str, len);
+void connection_write_cstr(struct connection* connection, const char* str) {
+    while (*str != '\0') {
+        connection_write_byte(connection, *str);
+        str++;
+    }
 }

@@ -163,7 +163,7 @@ static void builtin_write_to_hlp(struct fiber*      fiber,
             } else {
                 snprintf(buf, sizeof(buf), "???");
             }
-            connection_output_str(connection, buf);
+            connection_write_cstr(connection, buf);
         }
     }
 }

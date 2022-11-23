@@ -39,7 +39,9 @@ void connection_close_impl(struct connection* connection);
 void connection_close(struct connection* connection);
 void connection_endofinput(struct connection* connection);
 void connection_input(struct connection* connection, char* b, unsigned int n);
-void connection_output_str(struct connection* connection, const char* str);
+
+void connection_write_byte(struct connection* connection, char byte);
+void connection_write_cstr(struct connection* connection, const char* str);
 
 static inline struct raven* connection_raven(struct connection* connection) {
     return connection->raven;
