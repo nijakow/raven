@@ -624,6 +624,15 @@ void fiber_interpret(struct fiber* fiber) {
             fiber_op(fiber, (enum raven_op) next_wc(fiber));
             break;
             /*
+             * Invoke a builtin.
+             */
+        case RAVEN_BYTECODE_BUILTIN:
+            args    = (unsigned int) next_bc(fiber);
+            message = any_to_ptr(next_constant(fiber));
+            if (RAVEN_DEBUG_MODE) printf("BUILTIN %s\n", symbol_name(message));
+            fiber_builtin(fiber, message, args);
+            break;
+            /*
              * Send a message to an object.
              */
         case RAVEN_BYTECODE_SEND:

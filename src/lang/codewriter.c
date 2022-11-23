@@ -173,7 +173,7 @@ void codewriter_op(struct codewriter* writer, t_wc op) {
 }
 
 void codewriter_call_builtin(struct codewriter* writer, any message, t_bc args) {
-    codewriter_write(writer, RAVEN_BYTECODE_SEND);
+    codewriter_write(writer, RAVEN_BYTECODE_BUILTIN);
     codewriter_write_bc(writer, args);
     codewriter_write_constant(writer, message);
 }

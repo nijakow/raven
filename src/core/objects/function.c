@@ -194,6 +194,12 @@ void function_disassemble(struct function* function, struct log* log) {
         case RAVEN_BYTECODE_OP:
             log_printf(log, "OP %d", next_wc(function, &ip));
             break;
+        case RAVEN_BYTECODE_BUILTIN:
+            args = (unsigned int) next_bc(function, &ip);
+            log_printf(log, "BUILTIN %u %s",
+                       args,
+                       symbol_name(any_to_ptr(next_constant(function, &ip))));
+            break;
         case RAVEN_BYTECODE_SEND:
             args = (unsigned int) next_bc(function, &ip);
             log_printf(log, "SEND %u %s",
