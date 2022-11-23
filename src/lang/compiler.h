@@ -73,6 +73,9 @@ void compiler_pop(struct compiler* compiler);
 
 void compiler_op(struct compiler* compiler, enum raven_op op);
 
+void compiler_call_builtin(struct compiler* compiler,
+                           struct symbol*   message,
+                           unsigned int     arg_count);
 void compiler_send(struct compiler* compiler,
                    struct symbol*   message,
                    unsigned int     arg_count);

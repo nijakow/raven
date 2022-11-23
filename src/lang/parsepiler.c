@@ -417,7 +417,11 @@ bool parsepile_simple_expr(struct parser*   parser,
         if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
             compiler_push_self(compiler);
             result = parsepile_args(parser, compiler, &argcount, TOKEN_TYPE_RPAREN);
-            compiler_send(compiler, symbol, argcount);
+            if (symbol_is_builtin(symbol)) {
+                compiler_call_builtin(compiler, symbol, argcount);
+            } else {
+                compiler_send(compiler, symbol, argcount);
+            }
             parser_set_exprtype_to_any(parser);
         } else if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
             if (parsepile_expr(parser, compiler, pr)) {

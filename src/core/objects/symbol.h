@@ -34,6 +34,10 @@ static inline builtin_func symbol_builtin(struct symbol* symbol) {
     return symbol->builtin;
 }
 
+static inline bool symbol_is_builtin(struct symbol* symbol) {
+    return symbol->builtin != NULL;
+}
+
 static inline void symbol_set_builtin(struct symbol* symbol, builtin_func f) {
     symbol->builtin = f;
 }

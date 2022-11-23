@@ -178,6 +178,12 @@ void compiler_op(struct compiler* compiler, enum raven_op op) {
     codewriter_op(compiler->cw, (t_wc) op);
 }
 
+void compiler_call_builtin(struct compiler* compiler,
+                           struct symbol*   message,
+                           unsigned int     arg_count) {
+    codewriter_call_builtin(compiler->cw, any_from_ptr(message), (t_wc) arg_count);
+}
+
 void compiler_send(struct compiler* compiler,
                    struct symbol*   message,
                    unsigned int     arg_count) {

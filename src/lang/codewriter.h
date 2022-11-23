@@ -66,6 +66,7 @@ void codewriter_push_constant(struct codewriter* writer, any value);
 void codewriter_push(struct codewriter* writer);
 void codewriter_pop(struct codewriter* writer);
 
+void codewriter_call_builtin(struct codewriter* writer, any message, t_bc args);
 void codewriter_send(struct codewriter* writer, any message, t_bc args);
 void codewriter_super_send(struct codewriter* writer, any message, t_bc args);
 
