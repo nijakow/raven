@@ -6,12 +6,13 @@
  */
 
 #include "../defs.h"
-#include "../core/objects/object.h"
-#include "../core/blueprint.h"
-#include "../lang/parser.h"
-#include "../lang/parsepiler.h"
 #include "../util/stringbuilder.h"
 #include "../util/memory.h"
+
+#include "../runtime/core/objects/object.h"
+#include "../runtime/core/blueprint.h"
+#include "../runtime/lang/parser.h"
+#include "../runtime/lang/parsepiler.h"
 
 #include "filesystem.h"
 

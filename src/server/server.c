@@ -6,13 +6,13 @@
  */
 
 #include "../defs.h"
-
-#include "../core/objects/connection.h"
-#include "../core/objects/funcref.h"
 #include "../raven/raven.h"
-#include "../vm/scheduler.h"
-#include "../vm/fiber.h"
-#include "../vm/interpreter.h"
+
+#include "../runtime/core/objects/connection.h"
+#include "../runtime/core/objects/funcref.h"
+#include "../runtime/vm/scheduler.h"
+#include "../runtime/vm/fiber.h"
+#include "../runtime/vm/interpreter.h"
 
 #include "server.h"
 

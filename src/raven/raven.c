@@ -5,12 +5,12 @@
  * See README and LICENSE for further information.
  */
 
-#include "../core/objects/symbol.h"
-#include "../core/objects/funcref.h"
-#include "../vm/builtins.h"
-#include "../vm/fiber.h"
-#include "../vm/interpreter.h"
-#include "../vm/scheduler.h"
+#include "../runtime/core/objects/symbol.h"
+#include "../runtime/core/objects/funcref.h"
+#include "../runtime/vm/builtins.h"
+#include "../runtime/vm/fiber.h"
+#include "../runtime/vm/interpreter.h"
+#include "../runtime/vm/scheduler.h"
 
 #include "raven.h"
 
