@@ -5,14 +5,14 @@
  * See README and LICENSE for further information.
  */
 
-#include "../defs.h"
-#include "../raven/raven.h"
+#include "../../defs.h"
+#include "../../raven/raven.h"
 
-#include "../runtime/core/objects/connection.h"
-#include "../runtime/core/objects/funcref.h"
-#include "../runtime/vm/scheduler.h"
-#include "../runtime/vm/fiber.h"
-#include "../runtime/vm/interpreter.h"
+#include "../../runtime/core/objects/connection.h"
+#include "../../runtime/core/objects/funcref.h"
+#include "../../runtime/vm/scheduler.h"
+#include "../../runtime/vm/fiber.h"
+#include "../../runtime/vm/interpreter.h"
 
 #include "server.h"
 

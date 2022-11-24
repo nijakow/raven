@@ -119,7 +119,7 @@
  */
 
 #include "../../defs.h"
-#include "../../fs/file.h"
+#include "../../platform/fs/file.h"
 #include "../../util/stringbuilder.h"
 
 #include "../core/objects/function.h"

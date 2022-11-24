@@ -8,7 +8,7 @@
 #ifndef RAVEN_SERVER_SERVER_H
 #define RAVEN_SERVER_SERVER_H
 
-#include "../defs.h"
+#include "../../defs.h"
 
 #define RAVEN_SERVER_SOCKETS_MAX 8
 

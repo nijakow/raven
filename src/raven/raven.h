@@ -9,9 +9,10 @@
 #define RAVEN_H
 
 #include "../defs.h"
-#include "../fs/filesystem.h"
-#include "../server/server.h"
 #include "../util/log.h"
+
+#include "../platform/fs/filesystem.h"
+#include "../platform/server/server.h"
 
 #include "../runtime/core/any.h"
 #include "../runtime/core/type.h"

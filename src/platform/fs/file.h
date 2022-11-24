@@ -8,8 +8,8 @@
 #ifndef RAVEN_FS_FILE_H
 #define RAVEN_FS_FILE_H
 
-#include "../defs.h"
-#include "../util/stringbuilder.h"
+#include "../../defs.h"
+#include "../../util/stringbuilder.h"
 
 struct file {
     struct filesystem*  fs;

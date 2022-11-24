@@ -7,7 +7,7 @@
 
 #include "../../../defs.h"
 #include "../../../raven/raven.h"
-#include "../../../server/server.h"
+#include "../../../platform/server/server.h"
 #include "../../../util/memory.h"
 
 #include "../../core/objects/funcref.h"
