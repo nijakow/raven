@@ -7,6 +7,7 @@
 
 #include "../../../defs.h"
 #include "../../../raven/raven.h"
+#include "../../../platform/abstraction/socket.h"
 #include "../../../platform/server/server.h"
 #include "../../../util/memory.h"
 
@@ -135,7 +136,7 @@ void connection_input(struct connection* connection, char* b, unsigned int n) {
 }
 
 void connection_write_byte(struct connection* connection, char byte) {
-    write(connection_socket(connection), &byte, 1);
+    pal_socket_write(connection_socket(connection), &byte, 1, NULL);
 }
 
 void connection_write_cstr(struct connection* connection, const char* str) {

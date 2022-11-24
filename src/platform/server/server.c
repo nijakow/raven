@@ -8,6 +8,8 @@
 #include "../../defs.h"
 #include "../../raven/raven.h"
 
+#include "../../platform/abstraction/socket.h"
+
 #include "../../runtime/core/objects/connection.h"
 #include "../../runtime/core/objects/funcref.h"
 #include "../../runtime/vm/scheduler.h"
@@ -18,19 +20,17 @@
 
 
 bool server_open_socket(int port, int* socket_loc) {
-    int                 one;
     int                 fd;
     struct sockaddr_in  addr_in;
 
-    one = 1;
     fd  = socket(AF_INET, SOCK_STREAM, 0);
 
     if (fd < 0) {
         return false;
     }
 
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0) {
-        close(fd);
+    if (!pal_socket_reuseaddr(fd)) {
+        pal_socket_close(fd);
         return false;
     }
 
@@ -39,7 +39,7 @@ bool server_open_socket(int port, int* socket_loc) {
     addr_in.sin_port        = htons(port);
 
     if (bind(fd, (struct sockaddr*) &addr_in, sizeof(addr_in)) < 0) {
-        close(fd);
+        pal_socket_close(fd);
         return false;
     }
 
@@ -69,8 +69,8 @@ bool server_serve_on(struct server* server, int port) {
 static void server_send_socket_error_and_close(struct server* server, int fd) {
     const char*  msg = "\n    The MUD cannot take any connections right now.\n\n";
 
-    write(fd, msg, strlen(msg));
-    close(fd);
+    pal_socket_write(fd, msg, strlen(msg), NULL);
+    pal_socket_close(fd);
 }
 
 void server_accept(struct server* server, int socket_fd) {
@@ -81,9 +81,7 @@ void server_accept(struct server* server, int socket_fd) {
     struct funcref*     func;
     any                 connection_any;
 
-    fd = accept(socket_fd, NULL, NULL);
-
-    if (fd >= 0) {
+    if (pal_socket_accept(socket_fd, &fd)) {
         raven = server_raven(server);
         func  = raven_vars(raven)->connect_func;
         if (func == NULL) {
@@ -109,7 +107,7 @@ void server_accept(struct server* server, int socket_fd) {
 void server_tick(struct server* server, raven_timeval_t tv) {
     int                 maxfd;
     int                 retval;
-    ssize_t             bytes;
+    size_t              bytes;
     struct connection*  connection;
     unsigned int        index;
     fd_set              readable;
@@ -144,11 +142,10 @@ void server_tick(struct server* server, raven_timeval_t tv) {
              connection != NULL;
              connection = connection_next(connection)) {
             if (FD_ISSET(connection_socket(connection), &readable)) {
-                bytes = read(connection_socket(connection), buffer, sizeof(buffer));
-                if (bytes <= 0) {
-                    connection_endofinput(connection);
-                } else {
+                if (pal_socket_read(connection_socket(connection), buffer, sizeof(buffer), &bytes)) {
                     connection_input(connection, buffer, (unsigned int) bytes);
+                } else {
+                    connection_endofinput(connection);
                 }
             }
         }
