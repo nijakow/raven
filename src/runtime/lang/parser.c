@@ -46,6 +46,7 @@ const char* token_type_name(enum token_type type) {
     case TOKEN_TYPE_NOT: return "NOT";
     case TOKEN_TYPE_ASSIGNMENT: return "ASSIGNMENT";
     case TOKEN_TYPE_ARROW: return "ARROW";
+    case TOKEN_TYPE_PARROW: return "PARROW";
     case TOKEN_TYPE_AMPERSAND: return "AMPERSAND";
     case TOKEN_TYPE_PIPE: return "PIPE";
     case TOKEN_TYPE_QUESTIONQUESTION: return "QUESTIONQUESTION";
@@ -375,6 +376,8 @@ void parser_advance(struct parser* parser) {
         parser_set_type(parser, TOKEN_TYPE_ASSIGNMENT);
     } else if (reader_checks(parser->reader, "->")) {
         parser_set_type(parser, TOKEN_TYPE_ARROW);
+    } else if (reader_checks(parser->reader, "|->")) {
+        parser_set_type(parser, TOKEN_TYPE_PARROW);
     } else if (reader_checks(parser->reader, "&")) {
         parser_set_type(parser, TOKEN_TYPE_AMPERSAND);
     } else if (reader_checks(parser->reader, "|")) {

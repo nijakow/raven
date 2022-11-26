@@ -682,7 +682,7 @@ bool parsepile_op(struct parser*   parser,
     *should_continue = true;
     result          = true;
 
-    if (pr >= 1 && parser_check(parser, TOKEN_TYPE_ARROW)) {
+    if ((pr >= 1 && parser_check(parser, TOKEN_TYPE_ARROW)) || (pr >= 15 && parser_check(parser, TOKEN_TYPE_PARROW))) {
         result = false;
         compiler_push(compiler);
         if (parse_symbol(parser, &symbol)
