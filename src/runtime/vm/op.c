@@ -16,6 +16,7 @@
 #include "../core/type.h"
 
 #include "fiber.h"
+#include "interpreter.h"
 
 #include "op.h"
 
@@ -190,15 +191,23 @@ any fiber_op_bitor(struct fiber* fiber, any a, any b) {
 any fiber_op_leftshift(struct fiber* fiber, any a, any b) {
     if (any_is_int(a) && any_is_int(b))
         return any_from_int(any_to_int(a) << any_to_int(b));
-    else
-        return any_nil();
+    else {
+        fiber_push(fiber, a);
+        fiber_push(fiber, b);
+        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator<<"), 2);
+        return any_nil();   // TODO: The value shouldn't be returned, but taken from the accu
+    }
 }
 
 any fiber_op_rightshift(struct fiber* fiber, any a, any b) {
     if (any_is_int(a) && any_is_int(b))
         return any_from_int(any_to_int(a) >> any_to_int(b));
-    else
-        return any_nil();
+    else {
+        fiber_push(fiber, a);
+        fiber_push(fiber, b);
+        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator>>"), 2);
+        return any_nil();   // TODO: The value shouldn't be returned, but taken from the accu
+    }
 }
 
 any fiber_op_index(struct fiber* fiber, any a, any b) {
