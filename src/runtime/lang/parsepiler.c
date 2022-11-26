@@ -200,8 +200,38 @@ bool parse_assignment_op(struct parser* parser, enum raven_op* op) {
     return true;
 }
 
+bool parse_operator_symbol(struct parser* parser, struct symbol** loc) {
+    struct stringbuilder  sb;
+    bool                  result;
+
+    result = true;
+
+    stringbuilder_create(&sb);
+    {
+        stringbuilder_append_str(&sb, "operator");
+
+        if (parser_check_cstr(parser, "<<")) {
+            stringbuilder_append_str(&sb, "<<");
+        } else if (parser_check_cstr(parser, ">>")) {
+            stringbuilder_append_str(&sb, ">>");
+        } else {
+            result = false;
+        }
+
+        if (result) {
+            *loc = raven_find_symbol(parser_raven(parser), stringbuilder_get_const(&sb));
+            parser_advance(parser);
+        }
+    }
+    stringbuilder_destroy(&sb);
+
+    return result;
+}
+
 bool parse_symbol(struct parser* parser, struct symbol** loc) {
-    if (!parser_is(parser, TOKEN_TYPE_IDENT))
+    if (parser_is(parser, TOKEN_TYPE_KW_OPERATOR))
+        return parse_operator_symbol(parser, loc);
+    else if (!parser_is(parser, TOKEN_TYPE_IDENT))
         return false;
     else {
         *loc = parser_as_symbol(parser);

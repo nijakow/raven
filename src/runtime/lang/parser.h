@@ -99,6 +99,7 @@ enum token_type {
     TOKEN_TYPE_KW_ANY,
     TOKEN_TYPE_KW_MIXED,
     TOKEN_TYPE_KW_AUTO,
+    TOKEN_TYPE_KW_OPERATOR,
     TOKEN_TYPE_KW_LET,
     TOKEN_TYPE_KW_IF,
     TOKEN_TYPE_KW_ELSE,
@@ -147,6 +148,8 @@ void        parser_set_file_name(struct parser* parser, const char* name);
 bool parser_is(struct parser* parser, enum token_type type);
 bool parser_check(struct parser* parser, enum token_type type);
 void parser_advance(struct parser* parser);
+
+bool parser_check_cstr(struct parser* parser, const char* str);
 
 struct symbol* parser_as_symbol(struct parser* parser);
 struct blueprint* parser_as_blueprint(struct parser* parser);
