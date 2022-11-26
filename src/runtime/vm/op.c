@@ -194,7 +194,7 @@ any fiber_op_leftshift(struct fiber* fiber, any a, any b) {
     else {
         fiber_push(fiber, a);
         fiber_push(fiber, b);
-        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator<<"), 2);
+        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator<<"), 1);
         return any_nil();   // TODO: The value shouldn't be returned, but taken from the accu
     }
 }
@@ -205,7 +205,7 @@ any fiber_op_rightshift(struct fiber* fiber, any a, any b) {
     else {
         fiber_push(fiber, a);
         fiber_push(fiber, b);
-        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator>>"), 2);
+        fiber_send(fiber, raven_find_symbol(fiber_raven(fiber), "operator>>"), 1);
         return any_nil();   // TODO: The value shouldn't be returned, but taken from the accu
     }
 }
