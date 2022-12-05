@@ -77,38 +77,17 @@ Then set the variable `$RAVEN_MUDLIB` to point to your `mudlib/` directory. If
 you now start the server, it will try to run the `main()` function inside of
 `mudlib/secure/master.lpc`.
 
-In order to set up an interactive server, configure your files like this:
+In order to set up a minimal server, configure your files like this:
 
 ```c
 /* mudlib/secure/master.lpc */
-
-void connect(any connection) {
-  /*
-   * This function is called when a new player connects.
-   */
-  write("Hello, world!\n");
-  write("What's your name? ");
-  string name = input_line();
-  write("Hi, ", name, "!\n");
-  while (true) {
-    write("> ");
-    write("You said: ", input_line(), "\n");
-  }
-}
-
-void disconnect(any connection) {
-  /*
-   * This function is called when a player disconnects.
-   */
-}
 
 void main() {
   /*
    * This function is called on startup.
    */
-  _connect_func(&connect);
-  _disconnect_func(&disconnect);
-  print("The server is now running!\n");
+  $print("The server is now running!\n");
+  $open_port(4242);
 }
 
 ```
