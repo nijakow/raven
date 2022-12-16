@@ -208,63 +208,6 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
         page->object  = NULL;  /* The variable was not updated, so we do it here */
         object_page_del(page);
     }
-
-    // /*
-    //  * Resize the object, so that new slots can fit.
-    //  */
-    // struct blueprint*  bp_tmp;
-    // struct blueprint*  soulmate;
-    // struct symbol*     name;
-    // any*               new_slots;
-    // any*               old_slots;
-    // unsigned int       new_size;
-    // unsigned int       offset;
-    // unsigned int       i;
-    // unsigned int       i2;
-
-    // new_size  = blueprint_get_instance_size(bp_new);
-
-    // old_slots = object_slots(object);
-    // new_slots = memory_alloc(sizeof(any) * new_size);
-
-    // if (new_slots != NULL) {
-    //     /*
-    //      * Initialize every slot properly.
-    //      */
-    //     for (i = 0; i < new_size; i++) {
-    //         new_slots[i] = any_nil();
-    //     }
-
-    //     for (bp_tmp = bp_new; bp_tmp != NULL; bp_tmp = blueprint_parent(bp_tmp)) {
-    //         offset   = vars_offset(blueprint_vars(bp_tmp));
-    //         soulmate = blueprint_soulmate(object_blueprint(object), bp_tmp);
-    //         if (soulmate != NULL) {
-    //             for (i = 0; i < vars_count1(blueprint_vars(bp_tmp)); i++) {
-    //                 name    = vars_name_for_local_index(blueprint_vars(bp_tmp), i);
-    //                 if (vars_find(blueprint_vars(soulmate), name, NULL, &i2))
-    //                     new_slots[offset + i] = old_slots[i2];
-    //             }
-    //         }
-    //     }
-
-    //     /*
-    //      * Install the new slots.
-    //      */
-    //     object->slot_count = new_size;
-    //     object->slots      = new_slots;
-
-    //     /*
-    //      * Release the old slots (if they were allocated).
-    //      */
-    //     if (old_slots != object->payload) {
-    //         memory_free(old_slots);
-    //     }
-    // }
-
-    // /*
-    //  * Do the magic operation!
-    //  */
-    // object->blue = bp_new;
 }
 
 void object_recompile(struct object* object) {
