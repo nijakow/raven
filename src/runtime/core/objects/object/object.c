@@ -180,7 +180,7 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
              * If the page is a soulmate of the current blueprint, move it
              * back to the object's page list.
              */
-            if (blueprint_is_soulmate(object_page_blueprint(*iter), bp_tmp)) {
+            if (object_page_blueprint(*iter) == bp_tmp) {
                 page = *iter;
                 *iter = page->next;
                 page->next = NULL;
