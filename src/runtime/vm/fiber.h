@@ -25,6 +25,7 @@
 
 #include "../../defs.h"
 #include "../core/any.h"
+#include "../core/objects/object/page.h"
 #include "scheduler.h"
 
 struct frame;
@@ -65,9 +66,10 @@ void          fiber_delete(struct fiber* fiber);
 
 void fiber_mark(struct gc* gc, struct fiber* fiber);
 
-void fiber_push_frame(struct fiber*    fiber,
-                      struct function* func,
-                      unsigned int     args);
+void fiber_push_frame(struct fiber*       fiber,
+                      struct object_page* page,
+                      struct function*    func,
+                      unsigned int        args);
 void fiber_pop_frame(struct fiber* fiber);
 
 void fiber_pause(struct fiber* fiber);

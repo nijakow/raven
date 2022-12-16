@@ -531,7 +531,7 @@ void builtin_call(struct fiber* fiber, any* arg, unsigned int args) {
         function = any_to_ptr(arg[0]);
         for (index = 1; index < args; index++)
             fiber_push(fiber, arg[index]);
-        fiber_push_frame(fiber, function, args - 2);
+        fiber_push_frame(fiber, NULL, function, args - 2);
     } else if (any_is_obj(arg[0], OBJ_TYPE_FUNCREF)) {
         funcref = any_to_ptr(arg[0]);
         for (index = 0; index < args - 1; index++)

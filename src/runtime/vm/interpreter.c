@@ -118,8 +118,9 @@ void fiber_builtin(struct fiber*  fiber,
 void fiber_send(struct fiber*  fiber,
                 struct symbol* message,
                 unsigned int   args) {
-    any               new_self;
-    struct function*  function;
+    struct function*     function;
+    struct object_page*  page;
+    any                  new_self;
 
     /*
      * Grab the receiver.
@@ -150,7 +151,7 @@ void fiber_send(struct fiber*  fiber,
     /*
      * Extract the function to call.
      */
-    function = any_resolve_func(new_self, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
+    any_resolve_func_and_page(new_self, &function, &page, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
 
     /*
      * Call the function. Or, if it wasn't found, a builtin.
@@ -162,12 +163,12 @@ void fiber_send(struct fiber*  fiber,
     if (function == NULL)
         fiber_crash_msg(fiber, "Method was not found!");
     else
-        fiber_push_frame(fiber, function, args);
+        fiber_push_frame(fiber, page, function, args);
 }
 
 /*
  * Send a message to a receiver, just like `fiber_send(...)`.
- * But this time, we provide a blueprint as another argument,
+ * But this time, we provide a page as another argument,
  * which will be checked for a parent. Then, the message is
  * sent to this specific parent.
  *
@@ -176,24 +177,21 @@ void fiber_send(struct fiber*  fiber,
  *
  *    ::create();
  *
- * where it delegates the message to the parent blueprint.
+ * where it delegates the message to the parent.
  */
-void fiber_super_send(struct fiber*      fiber,
-                      struct symbol*     message,
-                      unsigned int       args,
-                      struct blueprint*  func_bp) {
-    struct function*  function;
+void fiber_super_send(struct fiber*        fiber,
+                      struct symbol*       message,
+                      unsigned int         args,
+                      struct object_page*  page) {
+    struct object_page_and_function  page_and_function;
+    struct object_page*              page_parent;
 
-    if (func_bp == NULL || blueprint_parent(func_bp) == NULL)
-        fiber_crash_msg(fiber, "Unable to super-send message - parent not found!");
-    else {
-        function = blueprint_lookup(blueprint_parent(func_bp), message, args, true);
+    page_parent = object_page_next(page);
 
-        if (function == NULL)
-            fiber_crash_msg(fiber, "Unable to super-send message - func not found!");
-        else
-            fiber_push_frame(fiber, function, args);
-    }
+    if (object_page_lookup_list(page_parent, &page_and_function, message, args, true))
+        fiber_push_frame(fiber, page_and_function.page, page_and_function.function, args);
+    else
+        fiber_crash_msg(fiber, "Unable to super-send message - func not found!");
 }
 
 /*

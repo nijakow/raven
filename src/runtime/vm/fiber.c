@@ -97,9 +97,10 @@ void fiber_mark(struct gc* gc, struct fiber* fiber) {
     gc_mark_ptr(gc, fiber_connection(fiber));
 }
 
-void fiber_push_frame(struct fiber*    fiber,
-                      struct function* func,
-                      unsigned int     args) {
+void fiber_push_frame(struct fiber*       fiber,
+                      struct object_page* page,
+                      struct function*    func,
+                      unsigned int        args) {
     unsigned int   local_count;
     unsigned int   fixed_arg_count;
     unsigned int   index;
@@ -135,6 +136,7 @@ void fiber_push_frame(struct fiber*    fiber,
     frame             = (struct frame*) (fiber->sp + (missing * sizeof(any)));
     fiber->sp         = fiber->sp + (missing * sizeof(any)) + sizeof(struct frame);
     frame->prev       = fiber->top;
+    frame->page       = page;
     frame->function   = func;
     frame->catch_addr = 0;
     frame->ip         = 0;
