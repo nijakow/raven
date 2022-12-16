@@ -58,6 +58,7 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
         object->parent          = NULL;
         object->sibling         = NULL;
         object->children        = NULL;
+        object->pages           = NULL;
         object->stash           = any_nil();
     }
 
