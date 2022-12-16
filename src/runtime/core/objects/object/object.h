@@ -39,6 +39,8 @@ void object_link_heartbeat(struct object* object, struct object** list);
 
 void object_recompile(struct object* object);
 
+bool object_resolve_func_and_page(struct object* object, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool allow_private);
+
 static inline bool object_was_initialized(struct object* object) {
     return object->was_initialized;
 }

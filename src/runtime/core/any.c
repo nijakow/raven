@@ -63,7 +63,28 @@ struct blueprint* any_get_blueprint(any a) {
     return NULL;
 }
 
+struct object* any_get_object(any a) {
+    switch (any_type(a)) {
+    case ANY_TYPE_PTR:
+        if (base_obj_is(any_to_ptr(a), OBJ_TYPE_OBJECT))
+            return any_to_ptr(a);
+        break;
+    default:
+        break;
+    }
+    return NULL;
+}
+
 bool any_resolve_func_and_page(any a, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool allow_private) {
-    // TODO: Set result (if the pointer is not NULL)
+    struct object*  obj;
+    
+    obj = any_get_object(a);
+    
+    if (obj == NULL)
+        return false;
+    
+    if (object_resolve_func_and_page(obj, result, message, args, allow_private))
+        return true;
+
     return false;
 }

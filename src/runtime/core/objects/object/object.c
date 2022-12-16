@@ -203,3 +203,8 @@ void object_recompile(struct object* object) {
         object_switch_blueprint(object, new_bp);
     }
 }
+
+
+bool object_resolve_func_and_page(struct object* object, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool allow_private) {
+    return object_page_lookup_list(object->pages, result, message, args, allow_private);
+}
