@@ -103,6 +103,9 @@ struct log;
 struct base_obj;
 struct object_table;
 
+struct object;
+struct object_page;
+
 struct type;
 struct blueprint;
 
@@ -127,5 +130,10 @@ void gc_mark_ptr(struct gc* gc, void* ptr);
 struct obj_stats;
 
 struct stringbuilder;
+
+struct object_page_and_function {
+    struct object_page*  page;
+    struct function*     function;
+};
 
 #endif

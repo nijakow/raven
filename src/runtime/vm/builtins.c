@@ -514,7 +514,7 @@ void builtin_implements(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 3 || !any_is_obj(arg[1], OBJ_TYPE_SYMBOL) || !any_is_int(arg[2]))
         arg_error(fiber);
     else {
-        result = (any_resolve_func(arg[0], any_to_ptr(arg[1]), (unsigned int) any_to_int(arg[2]), true) != NULL);
+        result = any_resolve_func_and_page(arg[0], NULL, any_to_ptr(arg[1]), (unsigned int) any_to_int(arg[2]), true);
         fiber_set_accu(fiber, any_from_int(result));
     }
 }

@@ -63,14 +63,7 @@ struct blueprint* any_get_blueprint(any a) {
     return NULL;
 }
 
-struct function* any_resolve_func(any a, struct symbol* message, unsigned int args, bool allow_private) {
-    struct blueprint*  blueprint;
-
-    blueprint = any_get_blueprint(a);
-
-    if (blueprint != NULL) {
-        return blueprint_lookup(blueprint, message, args, allow_private);
-    } else {
-        return NULL;
-    }
+bool any_resolve_func_and_page(any a, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool allow_private) {
+    // TODO: Set result (if the pointer is not NULL)
+    return false;
 }

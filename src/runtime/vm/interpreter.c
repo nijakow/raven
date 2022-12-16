@@ -118,9 +118,8 @@ void fiber_builtin(struct fiber*  fiber,
 void fiber_send(struct fiber*  fiber,
                 struct symbol* message,
                 unsigned int   args) {
-    struct function*     function;
-    struct object_page*  page;
-    any                  new_self;
+    struct object_page_and_function  page_and_function;
+    any                              new_self;
 
     /*
      * Grab the receiver.
@@ -151,7 +150,7 @@ void fiber_send(struct fiber*  fiber,
     /*
      * Extract the function to call.
      */
-    any_resolve_func_and_page(new_self, &function, &page, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
+    any_resolve_func_and_page(new_self, &page_and_function, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
 
     /*
      * Call the function. Or, if it wasn't found, a builtin.
@@ -160,10 +159,10 @@ void fiber_send(struct fiber*  fiber,
      * function, invoking it will automatically establish
      * the stack frame.
      */
-    if (function == NULL)
+    if (page_and_function.function == NULL)
         fiber_crash_msg(fiber, "Method was not found!");
     else
-        fiber_push_frame(fiber, page, function, args);
+        fiber_push_frame(fiber, page_and_function.page, page_and_function.function, args);
 }
 
 /*
@@ -659,8 +658,7 @@ void fiber_interpret(struct fiber* fiber) {
             if (RAVEN_DEBUG_MODE) printf("SUPER_SEND\n");
             args    = (unsigned int) next_bc(fiber);
             message = any_to_ptr(next_constant(fiber));
-            fiber_super_send(fiber, message, args,
-                             function_blueprint(fiber_top(fiber)->function));
+            fiber_super_send(fiber, message, args, frame_page(fiber_top(fiber)));
             break;
             /*
              * Jump to a different instruction.
