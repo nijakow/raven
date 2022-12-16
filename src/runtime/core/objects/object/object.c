@@ -153,6 +153,13 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
 
     /*
      * TODO: Unlink all pages that are not in the new blueprint.
+     *
+     * Idea for an approach: Take all pages, move them to an external list
+     * and clear the object's page list. Then, for each blueprint in the
+     * new inheritance chain, check if there is a page in the external list
+     * that is a soulmate of the blueprint. If so, move it to the object's
+     * page list. If not, create a new page and add it to the object's page
+     * list.
      */
 
     for (bp_tmp = bp_new; bp_tmp != NULL; bp_tmp = blueprint_parent(bp_tmp)) {
