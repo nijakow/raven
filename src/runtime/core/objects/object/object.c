@@ -108,11 +108,6 @@ void object_add_page(struct object* object, struct object_page* page) {
     object_page_link(page, object);
 }
 
-struct object* object_clone(struct raven* raven, struct object* original) {
-    // TODO
-    return NULL;
-}
-
 void object_move_to(struct object* object, struct object* target) {
     object_unlink(object);
     if (target != NULL) {

@@ -353,7 +353,6 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$connect_func", builtin_connect_func);
     raven_builtin(raven, "$disconnect_func", builtin_disconnect_func);
 
-    raven_builtin(raven, "$clone_object", builtin_clone_object);
     raven_builtin(raven, "$object_move", builtin_object_move);
     raven_builtin(raven, "$object_parent", builtin_object_parent);
     raven_builtin(raven, "$object_sibling", builtin_object_sibling);

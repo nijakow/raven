@@ -310,15 +310,6 @@ void builtin_disconnect_func(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
-void builtin_clone_object(struct fiber* fiber, any* arg, unsigned int args) {
-    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
-        arg_error(fiber);
-    else {
-        fiber_set_accu(fiber, any_from_ptr(object_clone(fiber_raven(fiber),
-                                                        any_to_ptr(arg[0]))));
-    }
-}
-
 void builtin_object_move(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
         arg_error(fiber);
