@@ -29,10 +29,10 @@ void object_page_mark(struct gc* gc, struct object_page* page);
 void object_page_del(struct object_page* page);
 
 void object_page_link(struct object_page* page, struct object* object);
+void object_page_unlink(struct object_page* page);
 
 bool object_page_lookup(struct object_page* page, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool is_public);
 bool object_page_lookup_list(struct object_page* page, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool is_public);
-
 
 static inline struct object* object_page_object(struct object_page* page) {
     return page->object;

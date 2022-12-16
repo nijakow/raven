@@ -28,9 +28,7 @@ void object_page_create(struct object_page* page, unsigned int slot_count, struc
 }
 
 void object_page_destroy(struct object_page* page) {
-    /*
-     * Nothing to do.
-     */
+    object_page_unlink(page);
 }
 
 struct object_page* object_page_new(struct raven* raven, struct blueprint* blue) {
@@ -75,4 +73,46 @@ void object_page_link(struct object_page* page, struct object* object) {
     }
 
     *list_head = page;
+}
+
+void object_page_unlink(struct object_page* page) {
+    struct object_page**  list_head;
+
+    if (page->object != NULL) {
+
+        for (list_head = &page->object->pages;
+            *list_head != page;
+            list_head = &(*list_head)->next) {
+            /*
+            * Do nothing.
+            */
+        }
+
+        *list_head = page->next;
+    }
+}
+
+bool object_page_lookup(struct object_page* page, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool is_public) {
+    struct function*  function;
+
+    function = blueprint_lookup(page->blue, message, args, is_public);
+
+    if (function != NULL) {
+        if (result != NULL) {
+            result->page     = page;
+            result->function = function;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool object_page_lookup_list(struct object_page* page, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool is_public) {
+    if (object_page_lookup(page, result, message, args, is_public))
+        return true;
+    else if (page->next != NULL)
+        return object_page_lookup_list(page->next, result, message, args, is_public);
+    else
+        return false;
 }
