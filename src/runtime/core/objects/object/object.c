@@ -98,11 +98,7 @@ void object_del(struct object* object) {
     object_unlink(object);
 
     while (object->pages != NULL) {
-        struct object_page*  page;
-
-        page = object->pages;
-        object->pages = page->next;
-        object_page_del(page);
+        object_page_del(object->pages);
     }
 
     base_obj_del(&object->_);

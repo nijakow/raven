@@ -120,6 +120,7 @@ void fiber_send(struct fiber*  fiber,
                 unsigned int   args) {
     struct object_page_and_function  page_and_function;
     any                              new_self;
+    bool                             result;
 
     /*
      * Grab the receiver.
@@ -150,19 +151,19 @@ void fiber_send(struct fiber*  fiber,
     /*
      * Extract the function to call.
      */
-    any_resolve_func_and_page(new_self, &page_and_function, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
+    result = any_resolve_func_and_page(new_self, &page_and_function, message, args, (fiber_top(fiber) == NULL) ? true : any_eq(frame_self(fiber_top(fiber)), *fiber_stack_peek(fiber, args)));
 
     /*
-     * Call the function. Or, if it wasn't found, a builtin.
+     * Call the function.
      *
      * We only needed the extracted receiver to look up the
      * function, invoking it will automatically establish
      * the stack frame.
      */
-    if (page_and_function.function == NULL)
-        fiber_crash_msg(fiber, "Method was not found!");
-    else
+    if (result)
         fiber_push_frame(fiber, page_and_function.page, page_and_function.function, args);
+    else
+        fiber_crash_msg(fiber, "Method was not found!");
 }
 
 /*

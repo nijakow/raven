@@ -107,18 +107,14 @@ static bool raven_modifier_is_hidden(enum raven_modifier mod) {
 struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, unsigned int args, bool allow_private) {
     struct function*  function;
 
-    while (blue != NULL) {
-        function = blue->methods;
+    function = blue->methods;
 
-        while (function != NULL) {
-            if (function->name == msg
-                && (!raven_modifier_is_hidden(function->modifier) || allow_private)
-                && function_takes_args(function, args))
-                return function;
-            function = function->next_method;
-        }
-
-        blue = blue->parent;
+    while (function != NULL) {
+        if (function->name == msg
+            && (!raven_modifier_is_hidden(function->modifier) || allow_private)
+            && function_takes_args(function, args))
+            return function;
+        function = function->next_method;
     }
 
     return NULL;
