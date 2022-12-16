@@ -6,6 +6,7 @@
  */
 
  #include "../../../../defs.h"
+ #include "../../../gc/gc.h"
 
  #include "page.h"
 
@@ -25,14 +26,18 @@ void object_page_destroy(struct object_page* page) {
 
 void object_page_mark(struct gc* gc, struct object_page* page) {
     unsigned int  index;
-    any*          slot;
 
     gc_mark_ptr(gc, page->blue);
-    for (index = 0; index < page->slot_count; index++) {
+    for (index = 0; index < page->slot_count; index++)
         gc_mark_any(gc, page->slots[index]);
-    }
 }
 
-void object_page_link(struct object_page* page, struct object_page** list) {
+void object_page_del(struct object_page* page) {
+    /*
+     * TODO!
+     */
+}
+
+void object_page_link(struct object_page* page, struct object* object) {
     // TODO!
 }

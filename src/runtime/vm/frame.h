@@ -14,18 +14,23 @@
 #include "../core/objects/array.h"
 
 struct frame {
-    struct frame*     prev;
-    struct function*  function;
-    unsigned int      catch_addr;
-    unsigned int      ip;
-    any*              locals;
-    struct array*     varargs;
+    struct frame*        prev;
+    struct object_page*  page;
+    struct function*     function;
+    unsigned int         catch_addr;
+    unsigned int         ip;
+    any*                 locals;
+    struct array*        varargs;
 };
 
 void frame_mark(struct gc* gc, struct frame* frame);
 
 static inline struct frame* frame_prev(struct frame* frame) {
     return frame->prev;
+}
+
+static inline struct object_page* frame_page(struct frame* frame) {
+    return frame->page;
 }
 
 static inline struct function* frame_function(struct frame* frame) {

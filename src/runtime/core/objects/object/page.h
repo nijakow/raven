@@ -24,7 +24,28 @@ void object_page_create(struct object_page* page, unsigned int slot_count, struc
 void object_page_destroy(struct object_page* page);
 
 void object_page_mark(struct gc* gc, struct object_page* page);
+void object_page_del(struct object_page* page);
 
-void object_page_link(struct object_page* page, struct object_page** list);
+void object_page_link(struct object_page* page, struct object* object);
+
+static inline struct object* object_page_object(struct object_page* page) {
+    return page->object;
+}
+
+static inline struct blueprint* object_page_blueprint(struct object_page* page) {
+    return page->blue;
+}
+
+static inline struct object_page* object_page_next(struct object_page* page) {
+    return page->next;
+}
+
+static inline any* object_page_slot(struct object_page* page, unsigned int index) {
+    return &page->slots[index];
+}
+
+static inline unsigned int object_page_slot_count(struct object_page* page) {
+    return page->slot_count;
+}
 
 #endif

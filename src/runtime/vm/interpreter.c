@@ -471,10 +471,11 @@ static void fiber_load_funcref(struct fiber* fiber, any name) {
  * in a MUD we don't really care about that (for now).
  */
 void fiber_interpret(struct fiber* fiber) {
-    struct symbol*    message;
-    struct base_obj*  obj;
-    unsigned int      args;
-    unsigned int      cycles;
+    struct symbol*       message;
+    struct base_obj*     obj;
+    struct object_page*  page;
+    unsigned int         args;
+    unsigned int         cycles;
 
     /*
      * If the fiber runs into an infinite loop, we still want
@@ -569,12 +570,12 @@ void fiber_interpret(struct fiber* fiber) {
             if (!any_is_ptr(frame_self(fiber_top(fiber))))
                 fiber_crash_msg(fiber, "Unable to lookup member - wrong type!");
             else {
-                obj = any_to_ptr(frame_self(fiber_top(fiber)));
+                obj  = any_to_ptr(frame_self(fiber_top(fiber)));
+                page = frame_page(fiber_top(fiber));
                 if (!base_obj_is(obj, OBJ_TYPE_OBJECT))
                     fiber_crash_msg(fiber, "Unable to lookup member - wrong type!");
                 else
-                    fiber_set_accu(fiber,
-                                   *object_slot((struct object*) obj, next_wc(fiber)));
+                    fiber_set_accu(fiber, *object_page_slot(page, next_wc(fiber)));
             }
             break;
             /*
@@ -592,12 +593,12 @@ void fiber_interpret(struct fiber* fiber) {
             if (!any_is_ptr(frame_self(fiber_top(fiber))))
                 fiber_crash_msg(fiber, "Unable to store member - wrong type!");
             else {
-                obj = any_to_ptr(frame_self(fiber_top(fiber)));
+                obj  = any_to_ptr(frame_self(fiber_top(fiber)));
+                page = frame_page(fiber_top(fiber));
                 if (!base_obj_is(obj, OBJ_TYPE_OBJECT))
                     fiber_crash_msg(fiber, "Unable to store member - wrong type!");
                 else
-                    *object_slot((struct object*) obj, next_wc(fiber)) =
-                        fiber_get_accu(fiber);
+                    *object_page_slot(page, next_wc(fiber)) = fiber_get_accu(fiber);
             }
             break;
             /*

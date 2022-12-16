@@ -12,7 +12,7 @@
 #include "../../any.h"
 #include "../../base_obj.h"
 
-struct object_page;
+#include "page.h"
 
 struct object {
     struct base_obj      _;
@@ -64,25 +64,16 @@ static inline struct object* object_children(struct object* object) {
     return object->children;
 }
 
+static inline struct object_page* object_master_page(struct object* object) {
+    return object->pages;
+}
+
 static inline struct blueprint* object_blueprint(struct object* object) {
-    return object->blue;
+    return object_page_blueprint(object_master_page(object));
 }
 
 static inline any object_stash(struct object* object) {
     return object->stash;
-}
-
-static inline unsigned int object_slot_count(struct object* object) {
-    return object->slot_count;
-}
-
-static inline any* object_slots(struct object* object) {
-    return object->slots;
-}
-
-static inline any* object_slot(struct object* object, unsigned int index) {
-    /* TODO: Check against out-of-bounds */
-    return &object->slots[index];
 }
 
 #endif
