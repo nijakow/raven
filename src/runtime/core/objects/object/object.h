@@ -12,19 +12,18 @@
 #include "../../any.h"
 #include "../../base_obj.h"
 
+struct object_page;
+
 struct object {
-    struct base_obj    _;
-    struct blueprint*  blue;
-    struct object*     heartbeat_next;
-    struct object**    heartbeat_prev;
-    struct object*     parent;
-    struct object*     sibling;
-    struct object*     children;
-    any                stash;
-    unsigned int       slot_count;
-    any*               slots;
-    bool               was_initialized;
-    any                payload[];
+    struct base_obj      _;
+    struct object*       heartbeat_next;
+    struct object**      heartbeat_prev;
+    struct object*       parent;
+    struct object*       sibling;
+    struct object*       children;
+    struct object_page*  pages;
+    any                  stash;
+    bool                 was_initialized;
 };
 
 struct object* object_new(struct raven* raven, struct blueprint* blueprint);
