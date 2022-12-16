@@ -208,6 +208,12 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
         page->object  = NULL;  /* The variable was not updated, so we do it here */
         object_page_del(page);
     }
+
+    /*
+     * TODO: "Zap" all stack frames that are associated with the old pages.
+     *       This avoids the problem of having a stack frame that points to
+     *       a page that is no longer part of the object.
+     */
 }
 
 void object_recompile(struct object* object) {
