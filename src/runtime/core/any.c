@@ -5,7 +5,7 @@
  * See README and LICENSE for further information.
  */
 
-#include "objects/object.h"
+#include "objects/object/object.h"
 #include "objects/array.h"
 #include "objects/string.h"
 

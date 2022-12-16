@@ -11,7 +11,7 @@
 
 #include "../core/objects/array.h"
 #include "../core/objects/mapping.h"
-#include "../core/objects/object.h"
+#include "../core/objects/object/object.h"
 #include "../core/objects/string.h"
 #include "../core/type.h"
 

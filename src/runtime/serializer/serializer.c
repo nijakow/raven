@@ -6,7 +6,7 @@
  */
 
 #include "../core/blueprint.h"
-#include "../core/objects/object.h"
+#include "../core/objects/object/object.h"
 
 #include "../core/objects/array.h"
 #include "../core/objects/mapping.h"

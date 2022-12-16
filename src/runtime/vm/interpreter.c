@@ -14,7 +14,7 @@
 #include "../core/objects/function.h"
 #include "../core/objects/funcref.h"
 #include "../core/objects/mapping.h"
-#include "../core/objects/object.h"
+#include "../core/objects/object/object.h"
 #include "../core/objects/string.h"
 #include "../core/objects/symbol.h"
 #include "../core/blueprint.h"

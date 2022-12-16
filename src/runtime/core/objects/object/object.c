@@ -5,12 +5,12 @@
  * See README and LICENSE for further information.
  */
 
-#include "../../../defs.h"
-#include "../../../raven/raven.h"
-#include "../../../util/memory.h"
+#include "../../../../defs.h"
+#include "../../../../raven/raven.h"
+#include "../../../../util/memory.h"
 
 
-#include "../blueprint.h"
+#include "../../blueprint.h"
 
 #include "object.h"
 

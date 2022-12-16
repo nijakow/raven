@@ -9,7 +9,7 @@
 #include "../../util/stringbuilder.h"
 #include "../../util/memory.h"
 
-#include "../../runtime/core/objects/object.h"
+#include "../../runtime/core/objects/object/object.h"
 #include "../../runtime/core/blueprint.h"
 #include "../../runtime/lang/parser.h"
 #include "../../runtime/lang/parsepiler.h"

@@ -7,7 +7,7 @@
 
 #include "../../raven/raven.h"
 #include "../../platform/fs/file.h"
-#include "objects/object.h"
+#include "objects/object/object.h"
 #include "objects/function.h"
 
 #include "blueprint.h"
