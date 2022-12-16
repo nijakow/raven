@@ -135,7 +135,7 @@ void object_link_heartbeat(struct object* object, struct object** list) {
     }
 }
 
-static struct object_page* object_soulmate_page(struct object* object, struct blueprint* bp) {
+struct object_page* object_soulmate_page(struct object* object, struct blueprint* bp) {
     struct object_page*  page;
 
     for (page = object->pages; page != NULL; page = page->next) {
@@ -147,26 +147,66 @@ static struct object_page* object_soulmate_page(struct object* object, struct bl
 }
 
 static void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
-    struct blueprint*    bp_tmp;
-    struct object_page*  old_page;
-    struct object_page*  new_page;
+    struct blueprint*     bp_tmp;
+    struct object_page*   external_list;
+    struct object_page**  iter;
+    struct object_page*   page;
+    bool                  found;
 
     /*
-     * TODO: Unlink all pages that are not in the new blueprint.
-     *
-     * Idea for an approach: Take all pages, move them to an external list
-     * and clear the object's page list. Then, for each blueprint in the
-     * new inheritance chain, check if there is a page in the external list
-     * that is a soulmate of the blueprint. If so, move it to the object's
-     * page list. If not, create a new page and add it to the object's page
-     * list.
+     * Take all pages, move them to an external list
+     * and clear the object's page list.
      */
+    external_list = object->pages;
+    object->pages = NULL;
 
+    /*
+     * Iterate over the inheritance chain of the new blueprint.
+     */
     for (bp_tmp = bp_new; bp_tmp != NULL; bp_tmp = blueprint_parent(bp_tmp)) {
-        old_page = object_soulmate_page(object, bp_tmp);
-        new_page = blueprint_instantiate_page(bp_tmp);
-        object_insert_page_before(object, old_page, new_page);
-        object_page_del(old_page);
+        /*
+         * Reset the found flag.
+         */
+        found = false;
+
+        /*
+         * Iterate over the list of pages. If there is a page that is a
+         * soulmate of the current blueprint, move it back to the object's page
+         * list. Otherwise, create a new page and add it to the object's page
+         * list.
+         */
+        for (iter = &external_list; *iter != NULL; iter = &((*iter)->next)) {
+            /*
+             * If the page is a soulmate of the current blueprint, move it
+             * back to the object's page list.
+             */
+            if (blueprint_is_soulmate(object_page_blueprint(*iter), bp_tmp)) {
+                page = *iter;
+                *iter = page->next;
+                page->next = NULL;
+                object_add_page(object, page);
+                found = true;
+                break;
+            }
+        }
+
+        /*
+         * If no page was found, create a new one.
+         */
+        if (!found) {
+            page = blueprint_instantiate_page(bp_tmp);
+            object_add_page(object, page);
+        }
+    }
+
+    /*
+     * Delete all remaining pages.
+     */
+    while (external_list != NULL) {
+        page = external_list;
+        external_list = page->next;
+        page->object  = NULL;  /* The variable was not updated, so we do it here */
+        object_page_del(page);
     }
 
     // /*
