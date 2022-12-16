@@ -43,7 +43,9 @@ static void object_unlink(struct object* object) {
 
 
 struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
-    struct object*  object;
+    struct object*       object;
+    struct object_page*  page;
+    struct blueprint*    current_blue;
 
     object = base_obj_new(raven_objects(raven),
                           &OBJECT_INFO,
@@ -59,7 +61,13 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
         object->stash           = any_nil();
     }
 
-    // TODO: Generate pages
+    /*
+     * Create a new page for each blueprint in the inheritance chain.
+     */
+    for (current_blue = blueprint; current_blue != NULL; current_blue = blueprint_parent(current_blue)) {
+        page = blueprint_instantiate_page(current_blue, raven);
+        object_add_page(object, page);
+    }
 
     return object;
 }
@@ -97,6 +105,10 @@ void object_del(struct object* object) {
     }
 
     base_obj_del(&object->_);
+}
+
+void object_add_page(struct object* object, struct object_page* page) {
+    object_page_link(page, object);
 }
 
 struct object* object_clone(struct raven* raven, struct object* original) {

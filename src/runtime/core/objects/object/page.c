@@ -5,12 +5,14 @@
  * See README and LICENSE for further information.
  */
 
- #include "../../../../defs.h"
- #include "../../../../util/memory.h"
- #include "../../../gc/gc.h"
- #include "../../blueprint.h"
+#include "../../../../defs.h"
+#include "../../../../util/memory.h"
+#include "../../../gc/gc.h"
+#include "../../blueprint.h"
 
- #include "page.h"
+#include "object.h"
+
+#include "page.h"
 
 void object_page_create(struct object_page* page, unsigned int slot_count, struct blueprint* blue) {
     unsigned int  index;
@@ -55,11 +57,22 @@ void object_page_mark(struct gc* gc, struct object_page* page) {
 }
 
 void object_page_del(struct object_page* page) {
-    /*
-     * TODO!
-     */
+    object_page_destroy(page);
+    memory_free(page);
 }
 
 void object_page_link(struct object_page* page, struct object* object) {
-    // TODO!
+    struct object_page**  list_head;
+
+    page->object = object;
+    
+    for (list_head = &object->pages;
+        *list_head != NULL;
+         list_head = &(*list_head)->next) {
+        /*
+         * Do nothing.
+         */
+    }
+
+    *list_head = page;
 }
