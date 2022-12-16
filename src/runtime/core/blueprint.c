@@ -71,8 +71,8 @@ struct object* blueprint_instantiate(struct blueprint* blueprint,
     return object_new(raven, blueprint);
 }
 
-struct object_page* blueprint_instantiate_page(struct blueprint* blueprint, struct raven* raven) {
-    return object_page_new(raven, blueprint);
+struct object_page* blueprint_instantiate_page(struct blueprint* blueprint) {
+    return object_page_new(blueprint);
 }
 
 unsigned int blueprint_get_instance_size(struct blueprint* bp) {
@@ -147,9 +147,13 @@ struct blueprint* blueprint_recompile(struct blueprint* blue) {
     return file_recompile_and_get(file);
 }
 
+bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
+    return (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL));
+}
+
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
     while (blue != NULL) {
-        if (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL))
+        if (blueprint_is_soulmate(blue, potential_soulmate))
             return blue;
         blue = blueprint_parent(blue);
     }

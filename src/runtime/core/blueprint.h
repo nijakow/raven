@@ -39,7 +39,7 @@ void blueprint_mark(struct gc* gc, struct blueprint* blue);
 void blueprint_del(struct blueprint* blueprint);
 
 struct object*      blueprint_instantiate(struct blueprint* blueprint, struct raven* raven);
-struct object_page* blueprint_instantiate_page(struct blueprint* blueprint, struct raven* raven);
+struct object_page* blueprint_instantiate_page(struct blueprint* blueprint);
 
 struct blueprint* blueprint_load_relative(struct blueprint* bp, const char* path);
 
@@ -58,6 +58,7 @@ struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, un
 
 struct blueprint* blueprint_recompile(struct blueprint* blue);
 
+bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
 
 static inline struct raven* blueprint_raven(struct blueprint* blue) {

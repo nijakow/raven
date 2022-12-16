@@ -31,7 +31,7 @@ void object_page_destroy(struct object_page* page) {
     object_page_unlink(page);
 }
 
-struct object_page* object_page_new(struct raven* raven, struct blueprint* blue) {
+struct object_page* object_page_new(struct blueprint* blue) {
     struct object_page* page;
     unsigned int        slot_count;
 
@@ -75,6 +75,23 @@ void object_page_link(struct object_page* page, struct object* object) {
     *list_head = page;
 }
 
+void object_page_link_before(struct object_page* page, struct object* object, struct object_page* before) {
+    struct object_page**  list_head;
+
+    page->object = object;
+    
+    for (list_head = &object->pages;
+        *list_head != before;
+         list_head = &(*list_head)->next) {
+        /*
+         * Do nothing.
+         */
+    }
+
+    page->next = before;
+    *list_head = page;
+}
+
 void object_page_unlink(struct object_page* page) {
     struct object_page**  list_head;
 
@@ -89,6 +106,8 @@ void object_page_unlink(struct object_page* page) {
         }
 
         *list_head = page->next;
+
+        page->object = NULL;
     }
 }
 

@@ -23,12 +23,13 @@ struct object_page {
 void object_page_create(struct object_page* page, unsigned int slot_count, struct blueprint* blue);
 void object_page_destroy(struct object_page* page);
 
-struct object_page* object_page_new(struct raven* raven, struct blueprint* blue);
+struct object_page* object_page_new(struct blueprint* blue);
 
 void object_page_mark(struct gc* gc, struct object_page* page);
 void object_page_del(struct object_page* page);
 
 void object_page_link(struct object_page* page, struct object* object);
+void object_page_link_before(struct object_page* page, struct object* object, struct object_page* before);
 void object_page_unlink(struct object_page* page);
 
 bool object_page_lookup(struct object_page* page, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool is_public);

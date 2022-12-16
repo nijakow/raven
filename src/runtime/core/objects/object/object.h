@@ -31,6 +31,7 @@ void           object_mark(struct gc* gc, struct object* object);
 void           object_del(struct object* object);
 
 void object_add_page(struct object* object, struct object_page* page);
+void object_remove_page(struct object* object, struct object_page* page);
 
 void object_move_to(struct object* object, struct object* target);
 void object_link_heartbeat(struct object* object, struct object** list);

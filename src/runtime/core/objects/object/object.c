@@ -66,7 +66,7 @@ struct object* object_new(struct raven* raven, struct blueprint* blueprint) {
      * Create a new page for each blueprint in the inheritance chain.
      */
     for (current_blue = blueprint; current_blue != NULL; current_blue = blueprint_parent(current_blue)) {
-        page = blueprint_instantiate_page(current_blue, raven);
+        page = blueprint_instantiate_page(current_blue);
         object_add_page(object, page);
     }
 
@@ -108,6 +108,14 @@ void object_add_page(struct object* object, struct object_page* page) {
     object_page_link(page, object);
 }
 
+void object_insert_page_before(struct object* object, struct object_page* before, struct object_page* page) {
+    object_page_link_before(page, object, before);
+}
+
+void object_remove_page(struct object* object, struct object_page* page) {
+    object_page_unlink(page);
+}
+
 void object_move_to(struct object* object, struct object* target) {
     object_unlink(object);
     if (target != NULL) {
@@ -127,7 +135,33 @@ void object_link_heartbeat(struct object* object, struct object** list) {
     }
 }
 
+static struct object_page* object_soulmate_page(struct object* object, struct blueprint* bp) {
+    struct object_page*  page;
+
+    for (page = object->pages; page != NULL; page = page->next) {
+        if (blueprint_is_soulmate(object_page_blueprint(page), bp))
+            return page;
+    }
+
+    return NULL;
+}
+
 static void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
+    struct blueprint*    bp_tmp;
+    struct object_page*  old_page;
+    struct object_page*  new_page;
+
+    /*
+     * TODO: Unlink all pages that are not in the new blueprint.
+     */
+
+    for (bp_tmp = bp_new; bp_tmp != NULL; bp_tmp = blueprint_parent(bp_tmp)) {
+        old_page = object_soulmate_page(object, bp_tmp);
+        new_page = blueprint_instantiate_page(bp_tmp);
+        object_insert_page_before(object, old_page, new_page);
+        object_page_del(old_page);
+    }
+
     // /*
     //  * Resize the object, so that new slots can fit.
     //  */
