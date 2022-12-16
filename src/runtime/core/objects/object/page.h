@@ -23,6 +23,8 @@ struct object_page {
 void object_page_create(struct object_page* page, unsigned int slot_count, struct blueprint* blue);
 void object_page_destroy(struct object_page* page);
 
+struct object_page* object_page_new(struct raven* raven, struct blueprint* blue);
+
 void object_page_mark(struct gc* gc, struct object_page* page);
 void object_page_del(struct object_page* page);
 

@@ -71,6 +71,10 @@ struct object* blueprint_instantiate(struct blueprint* blueprint,
     return object_new(raven, blueprint);
 }
 
+struct object_page* blueprint_instantiate_page(struct blueprint* blueprint, struct raven* raven) {
+    return object_page_new(raven, blueprint);
+}
+
 unsigned int blueprint_get_instance_size(struct blueprint* bp) {
     return vars_count(blueprint_vars(bp));
 }
@@ -80,7 +84,6 @@ bool blueprint_inherit(struct blueprint* blue, struct blueprint* parent) {
         return false;
     else {
         blue->parent = parent;
-        vars_reparent(&blue->vars, &parent->vars);
         return true;
     }
 }
