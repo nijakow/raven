@@ -9,6 +9,7 @@
 #include "../../../../util/memory.h"
 #include "../../../gc/gc.h"
 #include "../../blueprint.h"
+#include "../../vars.h"
 
 #include "object.h"
 
@@ -134,4 +135,25 @@ bool object_page_lookup_list(struct object_page* page, struct object_page_and_fu
         return object_page_lookup_list(page->next, result, message, args, is_public);
     else
         return false;
+}
+
+void object_page_transfer_vars(struct object_page* page, struct object_page* other) {
+    struct blueprint*  blue;
+    struct blueprint*  other_blue;
+    struct symbol*     var_name;
+    unsigned int       index;
+    unsigned int       other_index;
+
+    blue       = object_page_blueprint(page);
+    other_blue = object_page_blueprint(other);
+
+    for (index = 0; index < vars_count(blueprint_vars(blue)); index++) {
+        var_name = vars_name_for_local_index(blueprint_vars(blue), index);
+        for (other_index = 0; other_index < vars_count(blueprint_vars(other_blue)); other_index++) {
+            if (vars_find(blueprint_vars(other_blue), var_name, NULL, &other_index)) {
+                page->slots[index] = other->slots[other_index];
+                break;
+            }
+        }
+    }
 }

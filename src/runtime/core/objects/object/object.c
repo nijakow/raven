@@ -187,6 +187,12 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
                 object_add_page(object, page);
                 found = true;
                 break;
+            } else if (blueprint_is_soulmate(object_page_blueprint(*iter), bp_tmp)) {
+                page = blueprint_instantiate_page(bp_tmp);
+                object_page_transfer_vars(page, *iter);
+                object_add_page(object, page);
+                found = true;
+                break;
             }
         }
 
