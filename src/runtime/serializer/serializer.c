@@ -18,11 +18,15 @@
 
 
 void serializer_create(struct serializer* serializer) {
-
+    serializer->buffer = NULL;
 }
 
 void serializer_destroy(struct serializer* serializer) {
 
+}
+
+void serializer_write_to_bytebuffer(struct serializer* serializer, struct bytebuffer* buffer) {
+    serializer->buffer = buffer;
 }
 
 void serializer_write(struct serializer* serializer, const void* data, size_t size) {
@@ -37,7 +41,8 @@ void serializer_write_with_size(struct serializer* serializer, const void* data,
 }
 
 void serializer_write_uint8(struct serializer* serializer, uint8_t value) {
-    // TODO
+    if (serializer->buffer != NULL)
+        bytebuffer_write_uint8(serializer->buffer, value);
 }
 
 void serializer_write_uint(struct serializer* serializer, uint32_t value) {

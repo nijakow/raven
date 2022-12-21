@@ -10,6 +10,8 @@
 
 #include "../../defs.h"
 
+#include "../../util/bytebuffer.h"
+
 #include "../core/any.h"
 
 
@@ -31,11 +33,13 @@ enum serializer_tag {
 
 
 struct serializer {
-
+    struct bytebuffer*  buffer;
 };
 
 void serializer_create(struct serializer* serializer);
 void serializer_destroy(struct serializer* serializer);
+
+void serializer_write_to_bytebuffer(struct serializer* serializer, struct bytebuffer* buffer);
 
 void serializer_write(struct serializer* serializer, const void* data, size_t size);
 void serializer_write_with_size(struct serializer* serializer, const void* data, size_t size);
