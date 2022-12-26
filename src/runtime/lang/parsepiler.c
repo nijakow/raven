@@ -1322,15 +1322,58 @@ bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+/*
+ * Parsepile a `return` statement.
+ *
+ * Return statements look like this:
+ * 
+ *     return <expression>;
+ * 
+ * or
+ * 
+ *     return;
+ * 
+ * The first form returns the value of the expression, the second form
+ * returns `nil`.
+ * 
+ * We typecheck the expression against the return type of the function.
+ */
 bool parsepile_return(struct parser* parser, struct compiler* compiler) {
+    /*
+     * The `return` statement is a bit special, because it can be used
+     * in two different ways. We check for the semicolon first,
+     * this way we can return `nil` if the semicolon is present.
+     */
     if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
+        /*
+         * Our statement is of the form `return;` which means we
+         * return `nil`.
+         */
         compiler_load_constant(compiler, any_nil());
+
+        /*
+         * We set the expression type to `void` to indicate that we
+         * are returning `nil`.
+         */
         parser_set_exprtype_to_void(parser);
+
+        /*
+         * Perform a typecheck and return.
+         */
         return parsepile_return_with_typecheck(parser, compiler);
     } else if (parsepile_expression(parser, compiler)) {
+        /*
+         * Our statement is of the form `return <expression>;`.
+         * The expression has been parsed and is in the accumulator.
+         * We perform a typecheck and return.
+         */
         return parsepile_return_with_typecheck(parser, compiler)
             && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
     }
+
+    /*
+     * We failed to parse the statement. Return false.
+     */
     return false;
 }
 
