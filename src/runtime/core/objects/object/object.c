@@ -154,6 +154,12 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
     bool                  found;
 
     /*
+     * If the object already has the new blueprint, do nothing.
+     */
+    if (object_blueprint(object) == bp_new)
+        return;
+
+    /*
      * Take all pages, move them to an external list
      * and clear the object's page list.
      */
@@ -226,6 +232,16 @@ void object_recompile(struct object* object) {
     struct blueprint*  new_bp;
 
     new_bp = blueprint_recompile(object_blueprint(object));
+
+    if (new_bp != NULL) {
+        object_switch_blueprint(object, new_bp);
+    }
+}
+
+void object_refresh(struct object* object) {
+    struct blueprint*  new_bp;
+
+    new_bp = blueprint_find_newest_version(object_blueprint(object));
 
     if (new_bp != NULL) {
         object_switch_blueprint(object, new_bp);

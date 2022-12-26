@@ -37,6 +37,7 @@ void object_move_to(struct object* object, struct object* target);
 void object_link_heartbeat(struct object* object, struct object** list);
 
 void object_recompile(struct object* object);
+void object_refresh(struct object* object);
 
 bool object_resolve_func_and_page(struct object* object, struct object_page_and_function* result, struct symbol* message, unsigned int args, bool allow_private);
 

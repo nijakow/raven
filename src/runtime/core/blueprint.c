@@ -147,6 +147,20 @@ struct blueprint* blueprint_recompile(struct blueprint* blue) {
     return file_recompile_and_get(file);
 }
 
+struct blueprint* blueprint_find_newest_version(struct blueprint* blue) {
+    struct file*       file;
+    struct blueprint*  other;
+
+    file = blueprint_file(blue);
+
+    if (file == NULL)
+        return NULL;
+    
+    other = file_get_blueprint(file);
+
+    return other;
+}
+
 bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
     return (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL));
 }
