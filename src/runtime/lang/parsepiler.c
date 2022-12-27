@@ -809,10 +809,35 @@ bool parsepile_op(struct parser*   parser,
     return result;
 }
 
+/*
+ * Parsepile an expression with a given precedence.
+ *
+ * Expressions are all of the following:
+ *    - Function calls, e.g. `foo()`, `bar(1, 2, 3)`, `...->foo()`, `...->bar(1, 2, 3)`
+ *    - Variable references, e.g. `x`, `index`, `foo`
+ *    - Literals, e.g. `42`, `"Hello, world!"`, `true`
+ *    - Unary and binary operators, e.g. `!x`, `x + y`, `x * y`, `x == y`, `x < y`, `x >> y`
+ *    - Type checks, e.g. `x is int`, `x is string`
+ *    - Function references, e.g. `&foo`, `&bar`
+ *    - Dereferencing, e.g. `*"/secure/master"`
+ *    - Array and map literals, e.g. `{1, 2, 3}`, `["foo": 1, "bar": 2]`
+ *    - Array and map indexing, e.g. `x[0]`, `x["foo"]`
+ * 
+ * Since parsing these structures is too much for one function, we
+ * only do a small fraction of the parsing here. Most of the interesting
+ * stuff is done in the other `parsepile_*` functions.
+ * 
+ * NOTE: The precedence of each operator is almost the same as in C.
+ * 
+ */
 bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
     bool            should_continue;
     struct symbol*  symbol;
 
+    /*
+     * We are now in front of an expression, so we handle the
+     * prefix operators first:
+     */
     if (parser_check(parser, TOKEN_TYPE_AMPERSAND)) {
         /*
          * This is the address operator, used in expressions
@@ -843,32 +868,101 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
         compiler_op(compiler, RAVEN_OP_DEREF);
         parser_set_exprtype_to_any(parser);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
+        /*
+         * This is the unary plus operator, used in expressions
+         * such as:
+         * 
+         *     +42
+         *     +foo
+         * 
+         * which will just return the value of the expression.
+         */
         return parsepile_expr(parser, compiler, 1);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
+        /*
+         * This is the unary minus operator, used in expressions
+         * such as:
+         * 
+         *     -42
+         *     -foo
+         * 
+         * which will negate the value of the expression.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_NEGATE);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_NOT)) {
+        /*
+         * This is the logical not operator, used in expressions
+         * such as:
+         * 
+         *     !x
+         *     !foo
+         * 
+         * which will negate the value of the expression.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_NOT);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_KW_SIZEOF)) {
+        /*
+         * This is the sizeof operator, used in expressions
+         * such as:
+         * 
+         *     sizeof(x)
+         *     sizeof(foo)
+         *     sizeof("Hello, world!")
+         *     sizeof({1, 2, 3})
+         * 
+         * which will return the size of the computed value.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_SIZEOF);
-    } else if (!parsepile_simple_expr(parser, compiler, pr)) {
+    }
+
+    /*
+     * Now we parse the actual expression.
+     *
+     * Usually, an expression starts with a so-called "simple expression",
+     * which is either a literal, a variable reference, or a function call.
+     */
+    if (!parsepile_simple_expr(parser, compiler, pr)) {
         return false;
     }
 
+    /*
+     * Here we handle the postfix operators.
+     *
+     * We look at the next token and decide if it's an operator. If it
+     * is, we compile it and repeat until we reach the end of the expression
+     * or an operator with a lower precedence (which will in turn be handled
+     * by the parsepiler function that called us).
+     */
     should_continue = true;
     while (should_continue) {
         if (!parsepile_op(parser, compiler, pr, &should_continue))
             return false;
     }
 
+    /*
+     * If we reach this point, we have successfully parsed the expression.
+     *
+     * Return true, and let the caller handle the rest. Cheerio.
+     */
     return true;
 }
 
+
+/*
+ * This function parses an expression.
+ *
+ * Essentially, this is just a wrapper around `parsepile_expr`, which
+ * needs a magic precedence value to work. We chose 100 arbitrarily,
+ * because no operator will have any precedence greater than that.
+ * 
+ * For more information, see the documentation for `parsepile_expr`.
+ */
 bool parsepile_expression(struct parser* parser, struct compiler* compiler) {
     return parsepile_expr(parser, compiler, 100);
 }
