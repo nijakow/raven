@@ -9,12 +9,14 @@
 
 #include "../../util/stringbuilder.h"
 
-void fs_create(struct fs* fs, struct raven* raven) {
-    fs->raven = raven;
+void fs_create(struct fs* fs, struct raven* raven, const char* anchor) {
+    fs->raven  = raven;
+    fs->anchor = strdup(anchor);
 }
 
 void fs_destroy(struct fs* fs) {
-
+    if (fs->anchor != NULL)
+        free(fs->anchor);
 }
 
 
@@ -149,4 +151,50 @@ bool fs_resolve(struct fs* fs, const char* path, const char* direction, struct s
 
 bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb) {
     return fs_resolve(fs, "/", path, sb);
+}
+
+static bool fs_tofile(struct fs* fs, const char* virtpath, struct stringbuilder* sb) {
+    stringbuilder_append_str(sb, fs->anchor);
+    if (virtpath[0] != '/')
+        stringbuilder_append_char(sb, '/');
+    stringbuilder_append_str(sb, virtpath);
+    return true;
+}
+
+bool fs_exists(struct fs* fs, const char* path) {
+    struct stringbuilder   sb;
+    struct stat            st;
+    const char*            realpath;
+    bool                   result;
+
+    result = false;
+
+    stringbuilder_create(&sb);
+    if (fs_tofile(fs, path, &sb)) {
+        realpath = stringbuilder_get_const(&sb);
+        if (stat(realpath, &st) == 0) {
+            result = true;
+        }
+    }
+    stringbuilder_destroy(&sb);
+    return result;
+}
+
+bool fs_isdir(struct fs* fs, const char* path) {
+    struct stringbuilder   sb;
+    struct stat            st;
+    const char*            realpath;
+    bool                   result;
+
+    result = false;
+
+    stringbuilder_create(&sb);
+    if (fs_tofile(fs, path, &sb)) {
+        realpath = stringbuilder_get_const(&sb);
+        if (stat(realpath, &st) == 0) {
+            result = S_ISDIR(st.st_mode) != 0;
+        }
+    }
+    stringbuilder_destroy(&sb);
+    return result;
 }
