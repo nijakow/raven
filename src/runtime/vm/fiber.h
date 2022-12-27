@@ -90,7 +90,7 @@ void fiber_unwind(struct fiber* fiber);
 
 void fiber_print_backtrace(struct fiber* fiber, struct log* log);
 
-void fiber_push_input(struct fiber* fiber, struct string* text);
+void fiber_push_input(struct fiber* fiber, any value);
 
 static inline struct raven* fiber_raven(struct fiber* fiber) {
     return scheduler_raven(fiber->scheduler);

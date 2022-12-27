@@ -22,6 +22,7 @@ struct connection {
     struct connection*  next;
     struct connection** prev;
     struct fiber*       fiber;
+    struct fiber*       waiting_fiber;
     int                 socket;
     struct ringbuffer   in_buffer;
     any                 player_object;
@@ -38,7 +39,7 @@ void connection_detach_from_server(struct connection* connection);
 void connection_close_impl(struct connection* connection);
 void connection_close(struct connection* connection);
 void connection_endofinput(struct connection* connection);
-void connection_input(struct connection* connection, char* b, unsigned int n);
+void connection_push_input(struct connection* connection, char* b, unsigned int n);
 
 void connection_write_byte(struct connection* connection, char byte);
 void connection_write_cstr(struct connection* connection, const char* str);
@@ -67,6 +68,15 @@ static inline struct fiber* connection_fiber(struct connection* connection) {
 static inline void connection_set_fiber(struct connection* connection,
                                         struct fiber*      fiber) {
     connection->fiber = fiber;
+}
+
+static inline struct fiber* connection_waiting_fiber(struct connection* connection) {
+    return connection->waiting_fiber;
+}
+
+static inline void connection_set_waiting_fiber(struct connection* connection,
+                                                struct fiber*      fiber) {
+    connection->waiting_fiber = fiber;
 }
 
 static inline any connection_player_object(struct connection* connection) {

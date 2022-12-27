@@ -143,7 +143,7 @@ void server_tick(struct server* server, raven_timeval_t tv) {
              connection = connection_next(connection)) {
             if (FD_ISSET(connection_socket(connection), &readable)) {
                 if (pal_socket_read(connection_socket(connection), buffer, sizeof(buffer), &bytes)) {
-                    connection_input(connection, buffer, (unsigned int) bytes);
+                    connection_push_input(connection, buffer, (unsigned int) bytes);
                 } else {
                     connection_endofinput(connection);
                 }

@@ -32,6 +32,8 @@ static void connection_create(struct connection* connection,
                               int                socket) {
     connection->raven         = server_raven(server);
     connection->server        = server;
+    connection->fiber         = NULL;
+    connection->waiting_fiber = NULL;
     connection->socket        = socket;
     connection->player_object = any_nil();
     ringbuffer_create(&connection->in_buffer);
@@ -113,25 +115,20 @@ void connection_endofinput(struct connection* connection) {
     connection_close(connection);
 }
 
-void connection_input(struct connection* connection, char* b, unsigned int n) {
-    char*          str;
-    unsigned int   i;
-    struct string* string;
+void connection_push_char(struct connection* connection, char c) {
+    if (connection_waiting_fiber(connection) != NULL) {
+        fiber_push_input(connection_waiting_fiber(connection), any_from_int((unsigned char) c));
+        connection_set_waiting_fiber(connection, NULL);
+    } else {
+        ringbuffer_write(&connection->in_buffer, c);
+    }
+}
+
+void connection_push_input(struct connection* connection, char* b, unsigned int n) {
+    unsigned int  i;
 
     for (i = 0; i < n; i++) {
-        ringbuffer_write(&connection->in_buffer, b[i]);
-    }
-
-    str = ringbuffer_line(&connection->in_buffer);
-
-    if (str != NULL) {
-        string = string_new(server_raven(connection_server(connection)), str);
-        if (string != NULL) {
-            if (connection_fiber(connection) != NULL) {
-                fiber_push_input(connection_fiber(connection), string);
-            }
-        }
-        memory_free(str);
+        connection_push_char(connection, b[i]);
     }
 }
 
