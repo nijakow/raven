@@ -1107,6 +1107,57 @@ bool parsepile_for(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+/*
+ * Switch statements are rather tricky.
+ * 
+ * In a switch statement, control flow will jump to the first case that
+ * matches, and then run all the code until it hits a break statement.
+ * 
+ * Since this parsepiler is a combination of a parser and a compiler, we
+ * can't just read the switch statement, figure out the labels, and then
+ * compile it. Instead, we have to compile it as we go.
+ * 
+ * This means that we will have to generate two different codepaths
+ * at once (as we are unable to look ahead in the code):
+ * 
+ *     switch (x) {
+ *                print("Zero ");
+ *        case 1: print("One ");
+ *        case 2: print("Two ");
+ *                break;
+ *        case 3: print("Three ");
+ *                break;
+ *        default: print("Default ");
+ *     }
+ * 
+ * will be translated to this assembly code:
+ * 
+ *        print("Zero ");
+ *    T0: <compare x to 1>
+ *        <jump to T1 if not equal>
+ *    L1: print("One ");
+ *        <jump to L2>
+ *    T1: <compare x to 2>
+ *        <jump to T2 if not equal>
+ *    L2: print("Two ");
+ *        <jump to END>
+ *    T2: <compare x to 3>
+ *        <jump to T3 if not equal>
+ *    L3: print("Three ");
+ *        <jump to END>
+ *    T3: print("Default ");
+ *   END:
+ * 
+ * There are more complications to it, for example where to store the
+ * value of the switch expression, and how to handle the default case.
+ * 
+ * Our algorithm puts the switch value on the stack, therefore the
+ * compiler needs to write a lot of boilerplate and cleanup code.
+ * 
+ * It would also be possible to allocate a temporary variable for the
+ * switch value, but the fact that there is no way to free them again
+ * makes this a bad idea (for now).
+ */
 bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
     struct compiler   subcompiler;
     t_compiler_label  continuation;
@@ -1127,8 +1178,25 @@ bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
         if (parsepile_expect(parser, TOKEN_TYPE_LCURLY)) {
             result = true;
             compiler_push(&subcompiler);
+            /*
+             * The head was parsed, and the value is on the stack.
+             * We will now jump directly to the first decision point.
+             */
             compiler_jump(&subcompiler, continuation);
             while (result && !parser_check(parser, TOKEN_TYPE_RCURLY)) {
+                /*
+                 * Process every statement in the switch block.
+                 * 
+                 * If the next one is a `case` statement, we have
+                 * to switch to a different codepath. Remember that
+                 * case statements will be ignored if they are not
+                 * the one we jumped to, so we have to make sure
+                 * that the test code is nicely embedded in the
+                 * normal codepath.
+                 * 
+                 * Since we can't postpone the code generation, we
+                 * have to jump around the `case` statement.
+                 */
                 if (parser_check(parser, TOKEN_TYPE_KW_CASE)) {
                     /*
                      * We are currently in a normal stream of instructions.
@@ -1148,7 +1216,8 @@ bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
                     continuation = compiler_open_label(&subcompiler);
                     /*
                      * Do a POP, followed by a PUSH. This will ensure that our
-                     * originally pushed value stays on the stack.
+                     * originally pushed value stays on the stack, while also
+                     * loading the value into the accumulator.
                      */
                     compiler_pop(&subcompiler);
                     compiler_push(&subcompiler);
@@ -1253,15 +1322,58 @@ bool parsepile_switch(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+/*
+ * Parsepile a `return` statement.
+ *
+ * Return statements look like this:
+ * 
+ *     return <expression>;
+ * 
+ * or
+ * 
+ *     return;
+ * 
+ * The first form returns the value of the expression, the second form
+ * returns `nil`.
+ * 
+ * We typecheck the expression against the return type of the function.
+ */
 bool parsepile_return(struct parser* parser, struct compiler* compiler) {
+    /*
+     * The `return` statement is a bit special, because it can be used
+     * in two different ways. We check for the semicolon first,
+     * this way we can return `nil` if the semicolon is present.
+     */
     if (parser_check(parser, TOKEN_TYPE_SEMICOLON)) {
+        /*
+         * Our statement is of the form `return;` which means we
+         * return `nil`.
+         */
         compiler_load_constant(compiler, any_nil());
+
+        /*
+         * We set the expression type to `void` to indicate that we
+         * are returning `nil`.
+         */
         parser_set_exprtype_to_void(parser);
+
+        /*
+         * Perform a typecheck and return.
+         */
         return parsepile_return_with_typecheck(parser, compiler);
     } else if (parsepile_expression(parser, compiler)) {
+        /*
+         * Our statement is of the form `return <expression>;`.
+         * The expression has been parsed and is in the accumulator.
+         * We perform a typecheck and return.
+         */
         return parsepile_return_with_typecheck(parser, compiler)
             && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
     }
+
+    /*
+     * We failed to parse the statement. Return false.
+     */
     return false;
 }
 

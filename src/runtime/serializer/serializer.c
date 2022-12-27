@@ -5,6 +5,8 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../util/memory.h"
+
 #include "../core/blueprint.h"
 #include "../core/objects/object/object.h"
 
@@ -17,12 +19,97 @@
 #include "serializer.h"
 
 
-void serializer_create(struct serializer* serializer) {
+struct serializer_object_page* serializer_object_page_new() {
+    struct serializer_object_page* page;
+    
+    page = memory_alloc(sizeof(struct serializer_object_page) + sizeof(struct serializer_object_page_entry) * 256);
+    page->next = NULL;
+    page->fill = 0;
+    return page;
+}
 
+void serializer_object_page_delete(struct serializer_object_page* page) {
+    memory_free(page);
+}
+
+bool serializer_object_page_has_space(struct serializer_object_page* page) {
+    return page->fill < 256;
+}
+
+bool serializer_object_page_add(struct serializer_object_page* page, void* obj, uint32_t id) {
+    if (!serializer_object_page_has_space(page))
+        return false;
+    page->entries[page->fill].id = id;
+    page->entries[page->fill].value = obj;
+    page->fill++;
+    return true;
+}
+
+
+void serializer_object_pages_create(struct serializer_object_pages* pages) {
+    pages->first   = NULL;
+    pages->next_id = 1;
+}
+
+void serializer_object_pages_destroy(struct serializer_object_pages* pages) {
+    struct serializer_object_page* page = pages->first;
+    while (page != NULL) {
+        struct serializer_object_page* next = page->next;
+        serializer_object_page_delete(page);
+        page = next;
+    }
+}
+
+bool serializer_object_pages_add(struct serializer_object_pages* pages, void* obj, uint32_t* id) {
+    struct serializer_object_page**  page;
+    uint32_t                         lid;
+    bool                             result;
+
+    page = &pages->first;
+    lid  =  pages->next_id++;
+
+    while (*page != NULL) {
+        if (serializer_object_page_add(*page, obj, lid))
+            return true;
+        page = &(*page)->next;
+    }
+
+    *page  = serializer_object_page_new();
+    result = serializer_object_page_add(*page, obj, lid);
+
+    if (id != NULL)
+        *id = lid;
+
+    return result;
+}
+
+bool serializer_object_pages_lookup(struct serializer_object_pages* pages, void* obj, uint32_t* id) {
+    struct serializer_object_page* page = pages->first;
+    while (page != NULL) {
+        for (size_t i = 0; i < page->fill; i++) {
+            if (page->entries[i].value == obj) {
+                if (id != NULL)
+                    *id = page->entries[i].id;
+                return true;
+            }
+        }
+        page = page->next;
+    }
+    return false;
+}
+
+
+void serializer_create(struct serializer* serializer) {
+    serializer_object_pages_create(&serializer->object_pages);
+    serializer->buffer = NULL;
 }
 
 void serializer_destroy(struct serializer* serializer) {
+    serializer_object_pages_destroy(&serializer->object_pages);
+}
 
+void serializer_write_to_bytebuffer(struct serializer* serializer, struct bytebuffer* buffer) {
+    serializer->buffer = buffer;
 }
 
 void serializer_write(struct serializer* serializer, const void* data, size_t size) {
@@ -37,7 +124,8 @@ void serializer_write_with_size(struct serializer* serializer, const void* data,
 }
 
 void serializer_write_uint8(struct serializer* serializer, uint8_t value) {
-    // TODO
+    if (serializer->buffer != NULL)
+        bytebuffer_write_uint8(serializer->buffer, value);
 }
 
 void serializer_write_uint(struct serializer* serializer, uint32_t value) {
@@ -57,6 +145,19 @@ void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag
 }
 
 bool serializer_write_ref(struct serializer* serializer, void* ptr) {
+    uint32_t  id;
+
+    if (serializer_object_pages_lookup(&serializer->object_pages, ptr, NULL)) {
+        serializer_write_tag(serializer, SERIALIZER_TAG_REF);
+        serializer_write_uint(serializer, id);
+        return true;
+    }
+
+    if (serializer_object_pages_add(&serializer->object_pages, ptr, &id)) {
+        serializer_write_tag(serializer, SERIALIZER_TAG_LABEL);
+        serializer_write_uint(serializer, id);
+    }
+    
     return false;
 }
 
