@@ -967,6 +967,26 @@ bool parsepile_expression(struct parser* parser, struct compiler* compiler) {
     return parsepile_expr(parser, compiler, 100);
 }
 
+
+/*
+ * This function parses a parenthesized expression.
+ *
+ * A parenthesized expression is an expression surrounded by parentheses,
+ * just like this:
+ * 
+ *     (x)
+ *     (1 + 2)
+ *
+ * This is used in expressions such as:
+ * 
+ *    (1 + 2) * 3
+ * 
+ * but also in if statements, while loops, etc.:
+ * 
+ *    if (x == 42) {
+ *       ...
+ *    }
+ */
 bool parsepile_parenthesized_expression(struct parser*   parser,
                                         struct compiler* compiler)
 {
@@ -975,6 +995,29 @@ bool parsepile_parenthesized_expression(struct parser*   parser,
         && parsepile_expect(parser, TOKEN_TYPE_RPAREN);
 }
 
+
+/*
+ * Parse the body of a block.
+ *
+ * A block is a sequence of instructions, surrounded by curly braces,
+ * just like this:
+ * 
+ *     {
+ *       ...
+ *     }
+ * 
+ * This function parses the body of a block, which is everything between
+ * the opening and closing curly braces.
+ * 
+ * The function returns true if the block was successfully parsed, and
+ * false otherwise.
+ * 
+ * We parse the body of a block by repeatedly calling `parsepile_instruction`
+ * until we reach the closing curly brace.
+ * 
+ * Note: We don't need to handle the opening curly brace here, because
+ *       the caller will have already done that for us.
+ */
 bool parsepile_block_body(struct parser* parser, struct compiler* compiler) {
     while (!parser_check(parser, TOKEN_TYPE_RCURLY)) {
         if (!parsepile_instruction(parser, compiler))
@@ -983,6 +1026,31 @@ bool parsepile_block_body(struct parser* parser, struct compiler* compiler) {
     return true;
 }
 
+
+/*
+ * Parse a block.
+ *
+ * A block is a sequence of instructions, surrounded by curly braces,
+ * just like this:
+ * 
+ *     {
+ *       ...
+ *     }
+ * 
+ * This function establishes a new compiler context, and then calls
+ * `parsepile_block_body` to parse the body of the block.
+ * 
+ * A new compiler context is established because with each block a new
+ * scope is created, and we need to keep track of the variables declared
+ * in that scope, and forget about them when the scope is destroyed
+ * at the end of the block.
+ * 
+ * The function returns true if the block was successfully parsed, and
+ * false otherwise.
+ * 
+ * Note: We don't need to handle the opening curly brace here, because
+ *       the caller will have already done that for us.
+ */
 bool parsepile_block(struct parser* parser, struct compiler* compiler) {
     struct compiler  subcompiler;
     bool             result;
@@ -994,35 +1062,139 @@ bool parsepile_block(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+
+/*
+ * Parse an if statement.
+ *
+ * An if statement is a conditional statement, just like this:
+ * 
+ *     if (x == 42) {
+ *       ...
+ *     }
+ * 
+ * sometimes an optional else clause may follow:
+ * 
+ *     if (x == 42) {
+ *       ...
+ *     } else {
+ *       ...
+ *     }
+ * 
+ * Please note that the curly braces are not required, the actual
+ * format of an if statement is:
+ * 
+ *    if (x == 42) ...
+ * 
+ * or:
+ * 
+ *   if (x == 42) ... else ...
+ * 
+ * where the "..." can be any instruction, including blocks
+ * or other if statements.
+ * 
+ * If-else statements are just a special case of if statements, where
+ * the else clause is just another if statement:
+ * 
+ *   if (x == 42) ...
+ *   else <if (x == 43) ...>
+ * 
+ * This function parses an if statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the condition of the if statement,
+ * which is the expression between the parentheses.
+ * 
+ * Since if statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * An if statement translates to the following code:
+ * 
+ *     <condition>
+ *     jump_if_not L1
+ *     <then>
+ *     jump L2
+ * L1:
+ *     <else>
+ * L2:
+ * 
+ * where L1 and L2 are labels, and <condition>, <then> and <else> are
+ * the instructions that make up the if statement.
+ */
 bool parsepile_if(struct parser* parser, struct compiler* compiler) {
     t_compiler_label middle;
     t_compiler_label end;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We start by parsing the condition of the if statement, which is
+     * the expression between the parentheses.
+     */
     if (!parsepile_parenthesized_expression(parser, compiler))
         return false;
 
+    /*
+     * We then open two labels, one for the middle of the if statement,
+     * and one for the end of the if statement.
+     */
     middle = compiler_open_label(compiler);
     end    = compiler_open_label(compiler);
 
-    result = false;
-
+    /*
+     * We then jump to the middle of the if statement if the condition is
+     * false.
+     */
     compiler_jump_if_not(compiler, middle);
+
+    /*
+     * We then parsepile the then clause of the if statement.
+     */
     if (parsepile_instruction(parser, compiler)) {
+        /*
+         * And jump to the end of the statement afterwards.
+         */
         compiler_jump(compiler, end);
+
+        /*
+         * This is where the middle of the if statement will be placed.
+         */
         compiler_place_label(compiler, middle);
+
+        /*
+         * We then check if there is an else clause.
+         */
         result = true;
         if (parser_check(parser, TOKEN_TYPE_KW_ELSE)) {
+            /*
+             * If there is, we parsepile it.
+             */
             if (!parsepile_instruction(parser, compiler)) {
+                /*
+                 * If the parsing failed, we set the return value back to false.
+                 */
                 result = false;
             }
         }
+
+        /*
+         * This is where the end of the if statement will be placed.
+         */
         compiler_place_label(compiler, end);
     }
 
+    /*
+     * We then close the labels we opened.
+     */
     compiler_close_label(compiler, middle);
     compiler_close_label(compiler, end);
 
+    /*
+     * And return the result.
+     */
     return result;
 }
 
