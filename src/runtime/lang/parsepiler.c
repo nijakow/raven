@@ -1198,69 +1198,286 @@ bool parsepile_if(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+
+/*
+ * Parse a while statement.
+ *
+ * A while statement is a conditional statement, which allows us to
+ * execute a sequence of instructions as long as a condition is true.
+ * 
+ * A while statement looks like this:
+ * 
+ *     while (x == 42) {
+ *       ...
+ *     }
+ * 
+ * This function parses a while statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the condition of the while statement,
+ * which is the expression between the parentheses.
+ * 
+ * Since while statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * A while statement translates to the following code:
+ * 
+ * L1:
+ *     <condition>
+ *     jump_if_not L2
+ *     <body>
+ *     jump L1
+ * L2:
+ * 
+ * where L1 and L2 are labels, and <condition> and <body> are the
+ * instructions that make up the while statement.
+ * 
+ * The while statement is implemented by jumping to the condition of the
+ * statement, and then jumping to the end of the statement if the condition
+ * is false.
+ * 
+ * The body of the while statement is then executed, and then we jump back
+ * to the condition of the statement, and repeat the process.
+ * 
+ * The while statement is implemented using two labels, one for the
+ * condition of the statement, and one for the end of the statement.
+ * 
+ * The body of the statement is placed between the two labels.
+ * 
+ * Since while statements also allow us to break out of the loop, we need
+ * to open a break label, so that we can jump to the end of the statement
+ * when we encounter a break statement. The same goes for continue statements,
+ * which allow us to jump to the condition of the statement.
+ * 
+ * Therefore, we need to create a new compiler scope, so that the labels we
+ * open do not conflict with the break and continue labels of the parent scope.
+ */
 bool parsepile_while(struct parser* parser, struct compiler* compiler) {
     t_compiler_label head;
     t_compiler_label end;
     struct compiler  subcompiler;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We create a new compiler scope, so that the labels we open
+     * do not conflict with the labels of the parent scope.
+     */
     compiler_create_sub(&subcompiler, compiler);
 
+    /*
+     * We then open two labels, one for the head of the while statement,
+     * and one for the end of the while statement.
+     * 
+     * The head label is the place we jump to when `continue` is encountered.
+     * The end label is the place we jump to when `break` is encountered.
+     */
     head = compiler_open_continue_label(&subcompiler);
     end  = compiler_open_break_label(&subcompiler);
 
-    result = false;
-
+    /*
+     * We then place the head label at the head of the while statement.
+     */
     compiler_place_label(&subcompiler, head);
 
+    /*
+     * We then parsepile the condition of the while statement, which is
+     * the expression between the parentheses.
+     */
     if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+        /*
+         * We jump to the end of the while statement if the condition
+         * is false.
+         */
         compiler_jump_if_not(&subcompiler, end);
+
+        /*
+         * We then parsepile the body of the while statement.
+         */
         if (parsepile_instruction(parser, &subcompiler)) {
+            /*
+             * After that, we proceed to the head of the while statement.
+             */
             compiler_jump(&subcompiler, head);
+
+            /*
+             * And place the end label at the end of the while statement.
+             */
             compiler_place_label(&subcompiler, end);
+
+            /*
+             * Done! :)
+             */
             result = true;
         }
     }
 
+    /*
+     * Close the labels we opened.
+     * Cleanliness is next to godliness.
+     */
     compiler_close_label(&subcompiler, head);
     compiler_close_label(&subcompiler, end);
 
+    /*
+     * Destroy the subcompiler. Boom.
+     */
     compiler_destroy(&subcompiler);
 
+    /*
+     * Return the result. Over and out.
+     */
     return result;
 }
 
+
+/*
+ * Parse a do-while statement.
+ *
+ * A do-while statement is a conditional statement, which allows us to
+ * execute a sequence of instructions as long as a condition is true.
+ * 
+ * A do-while statement looks like this:
+ * 
+ *     do {
+ *       ...
+ *     } while (x == 42);
+ * 
+ * This function parses a do-while statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the body of the do-while statement.
+ * 
+ * Since do-while statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * A do-while statement translates to the following code:
+ * 
+ * L1:
+ *     <body>
+ *     <condition>
+ *     jump_if L1
+ * L2:
+ * 
+ * where L1, L2 are labels, and <condition> and <body> are the
+ * instructions that make up the do-while statement.
+ * 
+ * The do-while statement is implemented by running the body of the statement,
+ * and then evaluating the condition of the statement. If the condition is
+ * true, we jump back to the body of the statement, and repeat the process.
+ * 
+ * The do-while statement is implemented using two labels, one for the
+ * body of the statement, and one for the end of the statement.
+ * 
+ * The body of the statement is placed between the first and second labels.
+ * 
+ * The condition of the statement is placed between the second and third
+ * labels.
+ * 
+ * Since do-while statements also allow us to break out of the loop, we need
+ * to open a break label (L2), so that we can jump to the end of the statement
+ * when we encounter a break statement. The label L1 is used to repeat the loop.
+ * 
+ * We do diverge from the usual implementation of do-while statements, in that
+ * continue statements lead directly to the beginning of the loop, instead of
+ * to the condition.
+ * 
+ * When compiling, we need to create a new compiler scope, so that the labels we
+ * open do not conflict with the break and continue labels of the parent scope.
+ * 
+ * The function returns true if the do-while statement was successfully parsed,
+ * and false otherwise.
+ */
 bool parsepile_do_while(struct parser* parser, struct compiler* compiler) {
     t_compiler_label head;
     t_compiler_label end;
     struct compiler  subcompiler;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We create a new compiler scope, so that the labels we open
+     * do not conflict with the labels of the parent scope.
+     */
     compiler_create_sub(&subcompiler, compiler);
 
+    /*
+     * We then open two labels, one for the head of the do-while statement,
+     * and one for the end of the do-while statement.
+     * 
+     * The head label is the place we jump to when `continue` is encountered.
+     * The end label is the place we jump to when `break` is encountered.
+     */
     head = compiler_open_continue_label(&subcompiler);
     end  = compiler_open_break_label(&subcompiler);
 
-    result = false;
-
+    /*
+     * Place the head label at the head of the do-while statement.
+     */
     compiler_place_label(&subcompiler, head);
 
+    /*
+     * Parsepile the body of the do-while statement.
+     *
+     * This is one instruction, which could be a block statement.
+     * But also other instructions are fine:
+     * 
+     *    do foo(); while (x == 42);
+     */
     if (parsepile_instruction(parser, &subcompiler)) {
+
+        /*
+         * We then expect the `while` keyword.
+         */
         if (parsepile_expect(parser, TOKEN_TYPE_KW_WHILE)) {
+
+            /*
+             * Parsepile the condition of the do-while statement,
+             * which is the expression between the parentheses.
+             */
             if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+                /*
+                 * We then jump to the head of the do-while statement
+                 * if the condition is true.
+                 */
                 compiler_jump_if(&subcompiler, head);
+
+                /*
+                 * After a do-while statement, there is always a semicolon.
+                 */
                 result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
             }
         }
     }
 
+    /*
+     * Place the end label at the end of the do-while statement.
+     */
     compiler_place_label(&subcompiler, end);
 
+    /*
+     * Close the labels we opened.
+     * Cleanliness is next to godliness.
+     */
     compiler_close_label(&subcompiler, head);
     compiler_close_label(&subcompiler, end);
 
+    /*
+     * Destroy the subcompiler. Boom.
+     */
     compiler_destroy(&subcompiler);
 
+    /*
+     * Return the result. Over and out.
+     */
     return result;
 }
 
