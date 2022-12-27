@@ -919,15 +919,13 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_SIZEOF);
-    }
-
-    /*
-     * Now we parse the actual expression.
-     *
-     * Usually, an expression starts with a so-called "simple expression",
-     * which is either a literal, a variable reference, or a function call.
-     */
-    if (!parsepile_simple_expr(parser, compiler, pr)) {
+    } else if (!parsepile_simple_expr(parser, compiler, pr)) {
+        /*
+         * Above this comment we parse the actual expression.
+         *
+         * Usually, an expression starts with a so-called "simple expression",
+         * which is either a literal, a variable reference, or a function call.
+         */
         return false;
     }
 
