@@ -40,6 +40,7 @@ void connection_close_impl(struct connection* connection);
 void connection_close(struct connection* connection);
 void connection_endofinput(struct connection* connection);
 void connection_push_input(struct connection* connection, char* b, unsigned int n);
+bool connection_pull_input(struct connection* connection, char* loc);
 
 void connection_write_byte(struct connection* connection, char byte);
 void connection_write_cstr(struct connection* connection, const char* str);

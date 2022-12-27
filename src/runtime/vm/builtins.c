@@ -150,11 +150,22 @@ void builtin_write_byte_to(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
-void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args) {
-    if (args != 0)
+void builtin_read_byte_from(struct fiber* fiber, any* arg, unsigned int args) {
+    char  c;
+
+    if (args != 1 && !any_is_obj(arg[0], OBJ_TYPE_CONNECTION))
         arg_error(fiber);
     else {
-        fiber_wait_for_input(fiber);
+        if (connection_pull_input(any_to_ptr(arg[0]), &c)) {
+            fiber_set_accu(fiber, any_from_int((unsigned char) c));
+        } else {
+            if (connection_waiting_fiber(any_to_ptr(arg[0])) != NULL)
+                fiber_crash_msg(fiber, "connection already waiting for input");  // TODO: Handle gracefully
+            else {
+                connection_set_waiting_fiber(any_to_ptr(arg[0]), fiber);
+                fiber_wait_for_input(fiber);
+            }
+        }
     }
 }
 

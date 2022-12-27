@@ -132,6 +132,10 @@ void connection_push_input(struct connection* connection, char* b, unsigned int 
     }
 }
 
+bool connection_pull_input(struct connection* connection, char* loc) {
+    return ringbuffer_read(&connection->in_buffer, loc);
+}
+
 void connection_write_byte(struct connection* connection, char byte) {
     pal_socket_write(connection_socket(connection), &byte, 1, NULL);
 }
