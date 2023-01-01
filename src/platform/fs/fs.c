@@ -5,9 +5,12 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../util/stringbuilder.h"
+
+#include "file_info.h"
+
 #include "fs.h"
 
-#include "../../util/stringbuilder.h"
 
 void fs_create(struct fs* fs, struct raven* raven, const char* anchor) {
     fs->raven  = raven;
@@ -197,4 +200,24 @@ bool fs_isdir(struct fs* fs, const char* path) {
     }
     stringbuilder_destroy(&sb);
     return result;
+}
+
+struct file_info* fs_info(struct fs* fs, const char* path) {
+    struct stringbuilder   sb;
+    struct file_info*      info;
+    
+    stringbuilder_create(&sb);
+    {
+        if (fs_normalize(fs, path, &sb)) {
+            for (info = fs->files; info != NULL; info = info->next) {
+                if (file_info_matches(info, stringbuilder_get_const(&sb)))
+                    return info;
+            }
+        }
+
+        info = file_info_new(fs, stringbuilder_get_const(&sb));
+    }
+    stringbuilder_destroy(&sb);
+
+    return info;
 }
