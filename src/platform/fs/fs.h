@@ -29,4 +29,8 @@ bool fs_isdir(struct fs* fs, const char* path);
 
 struct file_info* fs_info(struct fs* fs, const char* path);
 
+static inline struct raven* fs_raven(struct fs* fs) {
+    return fs->raven;
+}
+
 #endif

@@ -204,6 +204,7 @@ bool fs_isdir(struct fs* fs, const char* path) {
 
 struct file_info* fs_info(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
+    struct stringbuilder   sb2;
     struct file_info*      info;
     
     stringbuilder_create(&sb);
@@ -215,7 +216,14 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
             }
         }
 
-        info = file_info_new(fs, stringbuilder_get_const(&sb));
+        info = NULL;
+
+        {
+            stringbuilder_create(&sb2);
+            if (fs_tofile(fs, path, &sb2))
+                info = file_info_new(fs, stringbuilder_get_const(&sb), stringbuilder_get_const(&sb2));
+            stringbuilder_destroy(&sb2);
+        }
     }
     stringbuilder_destroy(&sb);
 
