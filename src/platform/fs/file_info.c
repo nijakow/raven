@@ -22,6 +22,9 @@ void file_info_create(struct file_info* info, struct fs* fs, const char* virt_pa
     if (fs->files != NULL) {
         fs->files->prev = &info->next;
     }
+
+    info->blueprint = NULL;
+    info->object    = NULL;
 }
 
 void file_info_destroy(struct file_info* info) {
@@ -55,4 +58,18 @@ void file_info_delete(struct file_info* info) {
 
 bool file_info_matches(struct file_info* info, const char* virt_path) {
     return strcmp(info->virt_path, virt_path) == 0;
+}
+
+struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing) {
+    if (info->blueprint != NULL)
+        return info->blueprint;
+    
+    return NULL;  // TODO
+}
+
+struct object* file_info_object(struct file_info* info, bool compile_if_missing) {
+    if (info->object != NULL)
+        return info->object;
+    
+    return NULL;  // TODO
 }
