@@ -244,8 +244,8 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
     }
 }
 
-void fiber_push_input(struct fiber* fiber, struct string* text) {
+void fiber_push_input(struct fiber* fiber, any value) {
     if (fiber->state == FIBER_STATE_WAITING_FOR_INPUT) {
-        fiber_reactivate_with_value(fiber, any_from_ptr(text));
+        fiber_reactivate_with_value(fiber, value);
     }
 }

@@ -809,10 +809,35 @@ bool parsepile_op(struct parser*   parser,
     return result;
 }
 
+/*
+ * Parsepile an expression with a given precedence.
+ *
+ * Expressions are all of the following:
+ *    - Function calls, e.g. `foo()`, `bar(1, 2, 3)`, `...->foo()`, `...->bar(1, 2, 3)`
+ *    - Variable references, e.g. `x`, `index`, `foo`
+ *    - Literals, e.g. `42`, `"Hello, world!"`, `true`
+ *    - Unary and binary operators, e.g. `!x`, `x + y`, `x * y`, `x == y`, `x < y`, `x >> y`
+ *    - Type checks, e.g. `x is int`, `x is string`
+ *    - Function references, e.g. `&foo`, `&bar`
+ *    - Dereferencing, e.g. `*"/secure/master"`
+ *    - Array and map literals, e.g. `{1, 2, 3}`, `["foo": 1, "bar": 2]`
+ *    - Array and map indexing, e.g. `x[0]`, `x["foo"]`
+ * 
+ * Since parsing these structures is too much for one function, we
+ * only do a small fraction of the parsing here. Most of the interesting
+ * stuff is done in the other `parsepile_*` functions.
+ * 
+ * NOTE: The precedence of each operator is almost the same as in C.
+ * 
+ */
 bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
     bool            should_continue;
     struct symbol*  symbol;
 
+    /*
+     * We are now in front of an expression, so we handle the
+     * prefix operators first:
+     */
     if (parser_check(parser, TOKEN_TYPE_AMPERSAND)) {
         /*
          * This is the address operator, used in expressions
@@ -843,36 +868,123 @@ bool parsepile_expr(struct parser* parser, struct compiler* compiler, int pr) {
         compiler_op(compiler, RAVEN_OP_DEREF);
         parser_set_exprtype_to_any(parser);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_PLUS)) {
+        /*
+         * This is the unary plus operator, used in expressions
+         * such as:
+         * 
+         *     +42
+         *     +foo
+         * 
+         * which will just return the value of the expression.
+         */
         return parsepile_expr(parser, compiler, 1);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_MINUS)) {
+        /*
+         * This is the unary minus operator, used in expressions
+         * such as:
+         * 
+         *     -42
+         *     -foo
+         * 
+         * which will negate the value of the expression.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_NEGATE);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_NOT)) {
+        /*
+         * This is the logical not operator, used in expressions
+         * such as:
+         * 
+         *     !x
+         *     !foo
+         * 
+         * which will negate the value of the expression.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_NOT);
     } else if (pr >= 2 && parser_check(parser, TOKEN_TYPE_KW_SIZEOF)) {
+        /*
+         * This is the sizeof operator, used in expressions
+         * such as:
+         * 
+         *     sizeof(x)
+         *     sizeof(foo)
+         *     sizeof("Hello, world!")
+         *     sizeof({1, 2, 3})
+         * 
+         * which will return the size of the computed value.
+         */
         if (!parsepile_expr(parser, compiler, 1))
             return false;
         compiler_op(compiler, RAVEN_OP_SIZEOF);
     } else if (!parsepile_simple_expr(parser, compiler, pr)) {
+        /*
+         * Above this comment we parse the actual expression.
+         *
+         * Usually, an expression starts with a so-called "simple expression",
+         * which is either a literal, a variable reference, or a function call.
+         */
         return false;
     }
 
+    /*
+     * Here we handle the postfix operators.
+     *
+     * We look at the next token and decide if it's an operator. If it
+     * is, we compile it and repeat until we reach the end of the expression
+     * or an operator with a lower precedence (which will in turn be handled
+     * by the parsepiler function that called us).
+     */
     should_continue = true;
     while (should_continue) {
         if (!parsepile_op(parser, compiler, pr, &should_continue))
             return false;
     }
 
+    /*
+     * If we reach this point, we have successfully parsed the expression.
+     *
+     * Return true, and let the caller handle the rest. Cheerio.
+     */
     return true;
 }
 
+
+/*
+ * This function parses an expression.
+ *
+ * Essentially, this is just a wrapper around `parsepile_expr`, which
+ * needs a magic precedence value to work. We chose 100 arbitrarily,
+ * because no operator will have any precedence greater than that.
+ * 
+ * For more information, see the documentation for `parsepile_expr`.
+ */
 bool parsepile_expression(struct parser* parser, struct compiler* compiler) {
     return parsepile_expr(parser, compiler, 100);
 }
 
+
+/*
+ * This function parses a parenthesized expression.
+ *
+ * A parenthesized expression is an expression surrounded by parentheses,
+ * just like this:
+ * 
+ *     (x)
+ *     (1 + 2)
+ *
+ * This is used in expressions such as:
+ * 
+ *    (1 + 2) * 3
+ * 
+ * but also in if statements, while loops, etc.:
+ * 
+ *    if (x == 42) {
+ *       ...
+ *    }
+ */
 bool parsepile_parenthesized_expression(struct parser*   parser,
                                         struct compiler* compiler)
 {
@@ -881,6 +993,29 @@ bool parsepile_parenthesized_expression(struct parser*   parser,
         && parsepile_expect(parser, TOKEN_TYPE_RPAREN);
 }
 
+
+/*
+ * Parse the body of a block.
+ *
+ * A block is a sequence of instructions, surrounded by curly braces,
+ * just like this:
+ * 
+ *     {
+ *       ...
+ *     }
+ * 
+ * This function parses the body of a block, which is everything between
+ * the opening and closing curly braces.
+ * 
+ * The function returns true if the block was successfully parsed, and
+ * false otherwise.
+ * 
+ * We parse the body of a block by repeatedly calling `parsepile_instruction`
+ * until we reach the closing curly brace.
+ * 
+ * Note: We don't need to handle the opening curly brace here, because
+ *       the caller will have already done that for us.
+ */
 bool parsepile_block_body(struct parser* parser, struct compiler* compiler) {
     while (!parser_check(parser, TOKEN_TYPE_RCURLY)) {
         if (!parsepile_instruction(parser, compiler))
@@ -889,6 +1024,31 @@ bool parsepile_block_body(struct parser* parser, struct compiler* compiler) {
     return true;
 }
 
+
+/*
+ * Parse a block.
+ *
+ * A block is a sequence of instructions, surrounded by curly braces,
+ * just like this:
+ * 
+ *     {
+ *       ...
+ *     }
+ * 
+ * This function establishes a new compiler context, and then calls
+ * `parsepile_block_body` to parse the body of the block.
+ * 
+ * A new compiler context is established because with each block a new
+ * scope is created, and we need to keep track of the variables declared
+ * in that scope, and forget about them when the scope is destroyed
+ * at the end of the block.
+ * 
+ * The function returns true if the block was successfully parsed, and
+ * false otherwise.
+ * 
+ * Note: We don't need to handle the opening curly brace here, because
+ *       the caller will have already done that for us.
+ */
 bool parsepile_block(struct parser* parser, struct compiler* compiler) {
     struct compiler  subcompiler;
     bool             result;
@@ -900,101 +1060,422 @@ bool parsepile_block(struct parser* parser, struct compiler* compiler) {
     return result;
 }
 
+
+/*
+ * Parse an if statement.
+ *
+ * An if statement is a conditional statement, just like this:
+ * 
+ *     if (x == 42) {
+ *       ...
+ *     }
+ * 
+ * sometimes an optional else clause may follow:
+ * 
+ *     if (x == 42) {
+ *       ...
+ *     } else {
+ *       ...
+ *     }
+ * 
+ * Please note that the curly braces are not required, the actual
+ * format of an if statement is:
+ * 
+ *    if (x == 42) ...
+ * 
+ * or:
+ * 
+ *   if (x == 42) ... else ...
+ * 
+ * where the "..." can be any instruction, including blocks
+ * or other if statements.
+ * 
+ * If-else statements are just a special case of if statements, where
+ * the else clause is just another if statement:
+ * 
+ *   if (x == 42) ...
+ *   else <if (x == 43) ...>
+ * 
+ * This function parses an if statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the condition of the if statement,
+ * which is the expression between the parentheses.
+ * 
+ * Since if statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * An if statement translates to the following code:
+ * 
+ *     <condition>
+ *     jump_if_not L1
+ *     <then>
+ *     jump L2
+ * L1:
+ *     <else>
+ * L2:
+ * 
+ * where L1 and L2 are labels, and <condition>, <then> and <else> are
+ * the instructions that make up the if statement.
+ */
 bool parsepile_if(struct parser* parser, struct compiler* compiler) {
     t_compiler_label middle;
     t_compiler_label end;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We start by parsing the condition of the if statement, which is
+     * the expression between the parentheses.
+     */
     if (!parsepile_parenthesized_expression(parser, compiler))
         return false;
 
+    /*
+     * We then open two labels, one for the middle of the if statement,
+     * and one for the end of the if statement.
+     */
     middle = compiler_open_label(compiler);
     end    = compiler_open_label(compiler);
 
-    result = false;
-
+    /*
+     * We then jump to the middle of the if statement if the condition is
+     * false.
+     */
     compiler_jump_if_not(compiler, middle);
+
+    /*
+     * We then parsepile the then clause of the if statement.
+     */
     if (parsepile_instruction(parser, compiler)) {
+        /*
+         * And jump to the end of the statement afterwards.
+         */
         compiler_jump(compiler, end);
+
+        /*
+         * This is where the middle of the if statement will be placed.
+         */
         compiler_place_label(compiler, middle);
+
+        /*
+         * We then check if there is an else clause.
+         */
         result = true;
         if (parser_check(parser, TOKEN_TYPE_KW_ELSE)) {
+            /*
+             * If there is, we parsepile it.
+             */
             if (!parsepile_instruction(parser, compiler)) {
+                /*
+                 * If the parsing failed, we set the return value back to false.
+                 */
                 result = false;
             }
         }
+
+        /*
+         * This is where the end of the if statement will be placed.
+         */
         compiler_place_label(compiler, end);
     }
 
+    /*
+     * We then close the labels we opened.
+     */
     compiler_close_label(compiler, middle);
     compiler_close_label(compiler, end);
 
+    /*
+     * And return the result.
+     */
     return result;
 }
 
+
+/*
+ * Parse a while statement.
+ *
+ * A while statement is a conditional statement, which allows us to
+ * execute a sequence of instructions as long as a condition is true.
+ * 
+ * A while statement looks like this:
+ * 
+ *     while (x == 42) {
+ *       ...
+ *     }
+ * 
+ * This function parses a while statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the condition of the while statement,
+ * which is the expression between the parentheses.
+ * 
+ * Since while statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * A while statement translates to the following code:
+ * 
+ * L1:
+ *     <condition>
+ *     jump_if_not L2
+ *     <body>
+ *     jump L1
+ * L2:
+ * 
+ * where L1 and L2 are labels, and <condition> and <body> are the
+ * instructions that make up the while statement.
+ * 
+ * The while statement is implemented by jumping to the condition of the
+ * statement, and then jumping to the end of the statement if the condition
+ * is false.
+ * 
+ * The body of the while statement is then executed, and then we jump back
+ * to the condition of the statement, and repeat the process.
+ * 
+ * The while statement is implemented using two labels, one for the
+ * condition of the statement, and one for the end of the statement.
+ * 
+ * The body of the statement is placed between the two labels.
+ * 
+ * Since while statements also allow us to break out of the loop, we need
+ * to open a break label, so that we can jump to the end of the statement
+ * when we encounter a break statement. The same goes for continue statements,
+ * which allow us to jump to the condition of the statement.
+ * 
+ * Therefore, we need to create a new compiler scope, so that the labels we
+ * open do not conflict with the break and continue labels of the parent scope.
+ */
 bool parsepile_while(struct parser* parser, struct compiler* compiler) {
     t_compiler_label head;
     t_compiler_label end;
     struct compiler  subcompiler;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We create a new compiler scope, so that the labels we open
+     * do not conflict with the labels of the parent scope.
+     */
     compiler_create_sub(&subcompiler, compiler);
 
+    /*
+     * We then open two labels, one for the head of the while statement,
+     * and one for the end of the while statement.
+     * 
+     * The head label is the place we jump to when `continue` is encountered.
+     * The end label is the place we jump to when `break` is encountered.
+     */
     head = compiler_open_continue_label(&subcompiler);
     end  = compiler_open_break_label(&subcompiler);
 
-    result = false;
-
+    /*
+     * We then place the head label at the head of the while statement.
+     */
     compiler_place_label(&subcompiler, head);
 
+    /*
+     * We then parsepile the condition of the while statement, which is
+     * the expression between the parentheses.
+     */
     if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+        /*
+         * We jump to the end of the while statement if the condition
+         * is false.
+         */
         compiler_jump_if_not(&subcompiler, end);
+
+        /*
+         * We then parsepile the body of the while statement.
+         */
         if (parsepile_instruction(parser, &subcompiler)) {
+            /*
+             * After that, we proceed to the head of the while statement.
+             */
             compiler_jump(&subcompiler, head);
+
+            /*
+             * And place the end label at the end of the while statement.
+             */
             compiler_place_label(&subcompiler, end);
+
+            /*
+             * Done! :)
+             */
             result = true;
         }
     }
 
+    /*
+     * Close the labels we opened.
+     * Cleanliness is next to godliness.
+     */
     compiler_close_label(&subcompiler, head);
     compiler_close_label(&subcompiler, end);
 
+    /*
+     * Destroy the subcompiler. Boom.
+     */
     compiler_destroy(&subcompiler);
 
+    /*
+     * Return the result. Over and out.
+     */
     return result;
 }
 
+
+/*
+ * Parse a do-while statement.
+ *
+ * A do-while statement is a conditional statement, which allows us to
+ * execute a sequence of instructions as long as a condition is true.
+ * 
+ * A do-while statement looks like this:
+ * 
+ *     do {
+ *       ...
+ *     } while (x == 42);
+ * 
+ * This function parses a do-while statement, and returns true if the
+ * statement was successfully parsed, and false otherwise.
+ * 
+ * The function works by first parsing the body of the do-while statement.
+ * 
+ * Since do-while statements are conditional statements, we need to make use
+ * of the label facility of the compiler to implement the jumps.
+ * 
+ * A do-while statement translates to the following code:
+ * 
+ * L1:
+ *     <body>
+ *     <condition>
+ *     jump_if L1
+ * L2:
+ * 
+ * where L1, L2 are labels, and <condition> and <body> are the
+ * instructions that make up the do-while statement.
+ * 
+ * The do-while statement is implemented by running the body of the statement,
+ * and then evaluating the condition of the statement. If the condition is
+ * true, we jump back to the body of the statement, and repeat the process.
+ * 
+ * The do-while statement is implemented using two labels, one for the
+ * body of the statement, and one for the end of the statement.
+ * 
+ * The body of the statement is placed between the first and second labels.
+ * 
+ * The condition of the statement is placed between the second and third
+ * labels.
+ * 
+ * Since do-while statements also allow us to break out of the loop, we need
+ * to open a break label (L2), so that we can jump to the end of the statement
+ * when we encounter a break statement. The label L1 is used to repeat the loop.
+ * 
+ * We do diverge from the usual implementation of do-while statements, in that
+ * continue statements lead directly to the beginning of the loop, instead of
+ * to the condition.
+ * 
+ * When compiling, we need to create a new compiler scope, so that the labels we
+ * open do not conflict with the break and continue labels of the parent scope.
+ * 
+ * The function returns true if the do-while statement was successfully parsed,
+ * and false otherwise.
+ */
 bool parsepile_do_while(struct parser* parser, struct compiler* compiler) {
     t_compiler_label head;
     t_compiler_label end;
     struct compiler  subcompiler;
     bool             result;
 
+    /*
+     * Set up the return value.
+     */
+    result = false;
+
+    /*
+     * We create a new compiler scope, so that the labels we open
+     * do not conflict with the labels of the parent scope.
+     */
     compiler_create_sub(&subcompiler, compiler);
 
+    /*
+     * We then open two labels, one for the head of the do-while statement,
+     * and one for the end of the do-while statement.
+     * 
+     * The head label is the place we jump to when `continue` is encountered.
+     * The end label is the place we jump to when `break` is encountered.
+     */
     head = compiler_open_continue_label(&subcompiler);
     end  = compiler_open_break_label(&subcompiler);
 
-    result = false;
-
+    /*
+     * Place the head label at the head of the do-while statement.
+     */
     compiler_place_label(&subcompiler, head);
 
+    /*
+     * Parsepile the body of the do-while statement.
+     *
+     * This is one instruction, which could be a block statement.
+     * But also other instructions are fine:
+     * 
+     *    do foo(); while (x == 42);
+     */
     if (parsepile_instruction(parser, &subcompiler)) {
+
+        /*
+         * We then expect the `while` keyword.
+         */
         if (parsepile_expect(parser, TOKEN_TYPE_KW_WHILE)) {
+
+            /*
+             * Parsepile the condition of the do-while statement,
+             * which is the expression between the parentheses.
+             */
             if (parsepile_parenthesized_expression(parser, &subcompiler)) {
+                /*
+                 * We then jump to the head of the do-while statement
+                 * if the condition is true.
+                 */
                 compiler_jump_if(&subcompiler, head);
+
+                /*
+                 * After a do-while statement, there is always a semicolon.
+                 */
                 result = parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
             }
         }
     }
 
+    /*
+     * Place the end label at the end of the do-while statement.
+     */
     compiler_place_label(&subcompiler, end);
 
+    /*
+     * Close the labels we opened.
+     * Cleanliness is next to godliness.
+     */
     compiler_close_label(&subcompiler, head);
     compiler_close_label(&subcompiler, end);
 
+    /*
+     * Destroy the subcompiler. Boom.
+     */
     compiler_destroy(&subcompiler);
 
+    /*
+     * Return the result. Over and out.
+     */
     return result;
 }
 

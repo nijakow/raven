@@ -332,7 +332,7 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$this_locals", builtin_this_locals);
     raven_builtin(raven, "$print", builtin_print);
     raven_builtin(raven, "$write_byte_to", builtin_write_byte_to);
-    raven_builtin(raven, "$input_line", builtin_input_line);
+    raven_builtin(raven, "$read_byte_from", builtin_read_byte_from);
     raven_builtin(raven, "$close", builtin_close);
 
     raven_builtin(raven, "$the", builtin_the);

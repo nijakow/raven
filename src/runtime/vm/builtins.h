@@ -24,7 +24,7 @@ void builtin_connection_player(struct fiber* fiber, any* arg, unsigned int args)
 void builtin_this_locals(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_print(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_write_byte_to(struct fiber* fiber, any* arg, unsigned int args);
-void builtin_input_line(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_read_byte_from(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_close(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_the(struct fiber* fiber, any* arg, unsigned int args);
