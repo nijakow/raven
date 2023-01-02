@@ -147,7 +147,7 @@ void serializer_write_tag(struct serializer* serializer, enum serializer_tag tag
 bool serializer_write_ref(struct serializer* serializer, void* ptr) {
     uint32_t  id;
 
-    if (serializer_object_pages_lookup(&serializer->object_pages, ptr, NULL)) {
+    if (serializer_object_pages_lookup(&serializer->object_pages, ptr, &id)) {
         serializer_write_tag(serializer, SERIALIZER_TAG_REF);
         serializer_write_uint(serializer, id);
         return true;
