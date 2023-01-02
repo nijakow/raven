@@ -229,3 +229,31 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
 
     return info;
 }
+
+struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create) {
+    struct file_info*   info;
+    struct blueprint*   blueprint;
+
+    blueprint = NULL;
+
+    info = fs_info(fs, path);
+    if (info != NULL) {
+        blueprint = file_info_blueprint(info, create);
+    }
+
+    return blueprint;
+}
+
+struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
+    struct file_info*   info;
+    struct object*      object;
+
+    object = NULL;
+
+    info = fs_info(fs, path);
+    if (info != NULL) {
+        object = file_info_object(info, create);
+    }
+
+    return object;
+}
