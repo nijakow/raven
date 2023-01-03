@@ -176,6 +176,8 @@ bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
     struct stringbuilder  sb2;
     bool                  result;
 
+    result = false;
+
     stringbuilder_create(&sb2);
     if (fs_tofile(fs, path, &sb2)) {
         result = fs_read_real(fs, stringbuilder_get_const(&sb2), sb);
