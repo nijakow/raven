@@ -6,7 +6,11 @@
  */
 
 #include "../../runtime/core/objects/object/object.h"
+#include "../../runtime/core/blueprint.h"
+#include "../../runtime/lang/parser.h"
+#include "../../runtime/lang/parsepiler.h"
 #include "../../util/memory.h"
+#include "../../util/stringbuilder.h"
 
 #include "fs.h"
 
@@ -62,12 +66,56 @@ void file_info_delete(struct file_info* info) {
     }
 }
 
+static struct raven* file_info_raven(struct file_info* info) {
+    return fs_raven(info->fs);
+}
+
 bool file_info_matches(struct file_info* info, const char* virt_path) {
     return strcmp(info->virt_path, virt_path) == 0;
 }
 
+static bool file_info_compile(struct file_info*  info,
+                              const char*        source,
+                              struct blueprint** loc,
+                              struct log*        log) {
+    struct reader      reader;
+    struct parser      parser;
+    struct blueprint*  blueprint;
+    bool               result;
+
+    result = false;
+
+    blueprint = blueprint_new(file_info_raven(info), NULL); // TODO, FIXME, XXX: Give it a pointer to file_info's path
+
+    reader_create(&reader, source);
+    parser_create(&parser, file_info_raven(info), &reader, log);
+
+    parser_set_file_name(&parser, info->virt_path);
+
+    if (parsepile_file(&parser, blueprint)) {
+        if (loc != NULL)
+            *loc = blueprint;
+         result = true;
+    }
+
+    parser_destroy(&parser);
+    reader_destroy(&reader);
+
+    return result;
+}
+
 bool file_info_recompile(struct file_info* info) {
-    return false;  // TODO
+    struct stringbuilder  contents;
+    bool                  result;
+
+    stringbuilder_create(&contents);
+    result = fs_read(info->fs, info->virt_path, &contents)
+          && file_info_compile(info,
+                               stringbuilder_get_const(&contents),
+                              &info->blueprint,
+                               raven_log(file_info_raven(info)));
+    stringbuilder_destroy(&contents);
+    return result;
 }
 
 struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing) {
