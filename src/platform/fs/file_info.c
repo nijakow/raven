@@ -25,8 +25,6 @@ void file_info_create(struct file_info* info,
     info->virt_path = memory_strdup(virt_path);
     info->real_path = memory_strdup(real_path);
 
-    printf("Creating file info for %s (%s) at %p (fs: %p)\n", virt_path, real_path, info, fs);
-
     info->prev      = &fs->files;
     info->next      = fs->files;
 
@@ -80,7 +78,6 @@ static struct raven* file_info_raven(struct file_info* info) {
 }
 
 bool file_info_matches(struct file_info* info, const char* virt_path) {
-    printf("Comparing %s to %s\n", info->virt_path, virt_path);
     return strcmp(info->virt_path, virt_path) == 0;
 }
 
@@ -92,6 +89,8 @@ static bool file_info_compile(struct file_info*  info,
     struct parser      parser;
     struct blueprint*  blueprint;
     bool               result;
+
+    printf("]%s\n", info->virt_path);
 
     result = false;
 
