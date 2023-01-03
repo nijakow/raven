@@ -27,6 +27,8 @@ bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_exists(struct fs* fs, const char* path);
 bool fs_isdir(struct fs* fs, const char* path);
 
+bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb);
+
 struct file_info* fs_info(struct fs* fs, const char* path);
 
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create);
