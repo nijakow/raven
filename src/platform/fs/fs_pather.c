@@ -53,7 +53,7 @@ void fs_pather_up(struct fs_pather* pather) {
         pather->write_head--;
 }
 
-void fs_pather_cd(struct fs_pather* pather, const char* dir) {
+void fs_pather_cd1(struct fs_pather* pather, const char* dir) {
     if (strcmp(dir, "..") == 0) {
         fs_pather_up(pather);
     } else if (strcmp(dir, ".") == 0 || strcmp(dir, "") == 0) {
@@ -62,6 +62,29 @@ void fs_pather_cd(struct fs_pather* pather, const char* dir) {
          */
     } else {
         fs_pather_append_directory(pather, dir);
+    }
+}
+
+void fs_pather_cd(struct fs_pather* pather, const char* dir) {
+    size_t  read_head;
+    size_t  write_head;
+    char    buffer[1024];
+
+    read_head  = 0;
+    write_head = 0;
+
+    while (true) {
+        if (dir[read_head] == '/' || dir[read_head] == '\0') {
+            buffer[write_head] = '\0';
+            fs_pather_cd1(pather, buffer);
+            write_head = 0;
+            if (dir[read_head] == '\0')
+                break;
+        } else {
+            buffer[write_head] = dir[read_head];
+            write_head++;
+        }
+        read_head++;
     }
 }
 
