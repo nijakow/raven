@@ -6,7 +6,7 @@
  */
 
 #include "../../raven/raven.h"
-#include "../../platform/fs/file.h"
+#include "../../platform/fs/fs.h"
 #include "../../util/memory.h"
 
 #include "objects/object/object.h"

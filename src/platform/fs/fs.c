@@ -166,6 +166,11 @@ bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
     return file != NULL;
 }
 
+bool fs_write(struct fs* fs, const char* path, const char* text) {
+    // TODO, FIXME, XXX!
+    return false;
+}
+
 struct file_info* fs_info(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;

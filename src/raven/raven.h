@@ -11,7 +11,7 @@
 #include "../defs.h"
 #include "../util/log.h"
 
-#include "../platform/fs/filesystem.h"
+#include "../platform/fs/fs.h"
 #include "../platform/server/server.h"
 
 #include "../runtime/core/any.h"
@@ -45,7 +45,7 @@ struct raven {
     struct log           log;
     struct scheduler     scheduler;
     struct server        server;
-    struct filesystem    fs;
+    struct fs            fs;
     struct raven_vars    vars;
     bool                 was_interrupted;
 };
@@ -102,7 +102,7 @@ static inline struct server* raven_server(struct raven* raven) {
     return &raven->server;
 }
 
-static inline struct filesystem* raven_fs(struct raven* raven) {
+static inline struct fs* raven_fs(struct raven* raven) {
     return &raven->fs;
 }
 

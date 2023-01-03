@@ -7,9 +7,10 @@
 
 #include "../../defs.h"
 #include "../../raven/raven.h"
-#include "../../platform/fs/file.h"
+#include "../../platform/fs/fs.h"
 #include "../../util/log.h"
 #include "../../util/memory.h"
+#include "../../util/stringbuilder.h"
 
 #include "../core/objects/connection.h"
 #include "../core/objects/function.h"

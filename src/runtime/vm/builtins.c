@@ -7,7 +7,6 @@
 
 #include "../../defs.h"
 #include "../../raven/raven.h"
-#include "../../platform/fs/file.h"
 #include "../../platform/fs/file_info.h"
 #include "../../platform/fs/fs_pather.h"
 #include "../../platform/fs/fs.h"
@@ -547,8 +546,6 @@ void builtin_ls(struct fiber* fiber, any* arg, unsigned int args) {
     struct string*  string;
     struct string*  name;
     const char*     path;
-    struct file*    file;
-    struct file*    child;
 
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
@@ -556,79 +553,54 @@ void builtin_ls(struct fiber* fiber, any* arg, unsigned int args) {
         files  = array_new(fiber_raven(fiber), 0);
         string = any_to_ptr(arg[0]);
         path   = string_contents(string);
-        file   = filesystem_resolve(raven_fs(fiber_raven(fiber)), path);
-        if (file != NULL) {
-            for (child = file_children(file);
-                 child != NULL;
-                 child = file_sibling(child)) {
-                name = string_new(fiber_raven(fiber), file_name(child));
-                array_append(files, any_from_ptr(name));
-            }
-        }
+        
+        // TODO, FIXME, XXX
+        (void) path;
+        (void) name;
+
         fiber_set_accu(fiber, any_from_ptr(files));
     }
 }
 
 void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
-    struct filesystem*  filesystem;
-    struct file*        file;
-    struct string*      result_str;
-    const char*         base_path;
-    const char*         direction;
-    char*               result_path;
+    struct string*    result_str;
+    const char*       base_path;
+    const char*       direction;
+    struct fs_pather  pather;
 
     if (args != 2
         || !any_is_obj(arg[0], OBJ_TYPE_STRING)
         || !any_is_obj(arg[1], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        filesystem = raven_fs(fiber_raven(fiber));
         base_path  = string_contents(any_to_ptr(arg[0]));
         direction  = string_contents(any_to_ptr(arg[1]));
-        file       = filesystem_resolve(filesystem, base_path);
 
-        if (file == NULL)
-            fiber_set_accu(fiber, any_nil());
-        else {
-            file = file_resolve(file, direction);
-            if (file == NULL)
-                fiber_set_accu(fiber, any_nil());
-            else {
-                /*
-                 * TODO, FIXME, XXX: result_path could be NULL!
-                 */
-                result_path = file_path(file);
-                result_str  = string_new(fiber_raven(fiber), result_path);
-                free(result_path);
-                fiber_set_accu(fiber, any_from_ptr(result_str));
-            }
-        }
+        fs_pather_create(&pather);
+        fs_pather_cd(&pather, base_path);
+        fs_pather_cd(&pather, direction);
+        result_str = string_new(fiber_raven(fiber), fs_pather_get_const(&pather));
+        fiber_set_accu(fiber, any_from_ptr(result_str));
+        fs_pather_destroy(&pather);
     }
 }
 
 void builtin_file_is_directory(struct fiber* fiber, any* arg, unsigned int args) {
-    struct filesystem*    filesystem;
-    struct file*          file;
-    const  char*          path;
+    struct fs*    fs;
+    const  char*  path;
 
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        filesystem = raven_fs(fiber_raven(fiber));
-        path       = string_contents(any_to_ptr(arg[0]));
-        file       = filesystem_resolve(filesystem, path);
+        fs   = raven_fs(fiber_raven(fiber));
+        path = string_contents(any_to_ptr(arg[0]));
 
-        if (file == NULL)
-            fiber_set_accu(fiber, any_from_int(0));
-        else {
-            fiber_set_accu(fiber, any_from_int(file_is_directory(file) ? 1 : 0));
-        }
+        fiber_set_accu(fiber, any_from_int(fs_isdir(fs, path) ? 1 : 0));
     }
 }
 
 void builtin_read_file(struct fiber* fiber, any* arg, unsigned int args) {
-    struct filesystem*    filesystem;
-    struct file*          file;
+    struct fs*            fs;
     const  char*          path;
     struct string*        result;
     struct stringbuilder  sb;
@@ -636,50 +608,44 @@ void builtin_read_file(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        filesystem = raven_fs(fiber_raven(fiber));
-        path       = string_contents(any_to_ptr(arg[0]));
-        file       = filesystem_resolve(filesystem, path);
+        fs   = raven_fs(fiber_raven(fiber));
+        path = string_contents(any_to_ptr(arg[0]));
 
-        if (file == NULL)
-            fiber_set_accu(fiber, any_nil());
-        else {
-            stringbuilder_create(&sb);
-            file_read(file, &sb);
+        stringbuilder_create(&sb);
+        if (fs_read(fs, path, &sb)) {
             result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
-            stringbuilder_destroy(&sb);
             fiber_set_accu(fiber, any_from_ptr(result));
+        } else {
+            fiber_set_accu(fiber, any_nil());
         }
+        stringbuilder_destroy(&sb);
     }
 }
 
 void builtin_write_file(struct fiber* fiber, any* arg, unsigned int args) {
-    struct filesystem*    filesystem;
-    struct file*          file;
-    const  char*          path;
-    const  char*          text;
+    struct fs*    fs;
+    const  char*  path;
+    const  char*  text;
 
     if (args != 2
         || !any_is_obj(arg[0], OBJ_TYPE_STRING)
         || !any_is_obj(arg[1], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        path       = string_contents(any_to_ptr(arg[0]));
-        text       = string_contents(any_to_ptr(arg[1]));
-        filesystem = raven_fs(fiber_raven(fiber));
-        file       = filesystem_resolve(filesystem, path);
+        path = string_contents(any_to_ptr(arg[0]));
+        text = string_contents(any_to_ptr(arg[1]));
+        fs   = raven_fs(fiber_raven(fiber));
 
-        if (file == NULL)
-            fiber_set_accu(fiber, any_from_int(0));
-        else {
-            file_write(file, text);
+        if (fs_write(fs, path, text)) {
             fiber_set_accu(fiber, any_from_int(1));
+        } else {
+            fiber_set_accu(fiber, any_from_int(0));
         }
     }
 }
 
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
-    struct filesystem*    filesystem;
-    struct file*          file;
+    struct fs*            fs;
     const  char*          path;
     struct stringbuilder  sb;
     struct log            log;
@@ -687,23 +653,14 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        filesystem = raven_fs(fiber_raven(fiber));
-        path       = string_contents(any_to_ptr(arg[0]));
-        file       = filesystem_resolve(filesystem, path);
+        fs   = raven_fs(fiber_raven(fiber));
+        path = string_contents(any_to_ptr(arg[0]));
 
-        if (file == NULL)
-            fiber_set_accu(fiber, any_from_int(1));
-        else {
-            stringbuilder_create(&sb);
-            log_create_to_stringbuilder(&log, &sb);
-            if (file_recompile(file, &log)) {
-                fiber_set_accu(fiber, any_from_int(1));
-            } else {
-                fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
-            }
-            log_destroy(&log);
-            stringbuilder_destroy(&sb);
-        }
+        // TODO, FIXME, XXX
+        (void) fs;
+        (void) path;
+        (void) log;
+        (void) sb;
     }
 }
 
