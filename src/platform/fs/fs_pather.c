@@ -18,6 +18,10 @@ void fs_pather_destroy(struct fs_pather* pather) {
 
 }
 
+void fs_pather_clear(struct fs_pather* pather) {
+    pather->write_head = 0;
+}
+
 bool fs_pather_is_slashed(struct fs_pather* pather) {
     return (pather->write_head > 0 && pather->buffer[pather->write_head - 1] == '/');
 }
@@ -69,6 +73,10 @@ void fs_pather_cd(struct fs_pather* pather, const char* dir) {
     size_t  read_head;
     size_t  write_head;
     char    buffer[1024];
+
+    if (dir[0] == '/') {
+        fs_pather_clear(pather);
+    }
 
     read_head  = 0;
     write_head = 0;

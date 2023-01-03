@@ -18,6 +18,8 @@ struct fs_pather {
 void fs_pather_create(struct fs_pather* pather);
 void fs_pather_destroy(struct fs_pather* pather);
 
+void fs_pather_clear(struct fs_pather* pather);
+
 void fs_pather_unsafe_append(struct fs_pather* pather, const char* str);
 
 void fs_pather_cd(struct fs_pather* pather, const char* dir);
