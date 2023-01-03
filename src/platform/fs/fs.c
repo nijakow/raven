@@ -272,7 +272,7 @@ bool fs_ls(struct fs* fs, const char* path, fs_mapper_func func, void* data) {
 
     stringbuilder_create(&sb);
     {
-        if (fs_normalize(fs, path, &sb)) {
+        if (fs_tofile(fs, path, &sb)) {
             // Use dirent to list the directory.
             dir = opendir(stringbuilder_get_const(&sb));
             if (dir != NULL) {
