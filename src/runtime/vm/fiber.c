@@ -220,9 +220,8 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
     struct function*   function;
     struct symbol*     fname;
     struct blueprint*  blueprint;
-    struct file*       file;
     const  char*       name;
-    char*       path;
+    const  char*       path;
 
     log_printf(log, "Backtrace:\n");
     frame = fiber_top(fiber);
@@ -233,13 +232,9 @@ void fiber_print_backtrace(struct fiber* fiber, struct log* log) {
         path      = NULL;
         blueprint = function_blueprint(function);
         if (blueprint != NULL) {
-            file = blueprint_file(blueprint);
-            if (file != NULL) {
-                path = file_path(file);
-            }
+            path = blueprint_virt_path(blueprint);
         }
         log_printf(log, "   - %s(...) in %s\n", name, (path == NULL) ? "unknown" : path);
-        if (path != NULL) memory_free(path);
         frame = frame_prev(frame);
     }
 }

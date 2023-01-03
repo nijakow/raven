@@ -8,6 +8,9 @@
 #include "../../defs.h"
 #include "../../raven/raven.h"
 #include "../../platform/fs/file.h"
+#include "../../platform/fs/file_info.h"
+#include "../../platform/fs/fs_pather.h"
+#include "../../platform/fs/fs.h"
 #include "../../util/log.h"
 #include "../../util/wrap.h"
 
@@ -181,30 +184,24 @@ void builtin_the(struct fiber* fiber, any* arg, unsigned int args) {
     any               self;
     struct object*    obj;
     struct blueprint* blue;
-    struct file*      file;
-    struct file*      file2;
-    struct file*      file3;
+    struct fs_pather  pather;
 
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
     else {
-        fiber_set_accu(fiber, any_nil());
+        obj  = NULL;
         self = frame_self(fiber_top(fiber));
         blue = any_get_blueprint(self);
+
         if (blue != NULL) {
-            file = blueprint_file(blue);
-            if (file != NULL) {
-                file2 = file_parent(file);
-                if (file2 == NULL) file2 = file;
-                file3 = file_resolve_flex(file2, string_contents(any_to_ptr(arg[0])));
-                if (file3 == NULL)
-                    fiber_set_accu(fiber, any_nil());
-                else {
-                    obj = file_get_object(file3);
-                    fiber_set_accu(fiber, (obj == NULL) ? any_nil() : any_from_ptr(obj));
-                }
-            }
+            fs_pather_create(&pather);
+            fs_pather_cd(&pather, blueprint_virt_path(blue));
+            fs_pather_cd(&pather, "..");
+            fs_pather_cd(&pather, string_contents(any_to_ptr(arg[0])));
+            obj = fs_find_object(raven_fs(fiber_raven(fiber)), fs_pather_get_const(&pather), true);
+            fs_pather_destroy(&pather);
         }
+        fiber_set_accu(fiber, (obj == NULL) ? any_nil() : any_from_ptr(obj));
     }
 }
 

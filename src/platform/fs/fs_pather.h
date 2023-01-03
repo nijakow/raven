@@ -23,5 +23,6 @@ void fs_pather_unsafe_append(struct fs_pather* pather, const char* str);
 void fs_pather_cd(struct fs_pather* pather, const char* dir);
 
 void fs_pather_write_out(struct fs_pather* pather, struct stringbuilder* sb);
+const char* fs_pather_get_const(struct fs_pather* pather);
 
 #endif

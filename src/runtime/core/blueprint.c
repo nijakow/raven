@@ -7,6 +7,8 @@
 
 #include "../../raven/raven.h"
 #include "../../platform/fs/file.h"
+#include "../../util/memory.h"
+
 #include "objects/object/object.h"
 #include "objects/function.h"
 
@@ -19,10 +21,10 @@ struct obj_info BLUEPRINT_INFO = {
     .stats = (stats_func) base_obj_stats
 };
 
-static void blueprint_create(struct blueprint* blue, struct file* file) {
-    blue->file    = file;
-    blue->parent  = NULL;
-    blue->methods = NULL;
+static void blueprint_create(struct blueprint* blue, const char* virt_path) {
+    blue->virt_path = memory_strdup(virt_path);
+    blue->parent    = NULL;
+    blue->methods   = NULL;
     vars_create(&blue->vars);
 }
 
@@ -30,9 +32,10 @@ static void blueprint_destroy(struct blueprint* blue) {
     while (blue->methods != NULL)
         function_unlink(blue->methods);
     vars_destroy(&blue->vars);
+    memory_free(blue->virt_path);
 }
 
-struct blueprint* blueprint_new(struct raven* raven, struct file* file) {
+struct blueprint* blueprint_new(struct raven* raven, const char* virt_path) {
     struct blueprint* blueprint;
 
     blueprint = base_obj_new(raven_objects(raven),
@@ -41,7 +44,7 @@ struct blueprint* blueprint_new(struct raven* raven, struct file* file) {
 
     if (blueprint != NULL) {
         blueprint->raven = raven;
-        blueprint_create(blueprint, file);
+        blueprint_create(blueprint, virt_path);
     }
 
     return blueprint;
@@ -122,47 +125,23 @@ struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, un
 
 struct blueprint* blueprint_load_relative(struct blueprint* bp,
                                           const  char*      path) {
-    struct file*  file;
-
-    file = blueprint_file(bp);
-    if (file == NULL) return raven_get_blueprint(blueprint_raven(bp), path);
-
-    file = file_parent(file);
-    if (file == NULL) return NULL;
-
-    file = file_resolve_flex(file, path);
-    if (file == NULL) return NULL;
-
-    return file_get_blueprint(file);
+    // TODO, FIXME, XXX!
+    return NULL;
 }
 
 struct blueprint* blueprint_recompile(struct blueprint* blue) {
-    struct file*  file;
-
-    file = blueprint_file(blue);
-
-    if (file == NULL)
-        return NULL;
-
-    return file_recompile_and_get(file);
+    // TODO, FIXME, XXX!
+    return NULL;
 }
 
 struct blueprint* blueprint_find_newest_version(struct blueprint* blue) {
-    struct file*       file;
-    struct blueprint*  other;
-
-    file = blueprint_file(blue);
-
-    if (file == NULL)
-        return NULL;
-    
-    other = file_get_blueprint(file);
-
-    return other;
+    // TODO, FIXME, XXX!
+    return NULL;
 }
 
 bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
-    return (blue == potential_soulmate || ((blueprint_file(blue) == blueprint_file(potential_soulmate)) && blueprint_file(blue) != NULL));
+    // TODO, FIXME, XXX!
+    return false;
 }
 
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {

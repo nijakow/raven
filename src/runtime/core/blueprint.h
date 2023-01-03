@@ -28,13 +28,13 @@
 struct blueprint {
     struct base_obj    _;
     struct raven*      raven;
-    struct file*       file;
+    char*              virt_path;
     struct blueprint*  parent;
     struct function*   methods;
     struct vars        vars;
 };
 
-struct blueprint* blueprint_new(struct raven* raven, struct file* file);
+struct blueprint* blueprint_new(struct raven* raven, const char* virt_path);
 void blueprint_mark(struct gc* gc, struct blueprint* blue);
 void blueprint_del(struct blueprint* blueprint);
 
@@ -70,8 +70,8 @@ static inline struct blueprint* blueprint_parent(struct blueprint* blue) {
     return blue->parent;
 }
 
-static inline struct file* blueprint_file(struct blueprint* blue) {
-    return blue->file;
+static inline const char* blueprint_virt_path(struct blueprint* blue) {
+    return blue->virt_path;
 }
 
 static inline struct vars* blueprint_vars(struct blueprint* bp) {
