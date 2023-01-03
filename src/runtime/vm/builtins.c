@@ -644,7 +644,7 @@ void builtin_read_file(struct fiber* fiber, any* arg, unsigned int args) {
             fiber_set_accu(fiber, any_nil());
         else {
             stringbuilder_create(&sb);
-            file_cat(file, &sb);
+            file_read(file, &sb);
             result = string_new_from_stringbuilder(fiber_raven(fiber), &sb);
             stringbuilder_destroy(&sb);
             fiber_set_accu(fiber, any_from_ptr(result));

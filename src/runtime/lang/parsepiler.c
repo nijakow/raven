@@ -2188,7 +2188,7 @@ bool parsepile_include_statement(struct parser*    parser,
         if (file != NULL) {
             parser_advance(parser);
             stringbuilder_create(&sb);
-            file_cat(file, &sb);
+            file_read(file, &sb);
             {
                 reader_create(&reader, stringbuilder_get_const(&sb));
                 parser_create(&new_parser, parser_raven(parser), &reader, parser_log(parser));

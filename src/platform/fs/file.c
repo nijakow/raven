@@ -226,7 +226,7 @@ bool file_is_directory(struct file* file) {
     return result;
 }
 
-bool file_cat(struct file* file, struct stringbuilder* into) {
+bool file_read(struct file* file, struct stringbuilder* into) {
     FILE*   f;
     size_t  byte;
     size_t  bytes_read;
