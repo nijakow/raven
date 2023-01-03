@@ -25,6 +25,8 @@ void file_info_create(struct file_info* info,
     info->virt_path = memory_strdup(virt_path);
     info->real_path = memory_strdup(real_path);
 
+    printf("Creating file info for %s (%s) at %p (fs: %p)\n", virt_path, real_path, info, fs);
+
     info->prev      = &fs->files;
     info->next      = fs->files;
 
@@ -85,7 +87,7 @@ static bool file_info_compile(struct file_info*  info,
 
     result = false;
 
-    blueprint = blueprint_new(file_info_raven(info), NULL); // TODO, FIXME, XXX: Give it a pointer to file_info's path
+    blueprint = blueprint_new(file_info_raven(info), info->virt_path);
 
     reader_create(&reader, source);
     parser_create(&parser, file_info_raven(info), &reader, log);
@@ -109,7 +111,7 @@ bool file_info_recompile(struct file_info* info) {
     bool                  result;
 
     stringbuilder_create(&contents);
-    result = fs_read(info->fs, info->virt_path, &contents)
+    result = fs_read_real(info->fs, info->real_path, &contents)
           && file_info_compile(info,
                                stringbuilder_get_const(&contents),
                               &info->blueprint,
@@ -119,7 +121,7 @@ bool file_info_recompile(struct file_info* info) {
 }
 
 struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing) {
-    if (info->blueprint == NULL) {
+    if (info->blueprint == NULL && compile_if_missing) {
         file_info_recompile(info);
     }
 

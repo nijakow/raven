@@ -31,6 +31,8 @@ bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_exists(struct fs* fs, const char* path);
 bool fs_isdir(struct fs* fs, const char* path);
 
+bool fs_read_real(struct fs* fs, const char* path, struct stringbuilder* sb);
+
 bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_write(struct fs* fs, const char* path, const char* text);
 

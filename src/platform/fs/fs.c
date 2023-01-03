@@ -147,32 +147,38 @@ bool fs_isdir(struct fs* fs, const char* path) {
     return result;
 }
 
-bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
-    struct stringbuilder  sb2;
+bool fs_read_real(struct fs* fs, const char* path, struct stringbuilder* sb) {
     FILE*                 file;
     size_t                byte;
     size_t                bytes_read;
     char                  buffer[1024];
 
-    file = NULL;
+    file = fopen(path, "r");
+    if (file != NULL) {
+        while (true) {
+            bytes_read = fread(buffer, 1, sizeof(buffer), file);
+            if (bytes_read <= 0)
+                break;
+            for (byte = 0; byte < bytes_read; byte++)
+                stringbuilder_append_char(sb, buffer[byte]);
+        }
+        fclose(file);
+    }
+
+    return file != NULL;
+}
+
+bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
+    struct stringbuilder  sb2;
+    bool                  result;
 
     stringbuilder_create(&sb2);
     if (fs_tofile(fs, path, &sb2)) {
-        file = fopen(stringbuilder_get_const(&sb2), "r");
-        if (file != NULL) {
-            while (true) {
-                bytes_read = fread(buffer, 1, sizeof(buffer), file);
-                if (bytes_read <= 0)
-                    break;
-                for (byte = 0; byte < bytes_read; byte++)
-                    stringbuilder_append_char(sb, buffer[byte]);
-            }
-            fclose(file);
-        }
+        result = fs_read_real(fs, stringbuilder_get_const(&sb2), sb);
     }
     stringbuilder_destroy(&sb2);
 
-    return file != NULL;
+    return result;
 }
 
 bool fs_write(struct fs* fs, const char* path, const char* text) {
@@ -198,8 +204,11 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
 
         {
             stringbuilder_create(&sb2);
-            if (fs_tofile(fs, path, &sb2))
+            if (fs_tofile(fs, path, &sb2)) {
+                // TODO: This is a hack!
+                stringbuilder_append_str(&sb2, ".lpc");
                 info = file_info_new(fs, stringbuilder_get_const(&sb), stringbuilder_get_const(&sb2));
+            }
             stringbuilder_destroy(&sb2);
         }
     }
