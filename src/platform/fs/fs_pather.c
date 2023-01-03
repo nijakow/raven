@@ -97,6 +97,6 @@ void fs_pather_write_out(struct fs_pather* pather, struct stringbuilder* sb) {
 }
 
 const char* fs_pather_get_const(struct fs_pather* pather) {
-    // TODO, FIXME, XXX
-    return NULL;
+    pather->buffer[pather->write_head] = '\0';
+    return pather->buffer;
 }
