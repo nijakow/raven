@@ -120,6 +120,8 @@
 
 #include "../../defs.h"
 #include "../../platform/fs/file.h"
+#include "../../platform/fs/fs_pather.h"
+#include "../../platform/fs/fs.h"
 #include "../../util/stringbuilder.h"
 
 #include "../core/objects/function.h"
@@ -2175,31 +2177,34 @@ bool parsepile_inheritance(struct parser*    parser,
 
 bool parsepile_include_statement(struct parser*    parser,
                                  struct blueprint* into) {
-    struct file*          file;
     struct stringbuilder  sb;
     struct reader         reader;
     struct parser         new_parser;
+    struct fs_pather      pather;
     bool                  result;
 
     result = false;
     if (parsepile_expect_noadvance(parser, TOKEN_TYPE_STRING)) {
-        file = file_resolve_flex(file_parent(blueprint_file(into)),
-                                 parser_as_cstr(parser));
-        if (file != NULL) {
-            parser_advance(parser);
-            stringbuilder_create(&sb);
-            file_read(file, &sb);
-            {
+        fs_pather_create(&pather);
+        fs_pather_cd(&pather, blueprint_virt_path(into));
+        fs_pather_cd(&pather, "..");
+        fs_pather_cd(&pather, parser_as_cstr(parser));
+
+        parser_advance(parser);
+
+        stringbuilder_create(&sb);
+        {
+            if (fs_read(raven_fs(parser_raven(parser)), fs_pather_get_const(&pather), &sb)) {
                 reader_create(&reader, stringbuilder_get_const(&sb));
                 parser_create(&new_parser, parser_raven(parser), &reader, parser_log(parser));
                 result = parsepile_file_impl(&new_parser, into, false, TOKEN_TYPE_EOF);
                 parser_destroy(&new_parser);
                 reader_destroy(&reader);
+            } else {
+                parser_error(parser, "File not found!");
             }
-            stringbuilder_destroy(&sb);
-        } else {
-            parser_error(parser, "File not found!");
         }
+        stringbuilder_destroy(&sb);
     }
 
     return result;

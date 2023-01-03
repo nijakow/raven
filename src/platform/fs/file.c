@@ -294,7 +294,8 @@ bool file_recompile(struct file* file, struct log* log) {
     fclose(f);
 
     raven     = filesystem_raven(file->fs);
-    blueprint = blueprint_new(raven, file);
+    printf("WARNING (%s: %d): This is deprecated code!\n", __FILE__, __LINE__);
+    blueprint = blueprint_new(raven, NULL);
     reader_create(&reader, code);
     parser_create(&parser, raven, &reader, log);
     path      = file_path(file);
