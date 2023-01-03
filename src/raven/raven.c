@@ -264,8 +264,7 @@ struct object* raven_get_object(struct raven* raven, const char* path, bool crea
  * Recompile a blueprint.
  */
 struct blueprint* raven_recompile(struct raven* raven, const char* path) {
-    // TODO
-    return NULL;
+    return fs_recompile(raven_fs(raven), path);
 }
 
 /*
