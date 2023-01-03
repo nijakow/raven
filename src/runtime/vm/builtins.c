@@ -541,11 +541,23 @@ void builtin_this_player(struct fiber* fiber, any* arg, unsigned int args) {
         arg_error(fiber);
 }
 
+struct builtin_ls__helper_data {
+    struct raven* raven;
+    struct array* files;
+};
+
+void builtin_ls__helper(struct builtin_ls__helper_data* data, const char* name) {
+    struct string* string;
+
+    string = string_new(data->raven, name);
+    array_append(data->files, any_from_ptr(string));
+}
+
 void builtin_ls(struct fiber* fiber, any* arg, unsigned int args) {
-    struct array*   files;
-    struct string*  string;
-    struct string*  name;
-    const char*     path;
+    struct array*                   files;
+    struct string*                  string;
+    const char*                     path;
+    struct builtin_ls__helper_data  helper;
 
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
         arg_error(fiber);
@@ -554,9 +566,10 @@ void builtin_ls(struct fiber* fiber, any* arg, unsigned int args) {
         string = any_to_ptr(arg[0]);
         path   = string_contents(string);
         
-        // TODO, FIXME, XXX
-        (void) path;
-        (void) name;
+        helper.raven = fiber_raven(fiber);
+        helper.files = files;
+
+        fs_ls(raven_fs(fiber_raven(fiber)), path, (fs_mapper_func) builtin_ls__helper, &helper);
 
         fiber_set_accu(fiber, any_from_ptr(files));
     }
