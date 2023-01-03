@@ -39,6 +39,12 @@ struct file_info* fs_info(struct fs* fs, const char* path);
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create);
 struct object*    fs_find_object(struct fs* fs, const char* path, bool create);
 
+
+typedef void (*fs_mapper_func)(void* data, const char* path);
+
+bool fs_ls(struct fs* fs, const char* path, fs_mapper_func func, void* data);
+
+
 static inline struct raven* fs_raven(struct fs* fs) {
     return fs->raven;
 }

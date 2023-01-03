@@ -235,3 +235,32 @@ struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
 
     return object;
 }
+
+bool fs_ls(struct fs* fs, const char* path, fs_mapper_func func, void* data) {
+    DIR*                  dir;
+    struct dirent*        entry;
+    struct stringbuilder  sb;
+    bool                  result;
+
+    result = false;
+
+    stringbuilder_create(&sb);
+    {
+        if (fs_normalize(fs, path, &sb)) {
+            // Use dirent to list the directory.
+            dir = opendir(stringbuilder_get_const(&sb));
+            if (dir != NULL) {
+                while ((entry = readdir(dir)) != NULL) {
+                    if (entry->d_name[0] != '.') {
+                        func(data, entry->d_name);
+                    }
+                }
+                closedir(dir);
+                result = true;
+            }
+        }
+    }
+    stringbuilder_destroy(&sb);
+
+    return result;
+}
