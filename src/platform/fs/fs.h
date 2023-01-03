@@ -39,6 +39,8 @@ struct file_info* fs_info(struct fs* fs, const char* path);
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create);
 struct object*    fs_find_object(struct fs* fs, const char* path, bool create);
 
+struct blueprint* fs_recompile(struct fs* fs, const char* path);
+
 
 typedef void (*fs_mapper_func)(void* data, const char* path);
 

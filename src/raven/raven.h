@@ -71,6 +71,10 @@ struct symbol* raven_gensym(struct raven* raven);
 struct blueprint* raven_get_blueprint(struct raven* raven, const char* path, bool create);
 struct object*    raven_get_object(struct raven* raven, const char* path, bool create);
 
+struct blueprint* raven_recompile(struct raven* raven, const char* path);
+bool              raven_recompile_object(struct raven* raven, struct object* object);
+bool              raven_refresh_object(struct raven* raven, struct object* object);
+
 bool raven_call_out(struct raven* raven,
                     const char*   receiver,
                     const char*   name,

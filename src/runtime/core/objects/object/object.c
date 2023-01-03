@@ -146,7 +146,7 @@ struct object_page* object_soulmate_page(struct object* object, struct blueprint
     return NULL;
 }
 
-static void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
+void object_switch_blueprint(struct object* object, struct blueprint* bp_new) {
     struct blueprint*     bp_tmp;
     struct object_page*   external_list;
     struct object_page**  iter;
@@ -226,26 +226,6 @@ static void object_switch_blueprint(struct object* object, struct blueprint* bp_
      *       This avoids the problem of having a stack frame that points to
      *       a page that is no longer part of the object.
      */
-}
-
-void object_recompile(struct object* object) {
-    struct blueprint*  new_bp;
-
-    new_bp = blueprint_recompile(object_blueprint(object));
-
-    if (new_bp != NULL) {
-        object_switch_blueprint(object, new_bp);
-    }
-}
-
-void object_refresh(struct object* object) {
-    struct blueprint*  new_bp;
-
-    new_bp = blueprint_find_newest_version(object_blueprint(object));
-
-    if (new_bp != NULL) {
-        object_switch_blueprint(object, new_bp);
-    }
 }
 
 

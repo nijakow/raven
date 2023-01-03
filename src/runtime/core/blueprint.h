@@ -56,9 +56,6 @@ void blueprint_add_func(struct blueprint* blue,
 
 struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, unsigned int args, bool allow_private);
 
-struct blueprint* blueprint_recompile(struct blueprint* blue);
-struct blueprint* blueprint_find_newest_version(struct blueprint* blue);
-
 bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
 struct blueprint* blueprint_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate);
 

@@ -225,7 +225,10 @@ void builtin_recompile(struct fiber* fiber, any* arg, unsigned int args) {
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
         arg_error(fiber);
     else {
-        object_recompile(any_to_ptr(arg[0]));
+        if (raven_recompile_object(fiber_raven(fiber), any_to_ptr(arg[0])))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
     }
 }
 
@@ -674,6 +677,8 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
         (void) path;
         (void) log;
         (void) sb;
+
+        printf("WARNING: builtin_cc is not implemented yet\n");
     }
 }
 

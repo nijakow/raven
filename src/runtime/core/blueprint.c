@@ -6,6 +6,7 @@
  */
 
 #include "../../raven/raven.h"
+#include "../../platform/fs/fs_pather.h"
 #include "../../platform/fs/fs.h"
 #include "../../util/memory.h"
 
@@ -123,24 +124,30 @@ struct function* blueprint_lookup(struct blueprint* blue, struct symbol* msg, un
     return NULL;
 }
 
+/*
+ * TODO, FIXME: This function needs to be reworked!
+ *              The internal raven reference should not be used.
+ */
 struct blueprint* blueprint_load_relative(struct blueprint* bp,
                                           const  char*      path) {
-    // TODO, FIXME, XXX!
-    return NULL;
-}
+    struct blueprint* bp2;
+    struct fs_pather  pather;
 
-struct blueprint* blueprint_recompile(struct blueprint* blue) {
-    // TODO, FIXME, XXX!
-    return NULL;
-}
+    fs_pather_create(&pather);
+    fs_pather_cd(&pather, blueprint_virt_path(bp));
+    fs_pather_cd(&pather, "..");
+    fs_pather_cd(&pather, path);
+    bp2 = raven_get_blueprint(bp->raven, fs_pather_get_const(&pather), true);
+    fs_pather_destroy(&pather);
 
-struct blueprint* blueprint_find_newest_version(struct blueprint* blue) {
-    // TODO, FIXME, XXX!
-    return NULL;
+    return bp2;
 }
 
 bool blueprint_is_soulmate(struct blueprint* blue, struct blueprint* potential_soulmate) {
-    // TODO, FIXME, XXX!
+    if (blue == potential_soulmate)
+        return true;
+    else if (strcmp(blue->virt_path, potential_soulmate->virt_path) == 0)
+        return true;
     return false;
 }
 

@@ -236,6 +236,19 @@ struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
     return object;
 }
 
+struct blueprint* fs_recompile(struct fs* fs, const char* path) {
+    struct file_info*  info;
+
+    info = fs_info(fs, path);
+
+    if (info != NULL) {
+        file_info_recompile(info);
+        return file_info_blueprint(info, false);
+    }
+
+    return NULL;
+}
+
 bool fs_ls(struct fs* fs, const char* path, fs_mapper_func func, void* data) {
     DIR*                  dir;
     struct dirent*        entry;

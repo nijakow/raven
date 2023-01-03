@@ -5,6 +5,8 @@
  * See README and LICENSE for further information.
  */
 
+#include "../runtime/core/blueprint.h"
+#include "../runtime/core/objects/object/object.h"
 #include "../runtime/core/objects/symbol.h"
 #include "../runtime/core/objects/funcref.h"
 #include "../runtime/vm/builtins.h"
@@ -256,6 +258,52 @@ struct blueprint* raven_get_blueprint(struct raven* raven, const char* path, boo
  */
 struct object* raven_get_object(struct raven* raven, const char* path, bool create) {
     return fs_find_object(raven_fs(raven), path, create);
+}
+
+/*
+ * Recompile a blueprint.
+ */
+struct blueprint* raven_recompile(struct raven* raven, const char* path) {
+    // TODO
+    return NULL;
+}
+
+/*
+ * Recompile an object.
+ */
+bool raven_recompile_object(struct raven* raven, struct object* object) {
+    struct blueprint* old_bp;
+    struct blueprint* new_bp;
+    
+    old_bp = object_blueprint(object);
+    new_bp = raven_recompile(raven, blueprint_virt_path(old_bp));
+
+    if (new_bp != NULL) {
+        object_switch_blueprint(object, new_bp);
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ * Refresh an object.
+ */
+bool raven_refresh_object(struct raven* raven, struct object* object) {
+    struct blueprint* old_bp;
+    struct blueprint* new_bp;
+    
+    old_bp = object_blueprint(object);
+    new_bp = raven_get_blueprint(raven, blueprint_virt_path(old_bp), false);
+
+    if (new_bp != NULL) {
+        if (old_bp != new_bp) {
+            object_switch_blueprint(object, new_bp);
+        }
+        return true;
+    }
+
+    return false;
 }
 
 /*
