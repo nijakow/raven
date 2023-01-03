@@ -18,8 +18,12 @@ struct fs {
     struct file_info*  files;
 };
 
-void fs_create(struct fs* fs, struct raven* raven, const char* anchor);
+void fs_create(struct fs* fs, struct raven* raven);
 void fs_destroy(struct fs* fs);
+
+void fs_set_anchor(struct fs* fs, const char* anchor);
+
+void fs_mark(struct gc* gc, struct fs* fs);
 
 bool fs_resolve(struct fs* fs, const char* path, const char* direction, struct stringbuilder* sb);
 bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb);

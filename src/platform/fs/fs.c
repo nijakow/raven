@@ -5,6 +5,7 @@
  * See README and LICENSE for further information.
  */
 
+#include "../../util/memory.h"
 #include "../../util/stringbuilder.h"
 
 #include "file_info.h"
@@ -13,14 +14,22 @@
 #include "fs.h"
 
 
-void fs_create(struct fs* fs, struct raven* raven, const char* anchor) {
+void fs_create(struct fs* fs, struct raven* raven) {
     fs->raven  = raven;
-    fs->anchor = strdup(anchor);
+    fs->anchor = memory_strdup("");
 }
 
 void fs_destroy(struct fs* fs) {
-    if (fs->anchor != NULL)
-        free(fs->anchor);
+    memory_free(fs->anchor);
+}
+
+void fs_set_anchor(struct fs* fs, const char* anchor) {
+    memory_free(fs->anchor);
+    fs->anchor = memory_strdup(anchor);
+}
+
+void fs_mark(struct gc* gc, struct fs* fs) {
+    // TODO, FIXME, XXX
 }
 
 struct fs_read_buffer {

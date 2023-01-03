@@ -38,7 +38,7 @@ void raven_create(struct raven* raven) {
     log_create(raven_log(raven));
     scheduler_create(raven_scheduler(raven), raven);
     server_create(raven_server(raven), raven);
-    filesystem_create(raven_fs(raven), raven);
+    fs_create(raven_fs(raven), raven);
     raven_setup_builtins(raven);
     raven_create_vars(raven_vars(raven));
     raven->was_interrupted = false;
@@ -48,7 +48,7 @@ void raven_create(struct raven* raven) {
  * Destroy an instance of Raven.
  */
 void raven_destroy(struct raven* raven) {
-    filesystem_destroy(raven_fs(raven));
+    fs_destroy(raven_fs(raven));
     server_destroy(raven_server(raven));
     scheduler_destroy(raven_scheduler(raven));
     log_destroy(raven_log(raven));
@@ -91,12 +91,11 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
     srand(time(NULL));
 
     /*
-     * Set up the filesystem anchor, and load all files in the directory.
+     * Set up the filesystem anchor.
+     *
+     * TODO: Verify integrity of the mudlib.
      */
-    filesystem_set_anchor(&raven->fs, mudlib);
-    if (!filesystem_load(&raven->fs)) {
-        log_printf(raven_log(raven), "Could not load mudlib: %s.\n", strerror(errno));
-    }
+    fs_set_anchor(&raven->fs, mudlib);
 
     /*
      * Spawn a new fiber, calling "/secure/master"->main()
@@ -138,7 +137,7 @@ void raven_mark(struct gc* gc, struct raven* raven) {
     object_table_mark(gc, raven_objects(raven));
     raven_mark_vars(gc, raven_vars(raven));
     scheduler_mark(gc, raven_scheduler(raven));
-    filesystem_mark(gc, raven_fs(raven));
+    fs_mark(gc, raven_fs(raven));
 }
 
 /*
@@ -249,14 +248,14 @@ struct symbol* raven_gensym(struct raven* raven) {
  * Resolve a blueprint by its path.
  */
 struct blueprint* raven_get_blueprint(struct raven* raven, const char* path) {
-    return filesystem_get_blueprint(raven_fs(raven), path);
+    return fs_find_blueprint(raven_fs(raven), path, false);
 }
 
 /*
  * Resolve an object by its path.
  */
 struct object* raven_get_object(struct raven* raven, const char* path) {
-    return filesystem_get_object(raven_fs(raven), path);
+    return fs_find_object(raven_fs(raven), path, false);
 }
 
 /*
