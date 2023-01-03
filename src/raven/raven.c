@@ -247,15 +247,15 @@ struct symbol* raven_gensym(struct raven* raven) {
 /*
  * Resolve a blueprint by its path.
  */
-struct blueprint* raven_get_blueprint(struct raven* raven, const char* path) {
-    return fs_find_blueprint(raven_fs(raven), path, false);
+struct blueprint* raven_get_blueprint(struct raven* raven, const char* path, bool create) {
+    return fs_find_blueprint(raven_fs(raven), path, create);
 }
 
 /*
  * Resolve an object by its path.
  */
-struct object* raven_get_object(struct raven* raven, const char* path) {
-    return fs_find_object(raven_fs(raven), path, false);
+struct object* raven_get_object(struct raven* raven, const char* path, bool create) {
+    return fs_find_object(raven_fs(raven), path, create);
 }
 
 /*
@@ -270,7 +270,7 @@ bool raven_call_out(struct raven* raven,
     struct fiber*  fiber;
     unsigned int   index;
 
-    object = raven_get_object(raven, receiver);
+    object = raven_get_object(raven, receiver, true);
     if (object != NULL) {
         fiber = scheduler_new_fiber(raven_scheduler(raven));
         if (fiber != NULL) {

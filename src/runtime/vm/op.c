@@ -258,7 +258,8 @@ any fiber_op_new(struct fiber* fiber, any a) {
     if (any_is_obj(a, OBJ_TYPE_STRING)) {
         string    = any_to_ptr(a);
         blueprint = raven_get_blueprint(fiber_raven(fiber),
-                                        string_contents(string));
+                                        string_contents(string),
+                                        true);
     } else if (any_is_obj(a, OBJ_TYPE_OBJECT)) {
         object    = any_to_ptr(a);
         blueprint = object_blueprint(object);

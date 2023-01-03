@@ -536,7 +536,7 @@ struct symbol* parser_as_symbol(struct parser* parser) {
 struct blueprint* parser_as_blueprint(struct parser* parser) {
     if (parser_buffer_is_empty(parser))
         return false;
-    return raven_get_blueprint(parser->raven, parser->buffer);
+    return raven_get_blueprint(parser->raven, parser->buffer, true);
 }
 
 struct blueprint* parser_as_relative_blueprint(struct parser* parser,

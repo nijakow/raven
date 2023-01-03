@@ -67,8 +67,9 @@ void raven_run(struct raven* raven);
 
 struct symbol* raven_find_symbol(struct raven* raven, const char* name);
 struct symbol* raven_gensym(struct raven* raven);
-struct blueprint* raven_get_blueprint(struct raven* raven, const char* path);
-struct object* raven_get_object(struct raven* raven, const char* path);
+
+struct blueprint* raven_get_blueprint(struct raven* raven, const char* path, bool create);
+struct object*    raven_get_object(struct raven* raven, const char* path, bool create);
 
 bool raven_call_out(struct raven* raven,
                     const char*   receiver,

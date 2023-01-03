@@ -2153,7 +2153,7 @@ bool parsepile_inheritance(struct parser*    parser,
     if (parser_check(parser, TOKEN_TYPE_KW_INHERIT)) {
         result = parsepile_inheritance_impl(parser, into, &has_inheritance);
     } else {
-        bp = raven_get_blueprint(parser->raven, "/secure/base");
+        bp = raven_get_blueprint(parser->raven, "/secure/base", true);
         if (bp != NULL && blueprint_inherit(into, bp)) {
             result = true;
         }
@@ -2273,7 +2273,7 @@ bool parsepile_class_statement(struct parser*    parser,
             } else {
                 if (parsepile_inheritance_impl(parser, blue, &has_inheritance)) {
                     if (!has_inheritance) {
-                        parent = raven_get_blueprint(parser->raven, "/secure/base");
+                        parent = raven_get_blueprint(parser->raven, "/secure/base", true);
                         if (parent != NULL && blueprint_inherit(blue, parent)) {
                             preresult = true;
                         }
