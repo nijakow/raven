@@ -30,6 +30,8 @@ void file_info_destroy(struct file_info* info);
 struct file_info* file_info_new(struct fs* fs, const char* virt_path, const char* real_path);
 void              file_info_delete(struct file_info* info);
 
+void file_info_mark(struct gc* gc, struct file_info* info);
+
 bool file_info_matches(struct file_info* info, const char* virt_path);
 
 bool file_info_recompile(struct file_info* info);

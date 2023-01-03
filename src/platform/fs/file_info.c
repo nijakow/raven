@@ -34,6 +34,8 @@ void file_info_create(struct file_info* info,
         fs->files->prev = &info->next;
     }
 
+    fs->files       = info;
+
     info->blueprint = NULL;
     info->object    = NULL;
 }
@@ -68,11 +70,17 @@ void file_info_delete(struct file_info* info) {
     }
 }
 
+void file_info_mark(struct gc* gc, struct file_info* info) {
+    gc_mark_ptr(gc, info->blueprint);
+    gc_mark_ptr(gc, info->object);
+}
+
 static struct raven* file_info_raven(struct file_info* info) {
     return fs_raven(info->fs);
 }
 
 bool file_info_matches(struct file_info* info, const char* virt_path) {
+    printf("Comparing %s to %s\n", info->virt_path, virt_path);
     return strcmp(info->virt_path, virt_path) == 0;
 }
 

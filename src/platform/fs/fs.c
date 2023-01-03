@@ -29,7 +29,11 @@ void fs_set_anchor(struct fs* fs, const char* anchor) {
 }
 
 void fs_mark(struct gc* gc, struct fs* fs) {
-    // TODO, FIXME, XXX
+    struct file_info*  info;
+
+    for (info = fs->files; info != NULL; info = info->next) {
+        file_info_mark(gc, info);
+    }
 }
 
 struct fs_read_buffer {
