@@ -221,7 +221,46 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
     return info;
 }
 
+static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_t dot_index) {
+    struct stringbuilder   sb;
+    struct stringbuilder   sb2;
+    struct file_info*      info;
+    size_t                 index;
+    
+    stringbuilder_create(&sb);
+    {
+        if (fs_normalize(fs, path, &sb)) {
+            for (info = fs->files; info != NULL; info = info->next) {
+                if (file_info_matches_real(info, stringbuilder_get_const(&sb)))
+                    return info;
+            }
+        }
+
+        info = NULL;
+
+        {
+            stringbuilder_create(&sb2);
+            for (index = 0; index < dot_index; index++)
+                stringbuilder_append_char(&sb2, path[index]);
+            info = file_info_new(fs, stringbuilder_get_const(&sb2), stringbuilder_get_const(&sb));
+            stringbuilder_destroy(&sb2);
+        }
+    }
+    stringbuilder_destroy(&sb);
+
+    return info;
+}
+
 struct file_info* fs_info(struct fs* fs, const char* path) {
+    size_t  index;
+
+    for (index = 0; path[index] != '\0'; index++);
+    while (index --> 0) {
+        if (path[index] == '.')
+            return fs_info__by_real(fs, path, index);
+        else if (path[index] == '/')
+            break;
+    }
     return fs_info__by_virt(fs, path);
 }
 
