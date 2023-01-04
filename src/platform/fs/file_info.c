@@ -94,7 +94,7 @@ static bool file_info_compile(struct file_info*  info,
     struct blueprint*  blueprint;
     bool               result;
 
-    printf("]%s\n", info->real_path);
+    log_printf(log, "]%s\n", info->virt_path);
 
     result = false;
 
