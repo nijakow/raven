@@ -2247,7 +2247,10 @@ bool parsepile_class_statement(struct parser*    parser,
     postcheck = false;
 
     if (expect_symbol(parser, &name)) {
-        blue = blueprint_new(parser_raven(parser), NULL);
+        /*
+         * TODO: Give individual virt and real paths to the blueprint.
+         */
+        blue = blueprint_new(parser_raven(parser), blueprint_virt_path(into), blueprint_real_path(into));
         if (blue != NULL) {
             /*
              * There are two possible notations.

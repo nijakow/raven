@@ -98,7 +98,7 @@ static bool file_info_compile(struct file_info*  info,
 
     result = false;
 
-    blueprint = blueprint_new(file_info_raven(info), info->virt_path);
+    blueprint = blueprint_new(file_info_raven(info), info->virt_path, info->real_path);
 
     reader_create(&reader, source);
     parser_create(&parser, file_info_raven(info), &reader, log);

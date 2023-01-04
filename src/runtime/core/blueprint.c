@@ -22,8 +22,9 @@ struct obj_info BLUEPRINT_INFO = {
     .stats = (stats_func) base_obj_stats
 };
 
-static void blueprint_create(struct blueprint* blue, const char* virt_path) {
+static void blueprint_create(struct blueprint* blue, const char* virt_path, const char* real_path) {
     blue->virt_path = memory_strdup(virt_path);
+    blue->real_path = memory_strdup(real_path);
     blue->parent    = NULL;
     blue->methods   = NULL;
     vars_create(&blue->vars);
@@ -34,9 +35,10 @@ static void blueprint_destroy(struct blueprint* blue) {
         function_unlink(blue->methods);
     vars_destroy(&blue->vars);
     memory_free(blue->virt_path);
+    memory_free(blue->real_path);
 }
 
-struct blueprint* blueprint_new(struct raven* raven, const char* virt_path) {
+struct blueprint* blueprint_new(struct raven* raven, const char* virt_path, const char* real_path) {
     struct blueprint* blueprint;
 
     blueprint = base_obj_new(raven_objects(raven),
@@ -45,7 +47,7 @@ struct blueprint* blueprint_new(struct raven* raven, const char* virt_path) {
 
     if (blueprint != NULL) {
         blueprint->raven = raven;
-        blueprint_create(blueprint, virt_path);
+        blueprint_create(blueprint, virt_path, real_path);
     }
 
     return blueprint;
