@@ -77,8 +77,12 @@ static struct raven* file_info_raven(struct file_info* info) {
     return fs_raven(info->fs);
 }
 
-bool file_info_matches(struct file_info* info, const char* virt_path) {
+bool file_info_matches_virt(struct file_info* info, const char* virt_path) {
     return strcmp(info->virt_path, virt_path) == 0;
+}
+
+bool file_info_matches_real(struct file_info* info, const char* real_path) {
+    return strcmp(info->real_path, real_path) == 0;
 }
 
 static bool file_info_compile(struct file_info*  info,

@@ -192,7 +192,7 @@ bool fs_write(struct fs* fs, const char* path, const char* text) {
     return false;
 }
 
-struct file_info* fs_info(struct fs* fs, const char* path) {
+static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;
     struct file_info*      info;
@@ -201,7 +201,7 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
     {
         if (fs_normalize(fs, path, &sb)) {
             for (info = fs->files; info != NULL; info = info->next) {
-                if (file_info_matches(info, stringbuilder_get_const(&sb)))
+                if (file_info_matches_virt(info, stringbuilder_get_const(&sb)))
                     return info;
             }
         }
@@ -211,7 +211,6 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
         {
             stringbuilder_create(&sb2);
             if (fs_tofile(fs, path, &sb2)) {
-                // TODO: This is a hack!
                 stringbuilder_append_str(&sb2, ".lpc");
                 info = file_info_new(fs, stringbuilder_get_const(&sb), stringbuilder_get_const(&sb2));
             }
@@ -221,6 +220,10 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
     stringbuilder_destroy(&sb);
 
     return info;
+}
+
+struct file_info* fs_info(struct fs* fs, const char* path) {
+    return fs_info__by_virt(fs, path);
 }
 
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create) {
