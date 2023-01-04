@@ -210,10 +210,9 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
 
         {
             stringbuilder_create(&sb2);
-            if (fs_tofile(fs, path, &sb2)) {
-                stringbuilder_append_str(&sb2, ".lpc");
-                info = file_info_new(fs, stringbuilder_get_const(&sb), stringbuilder_get_const(&sb2));
-            }
+            stringbuilder_append_str(&sb2, stringbuilder_get_const(&sb));
+            stringbuilder_append_str(&sb2, ".lpc");
+            info = file_info_new(fs, stringbuilder_get_const(&sb), stringbuilder_get_const(&sb2));
             stringbuilder_destroy(&sb2);
         }
     }

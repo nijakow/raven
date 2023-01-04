@@ -94,7 +94,7 @@ static bool file_info_compile(struct file_info*  info,
     struct blueprint*  blueprint;
     bool               result;
 
-    printf("]%s\n", info->virt_path);
+    printf("]%s\n", info->real_path);
 
     result = false;
 
@@ -103,7 +103,7 @@ static bool file_info_compile(struct file_info*  info,
     reader_create(&reader, source);
     parser_create(&parser, file_info_raven(info), &reader, log);
 
-    parser_set_file_name(&parser, info->virt_path);
+    parser_set_file_name(&parser, info->real_path);
 
     if (parsepile_file(&parser, blueprint)) {
         if (loc != NULL)
@@ -122,7 +122,7 @@ bool file_info_recompile(struct file_info* info) {
     bool                  result;
 
     stringbuilder_create(&contents);
-    result = fs_read_real(info->fs, info->real_path, &contents)
+    result = fs_read(info->fs, info->real_path, &contents)
           && file_info_compile(info,
                                stringbuilder_get_const(&contents),
                               &info->blueprint,
