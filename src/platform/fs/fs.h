@@ -12,6 +12,28 @@
 
 struct file_info;
 
+
+/*
+ * This is Raven's file system abstraction. It is responsible for
+ * resolving paths, reading files, and managing the file cache.
+ * 
+ * The file system is also responsible for managing the blueprint
+ * information cache. Every time a file gets compiled, the blueprint
+ * information is stored in the file system. This allows us to
+ * retrieve the blueprint information for a file without having to
+ * recompile it. Similarly, we also store object references in the
+ * cache.
+ * 
+ * The file system is a component of the Raven object. It contains
+ * an 'anchor', which is the name of the root directory of our
+ * virtual file system (usually the directory containing the mudlib).
+ * Every time a file is accessed, the file system will resolve the
+ * path relative to the anchor.
+ * 
+ * For example, if the anchor is '/home/user/mudlib', and we try to
+ * access the file '/foo/bar.lpc', the file system will resolve the
+ * path to '/home/user/mudlib/foo/bar.lpc'.
+ */
 struct fs {
     struct raven*      raven;
     char*              anchor;
@@ -30,8 +52,6 @@ bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb);
 
 bool fs_exists(struct fs* fs, const char* path);
 bool fs_isdir(struct fs* fs, const char* path);
-
-bool fs_read_real(struct fs* fs, const char* path, struct stringbuilder* sb);
 
 bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_write(struct fs* fs, const char* path, const char* text);

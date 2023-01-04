@@ -13,21 +13,33 @@
 
 #include "fs.h"
 
-
+/*
+ * Set up a new file system.
+ */
 void fs_create(struct fs* fs, struct raven* raven) {
     fs->raven  = raven;
     fs->anchor = memory_strdup("");
 }
 
+/*
+ * Destroy a file system.
+ */
 void fs_destroy(struct fs* fs) {
     memory_free(fs->anchor);
 }
 
+/*
+ * Set the anchor of the file system.
+ */
 void fs_set_anchor(struct fs* fs, const char* anchor) {
     memory_free(fs->anchor);
     fs->anchor = memory_strdup(anchor);
 }
 
+/*
+ * Run the garbage collector on the file system,
+ * marking all cached blueprints and objects.
+ */
 void fs_mark(struct gc* gc, struct fs* fs) {
     struct file_info*  info;
 
@@ -35,6 +47,15 @@ void fs_mark(struct gc* gc, struct fs* fs) {
         file_info_mark(gc, info);
     }
 }
+
+
+/*
+ * The following section implements a "read buffer", which is a tool
+ * for parsing paths. It is used by the fs_resolve function, and
+ * helps us avoid making memory errors.
+ * 
+ * It will be moved to its own file in the future.
+ */
 
 struct fs_read_buffer {
     size_t  read_head;
@@ -75,6 +96,18 @@ void fs_read_buffer_step(struct fs_read_buffer* buffer, struct fs_pather* pather
     }
 }
 
+/*
+ * Resolve a path.
+ *
+ * This function resolves a path relative to the given path and writes the
+ * result to the stringbuilder.
+ * 
+ * Returns false on failure.
+ * 
+ * This function is used to resolve paths, which is useful for finding relative
+ * paths. This feature is used by the "include" command, and relative file
+ * operations within the MUD.
+ */
 bool fs_resolve(struct fs* fs, const char* path, const char* direction, struct stringbuilder* sb) {
     struct  fs_read_buffer  read_buffer;
     struct  fs_pather       pather;
@@ -101,10 +134,32 @@ bool fs_resolve(struct fs* fs, const char* path, const char* direction, struct s
     return true;
 }
 
+/*
+ * Normalize a path.
+ *
+ * This function resolves a path relative to the root and writes the result to
+ * the stringbuilder.
+ * 
+ * Returns false on failure.
+ * 
+ * This function is equivalent to fs_resolve(fs, "/", path, sb).
+ * 
+ * This function is used to normalize paths, such that they can be compared
+ * against each other. For example, "/foo/bar" and "/foo/../foo/bar" are
+ * equivalent paths, but they are not equal. This function will normalize both
+ * paths to "/foo/bar".
+ */
 bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb) {
     return fs_resolve(fs, "/", path, sb);
 }
 
+/*
+ * Convert a Raven path to a physical path.
+ *
+ * The physical path is written to the stringbuilder.
+ * 
+ * Returns false on failure.
+ */
 static bool fs_tofile(struct fs* fs, const char* virtpath, struct stringbuilder* sb) {
     stringbuilder_append_str(sb, fs->anchor);
     if (virtpath[0] != '/')
@@ -113,6 +168,9 @@ static bool fs_tofile(struct fs* fs, const char* virtpath, struct stringbuilder*
     return true;
 }
 
+/*
+ * Check if a path exists.
+ */
 bool fs_exists(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
     struct stat            st;
@@ -132,6 +190,9 @@ bool fs_exists(struct fs* fs, const char* path) {
     return result;
 }
 
+/*
+ * Check if a path is a directory.
+ */
 bool fs_isdir(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
     struct stat            st;
@@ -151,7 +212,10 @@ bool fs_isdir(struct fs* fs, const char* path) {
     return result;
 }
 
-bool fs_read_real(struct fs* fs, const char* path, struct stringbuilder* sb) {
+/*
+ * This is a helper function for fs_read(...).
+ */
+bool fs_read__real(struct fs* fs, const char* path, struct stringbuilder* sb) {
     FILE*                 file;
     size_t                byte;
     size_t                bytes_read;
@@ -172,6 +236,16 @@ bool fs_read_real(struct fs* fs, const char* path, struct stringbuilder* sb) {
     return file != NULL;
 }
 
+/*
+ * Read a file into a stringbuilder.
+ *
+ * This function will first normalize the path, then read the file.
+ * If the file does not exist, this function will return false.
+ * 
+ * This function uses the operating system's primitives to access
+ * the physical file system. Therefore, a lot of care must be taken
+ * to ensure that no injection attacks are possible.
+ */
 bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
     struct stringbuilder  sb2;
     bool                  result;
@@ -180,7 +254,7 @@ bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
 
     stringbuilder_create(&sb2);
     if (fs_tofile(fs, path, &sb2)) {
-        result = fs_read_real(fs, stringbuilder_get_const(&sb2), sb);
+        result = fs_read__real(fs, stringbuilder_get_const(&sb2), sb);
     }
     stringbuilder_destroy(&sb2);
 
@@ -192,6 +266,9 @@ bool fs_write(struct fs* fs, const char* path, const char* text) {
     return false;
 }
 
+/*
+ * This is a helper function for fs_info(...).
+ */
 static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;
@@ -221,6 +298,9 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
     return info;
 }
 
+/*
+ * This is a helper function for fs_info(...).
+ */
 static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_t dot_index) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;
@@ -251,6 +331,26 @@ static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_
     return info;
 }
 
+/*
+ * Look up a file_info by path.
+ *
+ * There are two ways to look up a file_info:
+ * 1. By virtual path. This is the path as it appears in the source code,
+ *    for example, "/obj/room".
+ * 2. By real path. This is the path as it appears on the filesystem,
+ *    for example, "/obj/room.c".
+ * 
+ * In either case, the same file_info is returned.
+ * 
+ * It is possible to query the virtual and real path of a file_info,
+ * regardless of how it was looked up.
+ * 
+ * A source for confusion is that the 'real' path doesn't contain the
+ * file system's anchor. This is for security reasons. We only add the
+ * anchor in the very last stage before calling the operating system's
+ * file system primitives to avoid any possibility of a path traversal
+ * attack.
+ */
 struct file_info* fs_info(struct fs* fs, const char* path) {
     size_t  index;
 
@@ -264,6 +364,12 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
     return fs_info__by_virt(fs, path);
 }
 
+/*
+ * Find a blueprint by path.
+ *
+ * This is done by looking up the file_info and then asking the file_info
+ * for the blueprint.
+ */
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create) {
     struct file_info*   info;
     struct blueprint*   blueprint;
@@ -278,6 +384,12 @@ struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create
     return blueprint;
 }
 
+/*
+ * Find an object by path.
+ *
+ * This is done by looking up the file_info and then asking the file_info
+ * for the object.
+ */
 struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
     struct file_info*   info;
     struct object*      object;
@@ -292,6 +404,12 @@ struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
     return object;
 }
 
+/*
+ * Recompile a file.
+ *
+ * This is done by looking up the file_info and then asking the file_info
+ * to recompile the file.
+ */
 struct blueprint* fs_recompile(struct fs* fs, const char* path) {
     struct file_info*  info;
 
@@ -305,6 +423,21 @@ struct blueprint* fs_recompile(struct fs* fs, const char* path) {
     return NULL;
 }
 
+/*
+ * List the contents of a directory.
+ *
+ * This function takes a pointer to the file system it should act upon,
+ * followed by the desired path. After that, we have a function pointer
+ * to a 'mapper' function. This function is called for each file in the
+ * directory with the 'data' pointer as its first argument and the name
+ * of the file as its second argument.
+ * 
+ * For now, dotfiles are ignored. This may change in the future.
+ *
+ * This is a file system primitive, therefore we take great care to
+ * avoid any security issues. The path is normalized and then we
+ * use the <dirent.h> functions to list the directory.
+ */
 bool fs_ls(struct fs* fs, const char* path, fs_mapper_func func, void* data) {
     DIR*                  dir;
     struct dirent*        entry;
