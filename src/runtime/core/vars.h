@@ -55,7 +55,7 @@ unsigned int vars_offset(struct vars* vars);
 
 void vars_reparent(struct vars* vars, struct vars* parent);
 
-void vars_add(struct vars* vars, struct type* type, struct symbol* name);
+void vars_add(struct vars* vars, struct type* type, struct symbol* name, struct var_flags flags);
 
 bool vars_find(struct vars*   vars,
                struct symbol* name,

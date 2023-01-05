@@ -59,7 +59,7 @@ void vars_reparent(struct vars* vars, struct vars* parent) {
     vars->parent = parent;
 }
 
-void vars_add(struct vars* vars, struct type* type, struct symbol* name) {
+void vars_add(struct vars* vars, struct type* type, struct symbol* name, struct var_flags flags) {
     struct var*   new_vars;
     unsigned int  new_alloc;
 
@@ -71,8 +71,9 @@ void vars_add(struct vars* vars, struct type* type, struct symbol* name) {
         vars->alloc = new_alloc;
         vars->vars  = new_vars;
     }
-    vars->vars[vars->fill].type = type;
-    vars->vars[vars->fill].name = name;
+    vars->vars[vars->fill].type  = type;
+    vars->vars[vars->fill].name  = name;
+    vars->vars[vars->fill].flags = flags;
     vars->fill++;
 }
 

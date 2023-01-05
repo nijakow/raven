@@ -97,7 +97,17 @@ bool blueprint_inherit(struct blueprint* blue, struct blueprint* parent) {
 void blueprint_add_var(struct blueprint* blue,
                        struct type*      type,
                        struct symbol*    name) {
-    vars_add(blueprint_vars(blue), type, name);
+    struct var_flags flags;
+
+    var_flags_create(&flags);
+    blueprint_add_var_with_flags(blue, type, name, flags);
+}
+
+void blueprint_add_var_with_flags(struct blueprint* blue,
+                                  struct type*      type,
+                                  struct symbol*    name,
+                                  struct var_flags  flags) {
+    vars_add(blueprint_vars(blue), type, name, flags);
 }
 
 void blueprint_add_func(struct blueprint* blue,

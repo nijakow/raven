@@ -2078,7 +2078,7 @@ bool parsepile_file_statement(struct parser*    parser,
             /*
              * We're parsing a variable
              */
-            blueprint_add_var(into, type, name);
+            blueprint_add_var_with_flags(into, type, name, var_flags);
             result = true;
             if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
                 result = parsepile_expression(parser, init_compiler)

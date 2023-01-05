@@ -62,7 +62,10 @@ void compiler_add_arg(struct compiler* compiler,
 void compiler_add_var(struct compiler* compiler,
                       struct type*     type,
                       struct symbol*   name) {
-    vars_add(&compiler->vars, type, name);
+    struct var_flags flags;
+
+    var_flags_create(&flags);
+    vars_add(&compiler->vars, type, name, flags);
     codewriter_report_locals(compiler->cw, vars_count(&compiler->vars));
 }
 
