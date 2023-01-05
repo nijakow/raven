@@ -29,31 +29,19 @@ bool git_repo_is_valid(struct git_repo* repo) {
 }
 
 static bool git_repo_create_forker(struct git_repo* repo, struct forker* forker) {
-    struct stringbuilder  sb;
 
     if (!git_repo_is_valid(repo))
         return false;
 
     forker_create(forker, "git");
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--git-dir=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--work-tree=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
+    forker_add_arg(forker, "-C");
+    forker_add_arg(forker, repo->path);
+    forker_enable_wait(forker);
 
     return true;
 }
 
-bool git_repo_checkout(struct git_repo* repo, const char* branch) {
+bool git_repo_checkout(struct git_repo* repo, const char* branch, bool create) {
     struct forker         forker;
     bool                  success;
 
@@ -61,6 +49,9 @@ bool git_repo_checkout(struct git_repo* repo, const char* branch) {
 
     if (git_repo_create_forker(repo, &forker)) {
         forker_add_arg(&forker, "checkout");
+        if (create) {
+            forker_add_arg(&forker, "-b");
+        }
         forker_add_arg(&forker, branch);
         success = forker_exec(&forker);
         forker_destroy(&forker);

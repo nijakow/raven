@@ -14,6 +14,7 @@ void forker_create(struct forker* forker, const char* executable) {
     charpp_create(&forker->args);
     charpp_create(&forker->env);
     charpp_append(&forker->args, executable);
+    forker->wait = false;
 }
 
 void forker_destroy(struct forker* forker) {
@@ -27,6 +28,10 @@ void forker_add_arg(struct forker* forker, const char* arg) {
 
 void forker_add_env(struct forker* forker, const char* env) {
     charpp_append(&forker->env, env);
+}
+
+void forker_enable_wait(struct forker* forker) {
+    forker->wait = true;
 }
 
 static bool forker_exec__check_path(const char* path) {
@@ -69,6 +74,7 @@ static char* forker_exec__get_exec_path(const char* path_var, const char* execut
 
 bool forker_exec(struct forker* forker) {
     char*  path;
+    int    status;
     bool   result;
 
     result = false;
@@ -83,11 +89,14 @@ bool forker_exec(struct forker* forker) {
         // Child process
         char*const* args = charpp_get_static(&forker->args);
         char*const* env  = charpp_get_static(&forker->env);
-        execve(args[0], args, env);
+        execve(path, args, env);
         exit(127);
         result = false;
     } else if (pid > 0) {
         // Parent process
+        if (forker->wait) { 
+            waitpid(pid, &status, 0);
+        }
         result = true;
     } else {
         // Error

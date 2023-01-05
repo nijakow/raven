@@ -13,8 +13,9 @@
 #include "charpp.h"
 
 struct forker {
-    struct charpp args;
-    struct charpp env;
+    struct charpp  args;
+    struct charpp  env;
+    bool           wait;
 };
 
 void forker_create(struct forker* forker, const char* executable);
@@ -22,6 +23,8 @@ void forker_destroy(struct forker* forker);
 
 void forker_add_arg(struct forker* forker, const char* arg);
 void forker_add_env(struct forker* forker, const char* env);
+
+void forker_enable_wait(struct forker* forker);
 
 bool forker_exec(struct forker* forker);
 

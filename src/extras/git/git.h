@@ -21,7 +21,7 @@ void git_repo_set_path(struct git_repo* repo, const char* path);
 
 bool git_repo_is_valid(struct git_repo* repo);
 
-bool git_repo_checkout(struct git_repo* repo, const char* branch);
+bool git_repo_checkout(struct git_repo* repo, const char* branch, bool create);
 bool git_repo_merge(struct git_repo* repo, const char* branch);
 
 bool git_repo_pull(struct git_repo* repo);
