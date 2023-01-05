@@ -69,6 +69,22 @@ bool git_repo_checkout(struct git_repo* repo, const char* branch) {
     return success;
 }
 
+bool git_repo_merge(struct git_repo* repo, const char* branch) {
+    struct forker         forker;
+    bool                  success;
+
+    success = false;
+
+    if (git_repo_create_forker(repo, &forker)) {
+        forker_add_arg(&forker, "merge");
+        forker_add_arg(&forker, branch);
+        success = forker_exec(&forker);
+        forker_destroy(&forker);
+    }
+
+    return success;
+}
+
 bool git_repo_pull(struct git_repo* repo) {
     struct forker         forker;
     bool                  success;
