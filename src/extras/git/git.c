@@ -100,6 +100,21 @@ bool git_repo_pull(struct git_repo* repo) {
     return success;
 }
 
+bool git_repo_fetch(struct git_repo* repo) {
+    struct forker         forker;
+    bool                  success;
+
+    success = false;
+
+    if (git_repo_create_forker(repo, &forker)) {
+        forker_add_arg(&forker, "fetch");
+        success = forker_exec(&forker);
+        forker_destroy(&forker);
+    }
+
+    return success;
+}
+
 bool git_repo_push(struct git_repo* repo) {
     struct forker         forker;
     bool                  success;
