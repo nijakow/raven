@@ -11,7 +11,8 @@
 
 
 void fs_pather_create(struct fs_pather* pather) {
-    pather->write_head = 0;
+    pather->buffer[0] = '/';
+    pather->write_head = 1;
 }
 
 void fs_pather_destroy(struct fs_pather* pather) {
@@ -19,7 +20,8 @@ void fs_pather_destroy(struct fs_pather* pather) {
 }
 
 void fs_pather_clear(struct fs_pather* pather) {
-    pather->write_head = 0;
+    pather->buffer[0] = '/';
+    pather->write_head = 1;
 }
 
 bool fs_pather_is_slashed(struct fs_pather* pather) {
