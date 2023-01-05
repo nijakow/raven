@@ -269,7 +269,7 @@ bool fs_write(struct fs* fs, const char* path, const char* text) {
 /*
  * This is a helper function for fs_info(...).
  */
-static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
+static struct file_info* fs_info__by_virt(struct fs* fs, const char* path, bool create) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;
     struct file_info*      info;
@@ -285,7 +285,7 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
 
         info = NULL;
 
-        {
+        if (create) {
             stringbuilder_create(&sb2);
             stringbuilder_append_str(&sb2, stringbuilder_get_const(&sb));
             stringbuilder_append_str(&sb2, ".lpc");
@@ -301,7 +301,7 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path) {
 /*
  * This is a helper function for fs_info(...).
  */
-static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_t dot_index) {
+static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_t dot_index, bool create) {
     struct stringbuilder   sb;
     struct stringbuilder   sb2;
     struct file_info*      info;
@@ -318,7 +318,7 @@ static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_
 
         info = NULL;
 
-        {
+        if (create) {
             stringbuilder_create(&sb2);
             for (index = 0; index < dot_index; index++)
                 stringbuilder_append_char(&sb2, path[index]);
@@ -329,6 +329,22 @@ static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_
     stringbuilder_destroy(&sb);
 
     return info;
+}
+
+/*
+ * A helper function for fs_info(...).
+ */
+static struct file_info* fs_info__impl(struct fs* fs, const char* path, bool create) {
+    size_t  index;
+
+    for (index = 0; path[index] != '\0'; index++);
+    while (index --> 0) {
+        if (path[index] == '.')
+            return fs_info__by_real(fs, path, index, create);
+        else if (path[index] == '/')
+            break;
+    }
+    return fs_info__by_virt(fs, path, create);
 }
 
 /*
@@ -352,16 +368,17 @@ static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_
  * attack.
  */
 struct file_info* fs_info(struct fs* fs, const char* path) {
-    size_t  index;
+    return fs_info__impl(fs, path, true);
+}
 
-    for (index = 0; path[index] != '\0'; index++);
-    while (index --> 0) {
-        if (path[index] == '.')
-            return fs_info__by_real(fs, path, index);
-        else if (path[index] == '/')
-            break;
-    }
-    return fs_info__by_virt(fs, path);
+/*
+ * Check if a file is loaded.
+ *
+ * This is done by looking up the file_info and then asking the file_info
+ * if it is loaded.
+ */
+bool fs_is_loaded(struct fs* fs, const char* path) {
+    return fs_info__impl(fs, path, false) != NULL;
 }
 
 /*
