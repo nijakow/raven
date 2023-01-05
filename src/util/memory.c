@@ -38,6 +38,14 @@ void memory_free(void* ptr) {
         free(ptr);
 }
 
+void  memory_free_charpp(char** ptr) {
+    if (ptr != NULL) {
+        for (size_t i = 0; ptr[i] != NULL; i++)
+            memory_free(ptr[i]);
+        memory_free(ptr);
+    }
+}
+
 
 char* memory_strdup(const char* ptr) {
     return strdup(ptr);

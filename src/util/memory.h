@@ -14,6 +14,8 @@ void* memory_alloc(size_t size);
 void* memory_realloc(void* ptr, size_t new_size);
 void  memory_free(void* ptr);
 
+void  memory_free_charpp(char** ptr);
+
 char* memory_strdup(const char* ptr);
 
 #endif
