@@ -286,9 +286,47 @@ bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb) {
     return result;
 }
 
+/*
+ * This is a helper function for fs_write(...).
+ */
+bool fs_write__real(struct fs* fs, const char* path, const char* text) {
+    FILE*                 file;
+    size_t                byte;
+
+    file = fopen(path, "w+");
+    if (file != NULL) {
+        for (byte = 0; text[byte] != '\0'; byte++) {
+            fwrite(&text[byte], 1, 1, file);
+        }
+        fclose(file);
+    }
+
+    return file != NULL;
+}
+
+/*
+ * Write a string to a file.
+ *
+ * This function will first normalize the path, then write the file.
+ * If the file does not exist, this function will create it.
+ * 
+ * This function uses the operating system's primitives to access
+ * the physical file system. Therefore, a lot of care must be taken
+ * to ensure that no injection attacks are possible.
+ */
 bool fs_write(struct fs* fs, const char* path, const char* text) {
-    // TODO, FIXME, XXX!
-    return false;
+    struct stringbuilder  sb2;
+    bool                  result;
+
+    result = false;
+
+    stringbuilder_create(&sb2);
+    if (fs_tofile(fs, path, &sb2)) {
+        result = fs_write__real(fs, stringbuilder_get_const(&sb2), text);
+    }
+    stringbuilder_destroy(&sb2);
+
+    return result;
 }
 
 /*
