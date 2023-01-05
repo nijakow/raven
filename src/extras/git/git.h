@@ -14,8 +14,10 @@ struct git_repo {
     char*  path;
 };
 
-void git_repo_create(struct git_repo* repo, const char* path);
+void git_repo_create(struct git_repo* repo);
 void git_repo_destroy(struct git_repo* repo);
+
+void git_repo_set_path(struct git_repo* repo, const char* path);
 
 bool git_repo_is_valid(struct git_repo* repo);
 
