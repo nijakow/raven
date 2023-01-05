@@ -23,6 +23,10 @@ void stringbuilder_destroy(struct stringbuilder* sb) {
         memory_free(sb->data);
 }
 
+void stringbuilder_clear(struct stringbuilder* sb) {
+    sb->fill = 0;
+}
+
 static bool stringbuilder_resize(struct stringbuilder* sb) {
     char*  data;
 
@@ -72,8 +76,4 @@ bool stringbuilder_get(struct stringbuilder* sb, char** loc) {
     else
         *loc = memory_strdup(sb->data);
     return (*loc != NULL);
-}
-
-void stringbuilder_clear(struct stringbuilder* sb) {
-    sb->fill = 0;
 }

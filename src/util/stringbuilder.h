@@ -81,13 +81,13 @@ struct stringbuilder {
 void stringbuilder_create(struct stringbuilder* sb);
 void stringbuilder_destroy(struct stringbuilder* sb);
 
+void stringbuilder_clear(struct stringbuilder* sb);
+
 void stringbuilder_append_char(struct stringbuilder* sb, char c);
 void stringbuilder_append_rune(struct stringbuilder* sb, raven_rune_t rune);
 void stringbuilder_append_str(struct stringbuilder* sb, const char* str);
 
 bool stringbuilder_get(struct stringbuilder* sb, char** loc);
-
-void stringbuilder_clear(struct stringbuilder* sb);
 
 static inline const char* stringbuilder_get_const(struct stringbuilder* sb) {
     if (sb->data == NULL) return "";

@@ -5,6 +5,9 @@
  * See README and LICENSE for further information.
  */
 
+#include "memory.h"
+#include "stringbuilder.h"
+
 #include "forker.h"
 
 void forker_create(struct forker* forker, const char* executable) {
@@ -30,10 +33,45 @@ static bool forker_exec__check_path(const char* path) {
     return access(path, X_OK) == 0;
 }
 
-bool forker_exec(struct forker* forker) {
-    if (!forker_exec__check_path(charpp_get_static_at(&forker->args, 0))) {
-        return false;
+static char* forker_exec__get_exec_path(const char* path_var, const char* executable) {
+    struct stringbuilder  sb;
+    size_t                index;
+    char*                 result;
+
+    if (path_var == NULL || executable == NULL)
+        return NULL;
+
+    result = NULL;
+
+    stringbuilder_create(&sb);
+    {
+        index = 0;
+
+        do {
+            if (path_var[index] == ':' || path_var[index] == '\0') {
+                stringbuilder_append_char(&sb, '/');
+                stringbuilder_append_str(&sb, executable);
+                if (forker_exec__check_path(stringbuilder_get_const(&sb))) {
+                    stringbuilder_get(&sb, &result);
+                }
+                stringbuilder_clear(&sb);
+            } else {
+                stringbuilder_append_char(&sb, path_var[index]);
+            }
+        } while (result == NULL && path_var[index++] != '\0');
     }
+    stringbuilder_destroy(&sb);
+
+    return result;
+}
+
+bool forker_exec(struct forker* forker) {
+    char*  path;
+
+    path = forker_exec__get_exec_path(getenv("PATH"), charpp_get_static_at(&forker->args, 0));
+
+    if (path == NULL)
+        return false;
 
     pid_t pid = fork();
     if (pid == 0) {
