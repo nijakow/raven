@@ -40,6 +40,8 @@ static char* forker_exec__get_exec_path(const char* path_var, const char* execut
 
     if (path_var == NULL || executable == NULL)
         return NULL;
+    else if (executable[0] == '/' || executable[0] == '.')
+        return memory_strdup(executable);
 
     result = NULL;
 
@@ -67,6 +69,9 @@ static char* forker_exec__get_exec_path(const char* path_var, const char* execut
 
 bool forker_exec(struct forker* forker) {
     char*  path;
+    bool   result;
+
+    result = false;
 
     path = forker_exec__get_exec_path(getenv("PATH"), charpp_get_static_at(&forker->args, 0));
 
@@ -80,12 +85,16 @@ bool forker_exec(struct forker* forker) {
         char*const* env  = charpp_get_static(&forker->env);
         execve(args[0], args, env);
         exit(127);
-        return false;
+        result = false;
     } else if (pid > 0) {
         // Parent process
-        return true;
+        result = true;
     } else {
         // Error
-        return false;
+        result = false;
     }
+
+    memory_free(path);
+
+    return result;
 }
