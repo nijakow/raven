@@ -410,6 +410,25 @@ struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
  * This is done by looking up the file_info and then asking the file_info
  * to recompile the file.
  */
+struct blueprint* fs_recompile_with_log(struct fs* fs, const char* path, struct log* log) {
+    struct file_info*  info;
+
+    info = fs_info(fs, path);
+
+    if (info != NULL) {
+        file_info_recompile_with_log(info, log);
+        return file_info_blueprint(info, false);
+    }
+
+    return NULL;
+}
+
+/*
+ * Recompile a file.
+ *
+ * This is done by looking up the file_info and then asking the file_info
+ * to recompile the file.
+ */
 struct blueprint* fs_recompile(struct fs* fs, const char* path) {
     struct file_info*  info;
 
@@ -422,6 +441,7 @@ struct blueprint* fs_recompile(struct fs* fs, const char* path) {
 
     return NULL;
 }
+
 
 /*
  * List the contents of a directory.

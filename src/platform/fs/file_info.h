@@ -35,6 +35,7 @@ void file_info_mark(struct gc* gc, struct file_info* info);
 bool file_info_matches_virt(struct file_info* info, const char* virt_path);
 bool file_info_matches_real(struct file_info* info, const char* real_path);
 
+bool file_info_recompile_with_log(struct file_info* info, struct log* log);
 bool file_info_recompile(struct file_info* info);
 
 struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing);

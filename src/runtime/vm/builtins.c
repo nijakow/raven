@@ -672,13 +672,16 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
         fs   = raven_fs(fiber_raven(fiber));
         path = string_contents(any_to_ptr(arg[0]));
 
-        // TODO, FIXME, XXX
-        (void) fs;
-        (void) path;
-        (void) log;
-        (void) sb;
+        log_create(&log);
 
-        printf("WARNING: builtin_cc is not implemented yet\n");
+        if (fs_recompile_with_log(fs, path, &log))
+            fiber_set_accu(fiber, any_from_int(1));
+        else {
+            stringbuilder_create(&sb);
+            log_create_to_stringbuilder(&log, &sb);
+            fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
+            stringbuilder_destroy(&sb);
+        }
     }
 }
 

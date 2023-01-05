@@ -117,7 +117,7 @@ static bool file_info_compile(struct file_info*  info,
     return result;
 }
 
-bool file_info_recompile(struct file_info* info) {
+bool file_info_recompile_with_log(struct file_info* info, struct log* log) {
     struct stringbuilder  contents;
     bool                  result;
 
@@ -126,9 +126,13 @@ bool file_info_recompile(struct file_info* info) {
           && file_info_compile(info,
                                stringbuilder_get_const(&contents),
                               &info->blueprint,
-                               raven_log(file_info_raven(info)));
+                               log);
     stringbuilder_destroy(&contents);
     return result;
+}
+
+bool file_info_recompile(struct file_info* info) {
+    return file_info_recompile_with_log(info, raven_log(file_info_raven(info)));
 }
 
 struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing) {
