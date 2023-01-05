@@ -24,26 +24,31 @@ bool git_repo_is_valid(struct git_repo* repo) {
     return true;
 }
 
-bool git_repo_checkout(struct git_repo* repo, const char* branch) {
-    struct forker         forker;
+static void git_repo_create_forker(struct git_repo* repo, struct forker* forker) {
     struct stringbuilder  sb;
-    bool                  success;
 
-    forker_create(&forker, "git");
+    forker_create(forker, "git");
     {
         stringbuilder_create(&sb);
         stringbuilder_append_str(&sb, "--git-dir=");
         stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
+        forker_add_arg(forker, stringbuilder_get_const(&sb));
         stringbuilder_destroy(&sb);
     }
     {
         stringbuilder_create(&sb);
         stringbuilder_append_str(&sb, "--work-tree=");
         stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
+        forker_add_arg(forker, stringbuilder_get_const(&sb));
         stringbuilder_destroy(&sb);
     }
+}
+
+bool git_repo_checkout(struct git_repo* repo, const char* branch) {
+    struct forker         forker;
+    bool                  success;
+
+    git_repo_create_forker(repo, &forker);
     forker_add_arg(&forker, "checkout");
     forker_add_arg(&forker, branch);
     success = forker_exec(&forker);
@@ -54,24 +59,9 @@ bool git_repo_checkout(struct git_repo* repo, const char* branch) {
 
 bool git_repo_pull(struct git_repo* repo) {
     struct forker         forker;
-    struct stringbuilder  sb;
     bool                  success;
 
-    forker_create(&forker, "git");
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--git-dir=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--work-tree=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
+    git_repo_create_forker(repo, &forker);
     forker_add_arg(&forker, "pull");
     success = forker_exec(&forker);
     forker_destroy(&forker);
@@ -81,25 +71,39 @@ bool git_repo_pull(struct git_repo* repo) {
 
 bool git_repo_push(struct git_repo* repo) {
     struct forker         forker;
-    struct stringbuilder  sb;
     bool                  success;
 
-    forker_create(&forker, "git");
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--git-dir=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
-    {
-        stringbuilder_create(&sb);
-        stringbuilder_append_str(&sb, "--work-tree=");
-        stringbuilder_append_str(&sb, repo->path);
-        forker_add_arg(&forker, stringbuilder_get_const(&sb));
-        stringbuilder_destroy(&sb);
-    }
+    git_repo_create_forker(repo, &forker);
     forker_add_arg(&forker, "push");
+    success = forker_exec(&forker);
+    forker_destroy(&forker);
+
+    return success;
+}
+
+bool git_repo_stage_all(struct git_repo* repo) {
+    struct forker         forker;
+    bool                  success;
+
+    git_repo_create_forker(repo, &forker);
+    forker_add_arg(&forker, "add");
+    forker_add_arg(&forker, "-A");
+    success = forker_exec(&forker);
+    forker_destroy(&forker);
+
+    return success;
+}
+
+bool git_repo_commit(struct git_repo* repo, const char* message) {
+    struct forker         forker;
+    bool                  success;
+
+    git_repo_create_forker(repo, &forker);
+    forker_add_arg(&forker, "commit");
+    forker_add_arg(&forker, "-m");
+    if (message == NULL)
+        message = "No commit message provided.";
+    forker_add_arg(&forker, message);
     success = forker_exec(&forker);
     forker_destroy(&forker);
 
