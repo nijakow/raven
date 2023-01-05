@@ -23,9 +23,18 @@
 
 #define VARS_MAX_ENTRIES 64
 
+
+struct var_flags {
+    bool  nosave;
+};
+
+void var_flags_create(struct var_flags* flags);
+
+
 struct var {
-    struct type*   type;
-    struct symbol* name;
+    struct type*      type;
+    struct symbol*    name;
+    struct var_flags  flags;
 };
 
 struct vars {

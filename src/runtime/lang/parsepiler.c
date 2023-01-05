@@ -2026,10 +2026,13 @@ bool parsepile_file_statement(struct parser*    parser,
     struct symbol*         name;
     struct function*       function;
     enum   raven_modifier  modifier;
+    struct var_flags       var_flags;
     bool                   result;
 
     result   = false;
     modifier = RAVEN_MODIFIER_NONE;
+
+    var_flags_create(&var_flags);
 
     while (true) {
         if (parse_modifier(parser, &modifier)) {
@@ -2038,6 +2041,8 @@ bool parsepile_file_statement(struct parser*    parser,
             /* TODO */
         } else if (parser_check(parser, TOKEN_TYPE_KW_DEPRECATED)) {
             /* TODO */
+        } else if (parser_check(parser, TOKEN_TYPE_KW_NOSAVE)) {
+            var_flags.nosave = true;
         } else {
             break;
         }
@@ -2077,7 +2082,7 @@ bool parsepile_file_statement(struct parser*    parser,
             result = true;
             if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
                 result = parsepile_expression(parser, init_compiler)
-                    && parsepile_store_var(parser, init_compiler, name);
+                      && parsepile_store_var(parser, init_compiler, name);
             }
             result = result && parsepile_expect(parser, TOKEN_TYPE_SEMICOLON);
         }

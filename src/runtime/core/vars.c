@@ -10,6 +10,11 @@
 #include "vars.h"
 
 
+void var_flags_create(struct var_flags* flags) {
+    flags->nosave = false;
+}
+
+
 void vars_create(struct vars* vars) {
     vars->parent = NULL;
     vars->fill   = 0;
