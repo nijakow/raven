@@ -11,8 +11,7 @@
 
 
 void fs_pather_create(struct fs_pather* pather) {
-    pather->buffer[0] = '/';
-    pather->write_head = 1;
+    pather->write_head = 0;
 }
 
 void fs_pather_destroy(struct fs_pather* pather) {
@@ -20,8 +19,7 @@ void fs_pather_destroy(struct fs_pather* pather) {
 }
 
 void fs_pather_clear(struct fs_pather* pather) {
-    pather->buffer[0] = '/';
-    pather->write_head = 1;
+    pather->write_head = 0;
 }
 
 bool fs_pather_is_slashed(struct fs_pather* pather) {
@@ -99,14 +97,14 @@ void fs_pather_cd(struct fs_pather* pather, const char* dir) {
 }
 
 void fs_pather_write_out(struct fs_pather* pather, struct stringbuilder* sb) {
-    size_t  i;
-
-    for (i = 0; i < pather->write_head; i++) {
-        stringbuilder_append_char(sb, pather->buffer[i]);
-    }
+    stringbuilder_append_str(sb, fs_pather_get_const(pather));
 }
 
 const char* fs_pather_get_const(struct fs_pather* pather) {
+    if (pather->write_head == 0) {
+        pather->buffer[0] = '/';
+        pather->write_head++;
+    }
     pather->buffer[pather->write_head] = '\0';
     return pather->buffer;
 }
