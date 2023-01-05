@@ -404,10 +404,12 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$object_sibling", builtin_object_sibling);
     raven_builtin(raven, "$object_children", builtin_object_children);
     raven_builtin(raven, "$object_path", builtin_object_path);
-    raven_builtin(raven, "$object_loaded", builtin_object_loaded);
     raven_builtin(raven, "$set_heart_beat", builtin_object_set_hb);
     raven_builtin(raven, "$object_first_heartbeat", builtin_object_fst_hb);
     raven_builtin(raven, "$object_next_heartbeat", builtin_object_next_hb);
+
+    raven_builtin(raven, "$loaded", builtin_loaded);
+    raven_builtin(raven, "$outdated", builtin_outdated);
 
     raven_builtin(raven, "$substr", builtin_substr);
     raven_builtin(raven, "$mkarray", builtin_mkarray);
