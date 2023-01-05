@@ -427,6 +427,7 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$ls", builtin_ls);
     raven_builtin(raven, "$resolve", builtin_resolve);
     raven_builtin(raven, "$cat", builtin_read_file);
+    raven_builtin(raven, "$file_exists", builtin_file_exists);
     raven_builtin(raven, "$file_is_directory", builtin_file_is_directory);
     raven_builtin(raven, "$read_file", builtin_read_file);
     raven_builtin(raven, "$write_file", builtin_write_file);

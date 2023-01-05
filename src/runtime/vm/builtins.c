@@ -629,6 +629,20 @@ void builtin_resolve(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
+void builtin_file_exists(struct fiber* fiber, any* arg, unsigned int args) {
+    struct fs*    fs;
+    const  char*  path;
+
+    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+        arg_error(fiber);
+    else {
+        fs   = raven_fs(fiber_raven(fiber));
+        path = string_contents(any_to_ptr(arg[0]));
+
+        fiber_set_accu(fiber, any_from_int(fs_exists(fs, path) ? 1 : 0));
+    }
+}
+
 void builtin_file_is_directory(struct fiber* fiber, any* arg, unsigned int args) {
     struct fs*    fs;
     const  char*  path;
