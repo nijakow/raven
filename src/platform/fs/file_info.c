@@ -11,6 +11,7 @@
 #include "../../runtime/lang/parsepiler.h"
 #include "../../util/memory.h"
 #include "../../util/stringbuilder.h"
+#include "../../util/time.h"
 
 #include "fs.h"
 
@@ -36,6 +37,8 @@ void file_info_create(struct file_info* info,
 
     info->blueprint = NULL;
     info->object    = NULL;
+
+    info->last_compiled = 0;
 }
 
 void file_info_destroy(struct file_info* info) {
@@ -108,7 +111,8 @@ static bool file_info_compile(struct file_info*  info,
     if (parsepile_file(&parser, blueprint)) {
         if (loc != NULL)
             *loc = blueprint;
-         result = true;
+        info->last_compiled = raven_now();
+        result = true;
     }
 
     parser_destroy(&parser);
@@ -155,4 +159,18 @@ struct object* file_info_object(struct file_info* info, bool compile_if_missing)
     }
     
     return info->object;
+}
+
+raven_timestamp_t file_info_last_compiled(struct file_info* info) {
+    return info->last_compiled;
+}
+
+bool file_info_is_outdated(struct file_info* info) {
+    raven_timestamp_t  last_modified;
+
+    if (info->blueprint == NULL)
+        return false;
+    else if (!fs_last_modified(info->fs, info->real_path, &last_modified))
+        return false;
+    return raven_timestamp_less(info->last_compiled, last_modified);
 }

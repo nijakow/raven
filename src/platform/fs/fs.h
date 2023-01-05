@@ -53,12 +53,15 @@ bool fs_normalize(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_exists(struct fs* fs, const char* path);
 bool fs_isdir(struct fs* fs, const char* path);
 
+bool fs_last_modified(struct fs* fs, const char* path, raven_timestamp_t* last_changed);
+
 bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_write(struct fs* fs, const char* path, const char* text);
 
 struct file_info* fs_info(struct fs* fs, const char* path);
 
 bool              fs_is_loaded(struct fs* fs, const char* path);
+bool              fs_is_outdated(struct fs* fs, const char* path);
 
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create);
 struct object*    fs_find_object(struct fs* fs, const char* path, bool create);

@@ -22,6 +22,8 @@ struct file_info {
 
     struct blueprint*   blueprint;
     struct object*      object;
+
+    raven_timestamp_t   last_compiled;
 };
 
 void file_info_create(struct file_info* info, struct fs* fs, const char* virt_path, const char* real_path);
@@ -40,5 +42,9 @@ bool file_info_recompile(struct file_info* info);
 
 struct blueprint* file_info_blueprint(struct file_info* info, bool compile_if_missing);
 struct object*    file_info_object(struct file_info* info, bool compile_if_missing);
+
+raven_timestamp_t file_info_last_compiled(struct file_info* info);
+
+bool              file_info_is_outdated(struct file_info* info);
 
 #endif

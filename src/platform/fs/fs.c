@@ -213,6 +213,31 @@ bool fs_isdir(struct fs* fs, const char* path) {
 }
 
 /*
+ * Get the last modified time of a file.
+ */
+bool fs_last_modified(struct fs* fs, const char* path, raven_timestamp_t* last_changed) {
+    struct stringbuilder   sb;
+    struct stat            st;
+    const char*            realpath;
+    bool                   result;
+
+    result = false;
+
+    stringbuilder_create(&sb);
+    if (fs_tofile(fs, path, &sb)) {
+        realpath = stringbuilder_get_const(&sb);
+        if (stat(realpath, &st) == 0) {
+            if (last_changed != NULL) {
+                *last_changed = st.st_mtime;
+            }
+            result = true;
+        }
+    }
+    stringbuilder_destroy(&sb);
+    return result;
+}
+
+/*
  * This is a helper function for fs_read(...).
  */
 bool fs_read__real(struct fs* fs, const char* path, struct stringbuilder* sb) {
@@ -379,6 +404,17 @@ struct file_info* fs_info(struct fs* fs, const char* path) {
  */
 bool fs_is_loaded(struct fs* fs, const char* path) {
     return fs_info__impl(fs, path, false) != NULL;
+}
+
+/*
+ * Check if a file is outdated.
+ */
+bool fs_is_outdated(struct fs* fs, const char* path) {
+    struct file_info*  info;
+
+    info = fs_info(fs, path);
+
+    return info != NULL && file_info_is_outdated(info);
 }
 
 /*
