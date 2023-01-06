@@ -714,16 +714,16 @@ void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
         fs   = raven_fs(fiber_raven(fiber));
         path = string_contents(any_to_ptr(arg[0]));
 
-        log_create(&log);
+        stringbuilder_create(&sb);
+        log_create_to_stringbuilder(&log, &sb);
 
         if (fs_recompile_with_log(fs, path, &log))
             fiber_set_accu(fiber, any_from_int(1));
         else {
-            stringbuilder_create(&sb);
-            log_create_to_stringbuilder(&log, &sb);
             fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
-            stringbuilder_destroy(&sb);
         }
+        log_destroy(&log);
+        stringbuilder_destroy(&sb);
     }
 }
 
