@@ -494,6 +494,24 @@ void builtin_append(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
+void builtin_insert(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 3 || !any_is_obj(arg[0], OBJ_TYPE_ARRAY)
+                  || !any_is_int(arg[1]))
+        arg_error(fiber);
+    else {
+        array_insert(any_to_ptr(arg[0]), any_to_int(arg[1]), arg[2]);
+    }
+}
+
+void builtin_remove(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_ARRAY)
+                  || !any_is_int(arg[1]))
+        arg_error(fiber);
+    else {
+        array_remove(any_to_ptr(arg[0]), any_to_int(arg[1]));
+    }
+}
+
 void builtin_keys(struct fiber* fiber, any* arg, unsigned int args) {
     struct array* array;
 

@@ -111,3 +111,31 @@ void array_append(struct array* array, any value) {
             return;
     array->elements[array->fill++] = value;
 }
+
+void array_insert(struct array* array, unsigned int index, any value) {
+    unsigned int i;
+
+    if (index >= array->fill) {
+        array_append(array, value);
+        return;
+    }
+
+    if (array->fill >= array->alloc)
+        if (!array_make_space(array))
+            return;
+    for (i = array->fill; i > index; i--)
+        array->elements[i] = array->elements[i - 1];
+    array->elements[index] = value;
+    array->fill++;
+}
+
+void array_remove(struct array* array, unsigned int index) {
+    unsigned int i;
+
+    if (index >= array->fill)
+        return;
+
+    for (i = index; i < array->fill - 1; i++)
+        array->elements[i] = array->elements[i + 1];
+    array->fill--;
+}

@@ -430,6 +430,8 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$substr", builtin_substr);
     raven_builtin(raven, "$mkarray", builtin_mkarray);
     raven_builtin(raven, "$append", builtin_append);
+    raven_builtin(raven, "$insert", builtin_insert);
+    raven_builtin(raven, "$remove", builtin_remove);
     raven_builtin(raven, "$keys", builtin_keys);
 
     raven_builtin(raven, "$isspace", builtin_isspace);

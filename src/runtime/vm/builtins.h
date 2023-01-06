@@ -62,6 +62,8 @@ void builtin_outdated(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_substr(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_mkarray(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_append(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_insert(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_remove(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_keys(struct fiber* fiber, any* arg, unsigned int args);
 

@@ -26,6 +26,8 @@ struct array* array_join(struct raven* raven,
                          struct array* a,
                          struct array* b);
 void array_append(struct array* array, any value);
+void array_insert(struct array* array, unsigned int index, any value);
+void array_remove(struct array* array, unsigned int index);
 
 static inline unsigned int array_size(struct array* array) {
     return array->fill;
