@@ -263,20 +263,27 @@ struct object* raven_get_object(struct raven* raven, const char* path, bool crea
 /*
  * Recompile a blueprint.
  */
+bool raven_recompile_with_log(struct raven* raven, const char* path, struct log* log) {
+    return fs_recompile_with_log(raven_fs(raven), path, log);
+}
+
+/*
+ * Recompile a blueprint.
+ */
 bool raven_recompile(struct raven* raven, const char* path) {
-    return fs_recompile(raven_fs(raven), path);
+    return raven_recompile_with_log(raven, path, raven_log(raven));
 }
 
 /*
  * Recompile an object.
  */
-bool raven_recompile_object(struct raven* raven, struct object* object) {
+bool raven_recompile_object_with_log(struct raven* raven, struct object* object, struct log* log) {
     struct blueprint* old_bp;
     struct blueprint* new_bp;
 
     old_bp = object_blueprint(object);
 
-    if (raven_recompile(raven, blueprint_virt_path(old_bp))) {
+    if (raven_recompile_with_log(raven, blueprint_virt_path(old_bp), log)) {
         new_bp = raven_get_blueprint(raven, blueprint_virt_path(old_bp), false);
         if (new_bp != NULL) {
             object_switch_blueprint(object, new_bp);
@@ -285,6 +292,13 @@ bool raven_recompile_object(struct raven* raven, struct object* object) {
     }
 
     return false;
+}
+
+/*
+ * Recompile an object.
+ */
+bool raven_recompile_object(struct raven* raven, struct object* object) {
+    return raven_recompile_object_with_log(raven, object, raven_log(raven));
 }
 
 /*
