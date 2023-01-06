@@ -66,9 +66,8 @@ bool              fs_is_outdated(struct fs* fs, const char* path);
 struct blueprint* fs_find_blueprint(struct fs* fs, const char* path, bool create);
 struct object*    fs_find_object(struct fs* fs, const char* path, bool create);
 
-struct blueprint* fs_recompile_with_log(struct fs* fs, const char* path, struct log* log);
-struct blueprint* fs_recompile(struct fs* fs, const char* path);
-
+bool fs_recompile_with_log(struct fs* fs, const char* path, struct log* log);
+bool fs_recompile(struct fs* fs, const char* path);
 
 typedef void (*fs_mapper_func)(void* data, const char* path);
 

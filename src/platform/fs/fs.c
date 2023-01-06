@@ -501,17 +501,16 @@ struct object* fs_find_object(struct fs* fs, const char* path, bool create) {
  * This is done by looking up the file_info and then asking the file_info
  * to recompile the file.
  */
-struct blueprint* fs_recompile_with_log(struct fs* fs, const char* path, struct log* log) {
+bool fs_recompile_with_log(struct fs* fs, const char* path, struct log* log) {
     struct file_info*  info;
 
     info = fs_info(fs, path);
 
     if (info != NULL) {
-        file_info_recompile_with_log(info, log);
-        return file_info_blueprint(info, false);
+        return file_info_recompile_with_log(info, log);
     }
 
-    return NULL;
+    return false;
 }
 
 /*
@@ -520,17 +519,16 @@ struct blueprint* fs_recompile_with_log(struct fs* fs, const char* path, struct 
  * This is done by looking up the file_info and then asking the file_info
  * to recompile the file.
  */
-struct blueprint* fs_recompile(struct fs* fs, const char* path) {
+bool fs_recompile(struct fs* fs, const char* path) {
     struct file_info*  info;
 
     info = fs_info(fs, path);
 
     if (info != NULL) {
-        file_info_recompile(info);
-        return file_info_blueprint(info, false);
+        return file_info_recompile(info);
     }
 
-    return NULL;
+    return false;
 }
 
 

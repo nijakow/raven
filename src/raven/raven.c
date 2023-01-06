@@ -263,7 +263,7 @@ struct object* raven_get_object(struct raven* raven, const char* path, bool crea
 /*
  * Recompile a blueprint.
  */
-struct blueprint* raven_recompile(struct raven* raven, const char* path) {
+bool raven_recompile(struct raven* raven, const char* path) {
     return fs_recompile(raven_fs(raven), path);
 }
 
@@ -273,13 +273,15 @@ struct blueprint* raven_recompile(struct raven* raven, const char* path) {
 bool raven_recompile_object(struct raven* raven, struct object* object) {
     struct blueprint* old_bp;
     struct blueprint* new_bp;
-    
-    old_bp = object_blueprint(object);
-    new_bp = raven_recompile(raven, blueprint_virt_path(old_bp));
 
-    if (new_bp != NULL) {
-        object_switch_blueprint(object, new_bp);
-        return true;
+    old_bp = object_blueprint(object);
+
+    if (raven_recompile(raven, blueprint_virt_path(old_bp))) {
+        new_bp = raven_get_blueprint(raven, blueprint_virt_path(old_bp), false);
+        if (new_bp != NULL) {
+            object_switch_blueprint(object, new_bp);
+            return true;
+        }
     }
 
     return false;
