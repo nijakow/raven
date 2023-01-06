@@ -222,13 +222,22 @@ void builtin_initialize(struct fiber* fiber, any* arg, unsigned int args) {
 }
 
 void builtin_recompile(struct fiber* fiber, any* arg, unsigned int args) {
+    struct stringbuilder  sb;
+    struct log            log;
+
     if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
         arg_error(fiber);
     else {
-        if (raven_recompile_object(fiber_raven(fiber), any_to_ptr(arg[0])))
+        stringbuilder_create(&sb);
+        log_create_to_stringbuilder(&log, &sb);
+
+        if (raven_recompile_object_with_log(fiber_raven(fiber), any_to_ptr(arg[0]), &log))
             fiber_set_accu(fiber, any_from_int(1));
-        else
-            fiber_set_accu(fiber, any_from_int(0));
+        else {
+            fiber_throw(fiber, any_from_ptr(string_new_from_stringbuilder(fiber_raven(fiber), &sb)));
+        }
+        log_destroy(&log);
+        stringbuilder_destroy(&sb);
     }
 }
 

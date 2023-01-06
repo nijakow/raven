@@ -97,7 +97,7 @@ static bool file_info_compile(struct file_info*  info,
     struct blueprint*  blueprint;
     bool               result;
 
-    log_printf(log, "]%s\n", info->virt_path);
+    log_printf(raven_log(file_info_raven(info)), "]%s\n", info->virt_path);
 
     result = false;
 
