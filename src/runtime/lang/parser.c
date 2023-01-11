@@ -202,6 +202,7 @@ raven_rune_t parser_read_escaped_char(struct parser* parser) {
         case 'r': return '\r';
         case 'n': return '\n';
         case 'e': return '\033';
+        case 'b': return '\b';
         case '{': return '\02';
         case '}': return '\03';
         default: return c;
