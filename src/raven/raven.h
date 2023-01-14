@@ -20,6 +20,8 @@
 #include "../runtime/gc/gc.h"
 #include "../runtime/vm/scheduler.h"
 
+#include "../extras/git/git.h"
+
 /*
  * All variables of type `any` that are associated with the state of
  * the MUD.
@@ -46,6 +48,7 @@ struct raven {
     struct scheduler     scheduler;
     struct server        server;
     struct fs            fs;
+    struct git_repo      git;
     struct raven_vars    vars;
     bool                 was_interrupted;
 };
@@ -111,6 +114,10 @@ static inline struct server* raven_server(struct raven* raven) {
 
 static inline struct fs* raven_fs(struct raven* raven) {
     return &raven->fs;
+}
+
+static inline struct git_repo* raven_git(struct raven* raven) {
+    return &raven->git;
 }
 
 static inline struct raven_vars* raven_vars(struct raven* raven) {

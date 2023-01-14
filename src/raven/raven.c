@@ -41,6 +41,7 @@ void raven_create(struct raven* raven) {
     scheduler_create(raven_scheduler(raven), raven);
     server_create(raven_server(raven), raven);
     fs_create(raven_fs(raven), raven);
+    git_repo_create(raven_git(raven));
     raven_setup_builtins(raven);
     raven_create_vars(raven_vars(raven));
     raven->was_interrupted = false;
@@ -50,6 +51,7 @@ void raven_create(struct raven* raven) {
  * Destroy an instance of Raven.
  */
 void raven_destroy(struct raven* raven) {
+    git_repo_destroy(raven_git(raven));
     fs_destroy(raven_fs(raven));
     server_destroy(raven_server(raven));
     scheduler_destroy(raven_scheduler(raven));
@@ -97,7 +99,12 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
      *
      * TODO: Verify integrity of the mudlib.
      */
-    fs_set_anchor(&raven->fs, mudlib);
+    fs_set_anchor(raven_fs(raven), mudlib);
+
+    /*
+     * Set up the git repository.
+     */
+    git_repo_set_path(raven_git(raven), mudlib);
 
     /*
      * Spawn a new fiber, calling "/secure/master"->main()
