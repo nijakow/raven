@@ -155,3 +155,19 @@ bool git_repo_commit(struct git_repo* repo, const char* message) {
 
     return success;
 }
+
+bool git_repo_reset_hard(struct git_repo* repo) {
+    struct forker         forker;
+    bool                  success;
+
+    success = false;
+
+    if (git_repo_create_forker(repo, &forker)) {
+        forker_add_arg(&forker, "reset");
+        forker_add_arg(&forker, "--hard");
+        success = forker_exec(&forker);
+        forker_destroy(&forker);
+    }
+
+    return success;
+}

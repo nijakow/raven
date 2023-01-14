@@ -23,6 +23,8 @@
 #include "../core/blueprint.h"
 #include "../lang/script.h"
 
+#include "../../extras/git/git.h"
+
 #include "frame.h"
 #include "fiber.h"
 #include "interpreter.h"
@@ -817,5 +819,17 @@ void builtin_random(struct fiber* fiber, any* arg, unsigned int args) {
         arg_error(fiber);
     else {
         fiber_set_accu(fiber, any_from_int(rand()));
+    }
+}
+
+
+void builtin_git_reset_hard(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        if (git_repo_reset_hard(raven_git(fiber_raven(fiber))))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
     }
 }

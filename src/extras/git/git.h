@@ -31,4 +31,6 @@ bool git_repo_push(struct git_repo* repo);
 bool git_repo_stage_all(struct git_repo* repo);
 bool git_repo_commit(struct git_repo* repo, const char* message);
 
+bool git_repo_reset_hard(struct git_repo* repo);
+
 #endif

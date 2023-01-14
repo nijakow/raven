@@ -103,4 +103,6 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$gc", builtin_gc);
 
     raven_builtin(raven, "$random", builtin_random);
+
+    raven_builtin(raven, "$git_reset_hard", builtin_git_reset_hard);
 }
