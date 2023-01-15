@@ -32,6 +32,12 @@ static void raven_create_vars(struct raven_vars* vars) {
 
 /*
  * Create a new instance of Raven.
+ *
+ * This will initialize all of Raven's subsystems, and set up
+ * a minimal configuration.
+ * 
+ * However, the mudlib will not be loaded until `raven_boot(...)`
+ * is called.
  */
 void raven_create(struct raven* raven) {
     object_table_create(raven_objects(raven), raven);
@@ -48,6 +54,8 @@ void raven_create(struct raven* raven) {
 
 /*
  * Destroy an instance of Raven.
+ *
+ * The subsystems will be destroyed in reverse order of creation.
  */
 void raven_destroy(struct raven* raven) {
     git_repo_destroy(raven_git(raven));
@@ -61,6 +69,8 @@ void raven_destroy(struct raven* raven) {
 
 /*
  * Print a nice little banner for this program.
+ *
+ * This is just a fun little thing to do, and it looks nice.
  */
 void raven_banner(struct raven* raven) {
     log_printf(raven_log(raven), "\n");
@@ -72,11 +82,24 @@ void raven_banner(struct raven* raven) {
     log_printf(raven_log(raven), "\n");
     log_printf(raven_log(raven), "    The Raven MUD driver\n");
     log_printf(raven_log(raven), "    Version %s\n", RAVEN_VERSION);
+    log_printf(raven_log(raven), "    Copyright (c) Eric Nijakowski 2022+\n");
+    log_printf(raven_log(raven), "    Website: %s\n", "https://github.com/nijakow/raven"); /* Using "%s" to keep VSCode from butchering the link :D */
     log_printf(raven_log(raven), "\n");
 }
 
 /*
- * Load a Raven mudlib, and prepare all important objects.
+ * Boot Raven with a given mudlib.
+ *
+ * This will load and validate all of the mudlib's files, and
+ * then kick off the master object.
+ * 
+ * The master object is the only object that will be loaded
+ * directly on our request. All other objects will be loaded
+ * on-demand by the master object.
+ * 
+ * The entry point for the master object is "/secure/master".main().
+ * 
+ * Returns true if the boot was successful, false otherwise.
  */
 bool raven_boot(struct raven* raven, const char* mudlib) {
     bool  result;
@@ -102,14 +125,26 @@ bool raven_boot(struct raven* raven, const char* mudlib) {
 
     /*
      * Set up the git repository.
+     *
+     * This allows us to access the mudlib's git repository,
+     * therefore making it possible to use git features such
+     * as branches, committing, pushing and pulling from within
+     * the running game server.
      */
     git_repo_set_path(raven_git(raven), mudlib);
 
     /*
-     * Spawn a new fiber, calling "/secure/master"->main()
+     * Spawn a new fiber by calling `"/secure/master".main()`.
+     *
+     * This will load the master object, and then call its
+     * `main()` function.
      */
     result = raven_call_out(raven, "/secure/master", "main", NULL, 0);
     if (!result) {
+        /*
+         * If we couldn't call out to the master object, then
+         * we should probably just issue an error and crash.
+         */
         log_printf(raven_log(raven), "Could not call out to \"/secure/master\".main()!\n");
     }
 
@@ -172,11 +207,15 @@ bool raven_serve_on(struct raven* raven, int port) {
     else
         log_printf(raven_log(raven), "NOT serving on port %d!\n", port);
     
-    return true;
+    return result;
 }
 
 /*
  * Raven's interrupt function.
+ *
+ * This will be called by the interrupt handler, and will
+ * cause Raven to break out of its main loop the next time
+ * it gets a chance.
  */
 void raven_interrupt(struct raven* raven) {
     raven->was_interrupted = true;
@@ -184,13 +223,18 @@ void raven_interrupt(struct raven* raven) {
 
 /*
  * Reset Raven's interrupt variable.
+ *
+ * This is done when Raven decides to ignore the interrupt
+ * and continue running.
  */
 void raven_uninterrupt(struct raven* raven) {
     raven->was_interrupted = false;
 }
 
 /*
- * The main loop.
+ * Behold the infamous main loop!
+ * 
+ * Everything that happens in Raven happens here.
  */
 void raven_loop(struct raven* raven) {
     unsigned int     gc_steps;
