@@ -12,6 +12,7 @@
  * All external include headers. No other headers are used
  * in the system.
  */
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -36,6 +37,11 @@
  * Our version.
  */
 #define RAVEN_VERSION "0.1"
+
+/*
+ * The raven_assert(...) macro.
+ */
+#define raven_assert(expr) assert(expr)
 
 /*
  * I don't like #define-switches, but this one helps a lot when
