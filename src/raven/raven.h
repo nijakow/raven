@@ -38,8 +38,46 @@ struct raven_vars {
 };
 
 /*
- * The Master Struct.
- * This struct contains everything.
+ * The main state of the MUD.
+ *
+ * This is the main structure that holds all the state and
+ * substructures of the MUD.
+ * 
+ * Usually, this structure is allocated on the stack exactly once,
+ * a pointer to this structure is then passed around to all the
+ * functions that need to access to the main components of the driver.
+ * 
+ * Most subcomponents are designed to be largely independent of each other,
+ * and can be used without the rest of the driver.
+ * 
+ * Some of them have a backpointer to the main structure, but this is
+ * only for convenience. This allows us to find our way back to the main
+ * structure from any subcomponent (which makes it work a lot like a
+ * directory structure where you can `cd` into any subdirectory and then
+ * `cd ..` back to the parent directory):
+ * 
+ *             +-------------------+
+ *             |                   |
+ *             V                   |
+ *     +-----------------+         |
+ *     | raven           |         |  backpointer to the main structure
+ *     |                 |         |
+ *     |   +--------------------+  |
+ *     |   | subcomponent 1   *----+
+ *     |   |                    |  |
+ *     |   | internal state ... |  |
+ *     |   +--------------------+  |
+ *     |                 |         |
+ *     |   +--------------------+  |
+ *     |   | subcomponent 2   *----+
+ *     |   |                    |
+ *     |   | internal state ... |
+ *     |   +--------------------+
+ *     |                 |
+ *     |   etc.          |
+ *     |                 |
+ *     +-----------------+
+ * 
  */
 struct raven {
     struct object_table  objects;

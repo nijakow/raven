@@ -5,6 +5,20 @@
  * See README and LICENSE for further information.
  */
 
+
+/*
+ * Builtin functions are LPCs way to call into the C code of the
+ * driver. They are implemented in the runtime/vm/builtins.c file.
+ * 
+ * This file contains the link between the builtin functions and the
+ * symbols that represent them.
+ * 
+ * When Raven starts up, it calls `raven_setup_builtins(...)` to
+ * install all the builtin functions. For each builtin, we place
+ * a pointer to the corresponding function in the corresponding
+ * symbol object.
+ */
+
 #include "../runtime/core/objects/symbol.h"
 #include "../runtime/vm/builtins.h"
 
@@ -17,6 +31,10 @@
 static void raven_builtin(struct raven* raven,
                           const char*   name,
                           builtin_func  builtin) {
+    /*
+     * Find the symbol object for the given name,
+     * and set its builtin pointer to the given function.
+     */
     symbol_set_builtin(raven_find_symbol(raven, name), builtin);
 }
 
