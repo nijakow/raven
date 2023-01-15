@@ -90,5 +90,10 @@ void builtin_gc(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_random(struct fiber* fiber, any* arg, unsigned int args);
 
 void builtin_git_reset_hard(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_git_stage_all(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_git_commit(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_git_push(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_git_pull(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_git_checkout_branch(struct fiber* fiber, any* arg, unsigned int args);
 
 #endif

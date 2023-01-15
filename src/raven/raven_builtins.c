@@ -104,5 +104,10 @@ void raven_setup_builtins(struct raven* raven) {
 
     raven_builtin(raven, "$random", builtin_random);
 
-    raven_builtin(raven, "$git_reset_hard", builtin_git_reset_hard);
+    raven_builtin(raven, "$git_mudlib_reset_hard", builtin_git_reset_hard);
+    raven_builtin(raven, "$git_mudlib_stage_all", builtin_git_stage_all);
+    raven_builtin(raven, "$git_mudlib_commit", builtin_git_commit);
+    raven_builtin(raven, "$git_mudlib_push", builtin_git_push);
+    raven_builtin(raven, "$git_mudlib_pull", builtin_git_pull);
+    raven_builtin(raven, "$git_mudlib_checkout_branch", builtin_git_checkout_branch);
 }

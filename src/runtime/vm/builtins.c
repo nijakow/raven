@@ -833,3 +833,58 @@ void builtin_git_reset_hard(struct fiber* fiber, any* arg, unsigned int args) {
             fiber_set_accu(fiber, any_from_int(0));
     }
 }
+
+void builtin_git_stage_all(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        if (git_repo_stage_all(raven_git(fiber_raven(fiber))))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
+    }
+}
+
+void builtin_git_commit(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+        arg_error(fiber);
+    else {
+        if (git_repo_commit(raven_git(fiber_raven(fiber)), string_contents(any_to_ptr(arg[0]))))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
+    }
+}
+
+void builtin_git_push(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        if (git_repo_push(raven_git(fiber_raven(fiber))))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
+    }
+}
+
+void builtin_git_pull(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        if (git_repo_pull(raven_git(fiber_raven(fiber))))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
+    }
+}
+
+void builtin_git_checkout_branch(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_STRING) || !any_is_int(arg[1]))
+        arg_error(fiber);
+    else {
+        if (git_repo_checkout(raven_git(fiber_raven(fiber)), string_contents(any_to_ptr(arg[0])), any_to_int(arg[1])))
+            fiber_set_accu(fiber, any_from_int(1));
+        else
+            fiber_set_accu(fiber, any_from_int(0));
+    }
+}
