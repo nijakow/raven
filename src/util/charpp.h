@@ -10,6 +10,20 @@
 
 #include "../defs.h"
 
+
+/*
+ * Despite the funny name, this is actually a pretty useful data structure,
+ * which allows us to store a list of strings in a contiguous block of memory.
+ * 
+ * This is especially useful for building char** arrays, which are required
+ * by some functions in the C standard library.
+ * 
+ * It works similar to a stringbuilder, but instead of storing a sequence of
+ * characters, it stores a sequence of strings.
+ * 
+ * Its main usage is to build a char** array for passing arguments to `execve(...)`
+ * in `forker.c`.
+ */
 struct charpp {
     char**  data;
     size_t  alloc;

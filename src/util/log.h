@@ -10,6 +10,16 @@
 
 #include "../defs.h"
 
+/*
+ * This is a simple logging utility, which allows us to log messages to a
+ * stringbuilder, or to stdout.
+ * 
+ * It provides a printf-like interface, and multiple output methods.
+ * 
+ * Most output in the driver is done through this utility, such that we can
+ * intercept error messages in the compiler and redirect them to multiple
+ * places (e.g. a player, the MUD's log, and some interested wizards).
+ */
 struct log {
     struct stringbuilder*  sb;
 };

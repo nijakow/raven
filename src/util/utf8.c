@@ -7,9 +7,42 @@
 
 #include "utf8.h"
 
+/*
+ * A quick reminder on how UTF-8 works:
+ *
+ *     1 byte: 0xxxxxxx
+ *     2 bytes: 110xxxxx 10xxxxxx
+ *     3 bytes: 1110xxxx 10xxxxxx 10xxxxxx
+ *     4 bytes: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ * 
+ * The following are not valid UTF-8 sequences, but are included for
+ * completeness (and I have seen them in the wild before):
+ * 
+ *     5 bytes: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *     6 bytes: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *     7 bytes: 11111110 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ */
+
+
+/*
+ * Decodes a UTF-8 sequence into a codepoint.
+ *
+ * Returns the codepoint, or 0 if the string is empty.
+ * 
+ * NOTE: I don't like the signature of this function. I think it should
+ *       rather look like this:
+ * 
+ *           bool utf8_decode(const char* str, raven_rune_t* rune, size_t* len);
+ * 
+ */
 raven_rune_t utf8_decode(const char* str, size_t* len) {
     raven_rune_t rune = 0;
 
+    /*
+     * The first byte of a UTF-8 sequence determines the length of the
+     * sequence. The first byte is also used to determine the number of
+     * bits in the codepoint.
+     */
     if (str[0] == '\0') {
         rune = 0;
         if (len != NULL) *len = 0;
@@ -36,6 +69,16 @@ raven_rune_t utf8_decode(const char* str, size_t* len) {
     return rune;
 }
 
+/*
+ * This function encodes a Unicode codepoint into a UTF-8 sequence.
+ *
+ * The return value is the length of the UTF-8 sequence. If the
+ * codepoint is invalid, we return 0.
+ * 
+ * We assume that the buffer is large enough to hold the UTF-8 sequence
+ * (i.e. at least 4 bytes). We do not check for buffer overflows,
+ * and we do not null-terminate the string.
+ */
 size_t utf8_encode(raven_rune_t rune, char* str) {
     if (rune < 0x80) {
         str[0] = rune;
@@ -60,6 +103,14 @@ size_t utf8_encode(raven_rune_t rune, char* str) {
     return 0;
 }
 
+/*
+ * Count the number of characters in a UTF-8 string.
+ *
+ * This is not the same as the number of bytes in the string, since
+ * some characters are encoded using multiple bytes.
+ * 
+ * This is a very naive implementation.
+ */
 size_t utf8_string_length(const char* str) {
     size_t  index;
     size_t  count;
