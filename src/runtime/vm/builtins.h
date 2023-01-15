@@ -53,6 +53,7 @@ void builtin_object_sibling(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_object_children(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_object_path(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_object_set_hb(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_object_unset_hb(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_object_fst_hb(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_object_next_hb(struct fiber* fiber, any* arg, unsigned int args);
 

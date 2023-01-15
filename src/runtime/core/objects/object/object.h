@@ -36,7 +36,9 @@ void object_remove_page(struct object* object, struct object_page* page);
 void object_switch_blueprint(struct object* object, struct blueprint* bp_new);
 
 void object_move_to(struct object* object, struct object* target);
+
 void object_link_heartbeat(struct object* object, struct object** list);
+void object_unlink_heartbeat(struct object* object);
 
 void object_refresh(struct object* object);
 

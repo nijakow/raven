@@ -135,6 +135,16 @@ void object_link_heartbeat(struct object* object, struct object** list) {
     }
 }
 
+void object_unlink_heartbeat(struct object* object) {
+    if (object->heartbeat_prev != NULL) {
+        if (object->heartbeat_next != NULL)
+            object->heartbeat_next->heartbeat_prev = object->heartbeat_prev;
+        *(object->heartbeat_prev) = object->heartbeat_next;
+        object->heartbeat_prev    = NULL;
+        object->heartbeat_next    = NULL;
+    }
+}
+
 struct object_page* object_soulmate_page(struct object* object, struct blueprint* bp) {
     struct object_page*  page;
 

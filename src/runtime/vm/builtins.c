@@ -406,6 +406,15 @@ void builtin_object_set_hb(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
+void builtin_object_unset_hb(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_OBJECT))
+        arg_error(fiber);
+    else {
+        object_unlink_heartbeat(any_to_ptr(arg[0]));
+        fiber_set_accu(fiber, arg[0]);
+    }
+}
+
 void builtin_object_fst_hb(struct fiber* fiber, any* arg, unsigned int args) {
     struct object*  first;
 
