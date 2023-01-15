@@ -7,6 +7,15 @@
 
 #include "defs.h"
 
+
+/*
+ * This is the main file for the Raven MUD driver.
+ *
+ * It is responsible for booting up Raven and starting the main loop.
+ * It also handles signals, such as SIGINT, which are sent to the driver.
+ * 
+ */
+
 #include "raven/raven.h"
 
 
@@ -40,6 +49,10 @@ void raven_main(struct raven* raven, int argc, char *argv[]) {
     }
 }
 
+/*
+ * The entry point for our MUD. I tried to
+ * keep it short and sweet.
+ */
 int main(int argc, char *argv[]) {
     /*
      * 'Twas brillig, and the slithy toves
