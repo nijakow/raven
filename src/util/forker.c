@@ -10,6 +10,9 @@
 
 #include "forker.h"
 
+extern char** environ;
+
+
 void forker_create(struct forker* forker, const char* executable) {
     charpp_create(&forker->args);
     charpp_create(&forker->env);
@@ -28,6 +31,14 @@ void forker_add_arg(struct forker* forker, const char* arg) {
 
 void forker_add_env(struct forker* forker, const char* env) {
     charpp_append(&forker->env, env);
+}
+
+void forker_add_default_env(struct forker* forker) {
+    char** env;
+
+    for (env = environ; *env != NULL; env++) {
+        charpp_append(&forker->env, *env);
+    }
 }
 
 void forker_enable_wait(struct forker* forker) {

@@ -38,6 +38,7 @@ void forker_destroy(struct forker* forker);
 
 void forker_add_arg(struct forker* forker, const char* arg);
 void forker_add_env(struct forker* forker, const char* env);
+void forker_add_default_env(struct forker* forker);
 
 void forker_enable_wait(struct forker* forker);
 

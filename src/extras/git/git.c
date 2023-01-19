@@ -36,6 +36,7 @@ static bool git_repo_create_forker(struct git_repo* repo, struct forker* forker)
     forker_create(forker, "git");
     forker_add_arg(forker, "-C");
     forker_add_arg(forker, repo->path);
+    forker_add_default_env(forker);
     forker_enable_wait(forker);
 
     return true;
