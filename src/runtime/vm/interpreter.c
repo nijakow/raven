@@ -203,6 +203,7 @@ void fiber_super_send(struct fiber*        fiber,
 void fiber_op(struct fiber* fiber, enum raven_op op) {
     any  a;
     any  b;
+    any  c;
 
     switch (op) {
     case RAVEN_OP_EQ:
@@ -294,6 +295,12 @@ void fiber_op(struct fiber* fiber, enum raven_op op) {
                                                     a,
                                                     b,
                                                     fiber_get_accu(fiber)));
+        break;
+    case RAVEN_OP_RANGE:
+        c = fiber_get_accu(fiber);
+        b = fiber_pop(fiber);
+        a = fiber_pop(fiber);
+        fiber_set_accu(fiber, fiber_op_range(fiber, a, b, c));
         break;
     case RAVEN_OP_SIZEOF:
         fiber_set_accu(fiber, any_from_int(any_op_sizeof(fiber_get_accu(fiber))));

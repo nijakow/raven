@@ -64,6 +64,7 @@ enum raven_op {
     RAVEN_OP_DEREF,
     RAVEN_OP_INDEX,
     RAVEN_OP_INDEX_ASSIGN,
+    RAVEN_OP_RANGE,
     RAVEN_OP_SIZEOF,
     RAVEN_OP_NEW,
 

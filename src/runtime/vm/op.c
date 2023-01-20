@@ -241,6 +241,24 @@ any fiber_op_index_assign(struct fiber* fiber, any a, any b, any c) {
     }
 }
 
+any fiber_op_range(struct fiber* fiber, any a, any b, any c) {
+    // Extract a range [b..c] from a, an array or string
+    // b and c must be integers
+
+    int  start;
+    int  end;
+
+    if (any_is_int(b) && any_is_int(c)) {
+        start = any_to_int(b);
+        end   = any_to_int(c);
+
+        if (any_is_obj(a, OBJ_TYPE_STRING)) {
+            return any_from_ptr(string_substr(any_to_ptr(a), start, end, fiber_raven(fiber)));
+        } // TODO: Add support for arrays
+    }
+    return any_nil();
+}
+
 any fiber_op_deref(struct fiber* fiber, any a) {
     return any_nil();
 }

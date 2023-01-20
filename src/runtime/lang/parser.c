@@ -33,6 +33,7 @@ const char* token_type_name(enum token_type type) {
     case TOKEN_TYPE_COLON: return "COLON";
     case TOKEN_TYPE_SEMICOLON: return "SEMICOLON";
     case TOKEN_TYPE_ELLIPSIS: return "ELLIPSIS";
+    case TOKEN_TYPE_RANGE: return "RANGE";
     case TOKEN_TYPE_EQUALS: return "EQUALS";
     case TOKEN_TYPE_NOT_EQUALS: return "NOT_EQUALS";
     case TOKEN_TYPE_LEFTSHIFT: return "LEFTSHIFT";
@@ -342,6 +343,8 @@ void parser_advance(struct parser* parser) {
         parser_set_type(parser, TOKEN_TYPE_RCURLY);
     } else if (reader_checks(parser->reader, "...")) {
         parser_set_type(parser, TOKEN_TYPE_ELLIPSIS);
+    } else if (reader_checks(parser->reader, "..")) {
+        parser_set_type(parser, TOKEN_TYPE_RANGE);
     } else if (reader_checks(parser->reader, ".")) {
         parser_set_type(parser, TOKEN_TYPE_DOT);
     } else if (reader_checks(parser->reader, ",")) {

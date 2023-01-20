@@ -36,6 +36,7 @@ any fiber_op_rightshift(struct fiber* fiber, any a, any b);
 
 any fiber_op_index(struct fiber* fiber, any a, any b);
 any fiber_op_index_assign(struct fiber* fiber, any a, any b, any c);
+any fiber_op_range(struct fiber* fiber, any a, any b, any c);
 any fiber_op_deref(struct fiber* fiber, any a);
 any fiber_op_sizeof(struct fiber* fiber, any a);
 any fiber_op_new(struct fiber* fiber, any a);

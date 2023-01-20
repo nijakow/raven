@@ -705,14 +705,22 @@ bool parsepile_op(struct parser*   parser,
     } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
         compiler_push(compiler);
         parsepile_expression(parser, compiler);
-        if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
-            return false;
-        if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
+        if (parser_check(parser, TOKEN_TYPE_RANGE)) {
             compiler_push(compiler);
-            parsepile_expr(parser, compiler, pr);
-            compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);
+            parsepile_expression(parser, compiler);
+            compiler_op(compiler, RAVEN_OP_RANGE);
+            if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
+                return false;
         } else {
-            compiler_op(compiler, RAVEN_OP_INDEX);
+            if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
+                return false;
+            if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
+                compiler_push(compiler);
+                parsepile_expr(parser, compiler, pr);
+                compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);
+            } else {
+                compiler_op(compiler, RAVEN_OP_INDEX);
+            }
         }
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
     } else if (pr >= 13 && parser_check(parser, TOKEN_TYPE_QUESTION)) {
