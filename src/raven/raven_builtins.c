@@ -115,6 +115,7 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$file_is_directory", builtin_file_is_directory);
     raven_builtin(raven, "$read_file", builtin_read_file);
     raven_builtin(raven, "$write_file", builtin_write_file);
+    raven_builtin(raven, "$rm", builtin_rm);
     raven_builtin(raven, "$cc", builtin_cc);
     raven_builtin(raven, "$cc_script", builtin_cc_script);
     raven_builtin(raven, "$disassemble", builtin_disassemble);

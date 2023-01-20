@@ -58,6 +58,8 @@ bool fs_last_modified(struct fs* fs, const char* path, raven_timestamp_t* last_c
 bool fs_read(struct fs* fs, const char* path, struct stringbuilder* sb);
 bool fs_write(struct fs* fs, const char* path, const char* text);
 
+bool fs_rm(struct fs* fs, const char* path);
+
 struct file_info* fs_info(struct fs* fs, const char* path);
 
 bool              fs_is_loaded(struct fs* fs, const char* path);

@@ -82,6 +82,7 @@ void builtin_file_exists(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_file_is_directory(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_read_file(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_write_file(struct fiber* fiber, any* arg, unsigned int args);
+void builtin_rm(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_cc_script(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_disassemble(struct fiber* fiber, any* arg, unsigned int args);

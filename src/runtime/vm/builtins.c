@@ -740,6 +740,24 @@ void builtin_write_file(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
+void builtin_rm(struct fiber* fiber, any* arg, unsigned int args) {
+    struct fs*    fs;
+    const  char*  path;
+
+    if (args != 1 || !any_is_obj(arg[0], OBJ_TYPE_STRING))
+        arg_error(fiber);
+    else {
+        path = string_contents(any_to_ptr(arg[0]));
+        fs   = raven_fs(fiber_raven(fiber));
+
+        if (fs_rm(fs, path)) {
+            fiber_set_accu(fiber, any_from_int(1));
+        } else {
+            fiber_set_accu(fiber, any_from_int(0));
+        }
+    }
+}
+
 void builtin_cc(struct fiber* fiber, any* arg, unsigned int args) {
     struct fs*            fs;
     const  char*          path;

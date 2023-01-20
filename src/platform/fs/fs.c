@@ -330,6 +330,31 @@ bool fs_write(struct fs* fs, const char* path, const char* text) {
 }
 
 /*
+ * Delete a file.
+ *
+ * This function will first normalize the path, then delete the file.
+ * If the file does not exist, this function will return false.
+ * 
+ * This function uses the operating system's primitives to access
+ * the physical file system. Therefore, a lot of care must be taken
+ * to ensure that no injection attacks are possible.
+ */
+bool fs_rm(struct fs* fs, const char* path) {
+    struct stringbuilder  sb2;
+    bool                  result;
+
+    result = false;
+
+    stringbuilder_create(&sb2);
+    if (fs_tofile(fs, path, &sb2)) {
+        result = (remove(stringbuilder_get_const(&sb2))) == 0;
+    }
+    stringbuilder_destroy(&sb2);
+
+    return result;
+}
+
+/*
  * This is a helper function for fs_info(...).
  */
 static struct file_info* fs_info__by_virt(struct fs* fs, const char* path, bool create) {
