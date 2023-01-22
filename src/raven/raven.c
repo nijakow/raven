@@ -47,7 +47,7 @@ void raven_create(struct raven* raven) {
     server_create(raven_server(raven), raven);
     fs_create(raven_fs(raven), raven);
     git_repo_create(raven_git(raven));
-    users_create(raven_users(raven));
+    users_create(raven_users(raven), raven);
     raven_create_vars(raven_vars(raven));
     raven->was_interrupted = false;
 

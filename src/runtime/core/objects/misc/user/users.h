@@ -11,10 +11,13 @@
 #include "../../../../../defs.h"
 
 struct users {
-    struct user*  list;
+    struct raven*  raven;
+    struct user*   list;
 };
 
-void users_create(struct users* users);
+void users_create(struct users* users, struct raven* raven);
 void users_destroy(struct users* users);
+
+struct user* users_find(struct users* users, const char* name);
 
 #endif
