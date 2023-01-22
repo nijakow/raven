@@ -17,6 +17,8 @@
 #include "../runtime/core/any.h"
 #include "../runtime/core/type.h"
 #include "../runtime/core/object_table.h"
+#include "../runtime/core/objects/misc/user/users.h"
+
 #include "../runtime/gc/gc.h"
 #include "../runtime/vm/scheduler.h"
 
@@ -87,6 +89,7 @@ struct raven {
     struct server        server;
     struct fs            fs;
     struct git_repo      git;
+    struct users         users;
     struct raven_vars    vars;
     bool                 was_interrupted;
 };
@@ -156,6 +159,10 @@ static inline struct fs* raven_fs(struct raven* raven) {
 
 static inline struct git_repo* raven_git(struct raven* raven) {
     return &raven->git;
+}
+
+static inline struct users* raven_users(struct raven* raven) {
+    return &raven->users;
 }
 
 static inline struct raven_vars* raven_vars(struct raven* raven) {

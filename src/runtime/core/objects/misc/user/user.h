@@ -5,24 +5,28 @@
  * See README and LICENSE for further information.
  */
 
-#ifndef RAVEN_RUNTIME_CORE_OBJECTS_MISC_USER_H
-#define RAVEN_RUNTIME_CORE_OBJECTS_MISC_USER_H
+#ifndef RAVEN_RUNTIME_CORE_OBJECTS_MISC_USER_USER_H
+#define RAVEN_RUNTIME_CORE_OBJECTS_MISC_USER_USER_H
 
-#include "../../../../defs.h"
-#include "../../../../util/ringbuffer.h"
-#include "../../any.h"
+#include "../../../../../defs.h"
 
-#include "../../base_obj.h"
+#include "../../../any.h"
+#include "../../../base_obj.h"
 
+
+struct users;
 
 struct user {
     struct base_obj  _;
+
+    struct user**    prev;
+    struct user*     next;
 
     char*            name;
     char*            password;
 };
 
-struct user* user_new(struct raven* raven, const char* name);
+struct user* user_new(struct raven* raven, struct users* users, const char* name);
 void user_mark(struct gc* gc, struct user* user);
 void user_del(struct user* user);
 

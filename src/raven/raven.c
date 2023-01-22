@@ -47,15 +47,18 @@ void raven_create(struct raven* raven) {
     server_create(raven_server(raven), raven);
     fs_create(raven_fs(raven), raven);
     git_repo_create(raven_git(raven));
-    raven_setup_builtins(raven);
+    users_create(raven_users(raven));
     raven_create_vars(raven_vars(raven));
     raven->was_interrupted = false;
+
+    raven_setup_builtins(raven);
 }
 
 /*
  * Destroy an instance of Raven.
  *
  * The subsystems will be destroyed in reverse order of creation.
+ * There are exceptions for some subsystems that depend on others.
  */
 void raven_destroy(struct raven* raven) {
     git_repo_destroy(raven_git(raven));
@@ -65,6 +68,7 @@ void raven_destroy(struct raven* raven) {
     log_destroy(raven_log(raven));
     typeset_destroy(raven_types(raven));
     object_table_destroy(raven_objects(raven));
+    users_destroy(raven_users(raven));
 }
 
 /*
