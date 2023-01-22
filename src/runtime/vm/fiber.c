@@ -27,10 +27,13 @@
 
 
 static void fiber_create_vars(struct fiber* fiber) {
-    struct fiber_vars* vars = fiber_vars(fiber);
+    struct fiber_vars* vars;
+    
+    vars                 = fiber_vars(fiber);
 
-    vars->this_player  = any_nil();
-    vars->fiber_locals = mapping_new(fiber_raven(fiber));
+    vars->this_player    = any_nil();
+    vars->fiber_locals   = mapping_new(fiber_raven(fiber));
+    vars->effective_user = NULL;
 }
 
 void fiber_create(struct fiber* fiber, struct scheduler* scheduler) {
@@ -95,6 +98,7 @@ void fiber_mark(struct gc* gc, struct fiber* fiber) {
     gc_mark_any(gc, fiber->accu);
     gc_mark_any(gc, fiber->vars.this_player);
     gc_mark_ptr(gc, fiber->vars.fiber_locals);
+    gc_mark_ptr(gc, fiber->vars.effective_user);
     gc_mark_ptr(gc, fiber_connection(fiber));
 }
 

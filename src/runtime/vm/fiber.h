@@ -42,6 +42,7 @@ enum fiber_state {
 struct fiber_vars {
     any              this_player;
     struct mapping*  fiber_locals;
+    struct user*     effective_user;
 };
 
 struct fiber {
