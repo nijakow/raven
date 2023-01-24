@@ -31,3 +31,14 @@ struct user* users_find(struct users* users, const char* name) {
 
     return user_new(users->raven, users, name);
 }
+
+struct user* users_login(struct users* users, const char* name, const char* password) {
+    struct user* user;
+    
+    user = users_find(users, name);
+    if (user != NULL && user_compare_password(user, password)) {
+        return user;
+    } else {
+        return NULL;
+    }
+}

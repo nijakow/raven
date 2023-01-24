@@ -130,4 +130,6 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$git_push", builtin_git_push);
     raven_builtin(raven, "$git_pull", builtin_git_pull);
     raven_builtin(raven, "$git_checkout_branch", builtin_git_checkout_branch);
+
+    raven_builtin(raven, "$login", builtin_login);
 }

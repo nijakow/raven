@@ -19,5 +19,6 @@ void users_create(struct users* users, struct raven* raven);
 void users_destroy(struct users* users);
 
 struct user* users_find(struct users* users, const char* name);
+struct user* users_login(struct users* users, const char* name, const char* password);
 
 #endif

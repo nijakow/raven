@@ -98,4 +98,6 @@ void builtin_git_push(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_git_pull(struct fiber* fiber, any* arg, unsigned int args);
 void builtin_git_checkout_branch(struct fiber* fiber, any* arg, unsigned int args);
 
+void builtin_login(struct fiber* fiber, any* arg, unsigned int args);
+
 #endif

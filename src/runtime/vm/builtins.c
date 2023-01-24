@@ -23,6 +23,9 @@
 #include "../core/blueprint.h"
 #include "../lang/script.h"
 
+#include "../core/objects/misc/user/users.h"
+#include "../core/objects/misc/user/user.h"
+
 #include "../../extras/git/git.h"
 
 #include "frame.h"
@@ -913,5 +916,31 @@ void builtin_git_checkout_branch(struct fiber* fiber, any* arg, unsigned int arg
             fiber_set_accu(fiber, any_from_int(1));
         else
             fiber_set_accu(fiber, any_from_int(0));
+    }
+}
+
+void builtin_login(struct fiber* fiber, any* arg, unsigned int args) {
+    const  char*   username;
+    const  char*   password;
+
+    struct users*  users;
+    struct user*   user;
+
+
+    if (args != 2 || !any_is_obj(arg[0], OBJ_TYPE_STRING) || !any_is_obj(arg[1], OBJ_TYPE_STRING))
+        arg_error(fiber);
+    else {
+        username = string_contents(any_to_ptr(arg[0]));
+        password = string_contents(any_to_ptr(arg[1]));
+
+        users = raven_users(fiber_raven(fiber));
+        user  = users_login(users, username, password);
+
+        if (user != NULL) {
+            fiber_vars(fiber)->effective_user = user;
+            fiber_set_accu(fiber, any_from_int(1));
+        } else {
+            fiber_set_accu(fiber, any_from_int(0));
+        }
     }
 }
