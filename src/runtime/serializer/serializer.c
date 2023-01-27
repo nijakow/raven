@@ -199,11 +199,12 @@ void serializer_write_funcref(struct serializer* serializer, struct funcref* fun
 }
 
 void serializer_write_blueprint(struct serializer* serializer, struct blueprint* blueprint) {
+    const char*  virt_path;
+
+    virt_path = blueprint_virt_path(blueprint);
+
     serializer_write_tag(serializer, SERIALIZER_TAG_BLUEPRINT);
-    if (blueprint_parent(blueprint) == NULL)
-        serializer_write_nil(serializer);
-    else
-        serializer_write_ptr(serializer, blueprint_parent(blueprint));
+    serializer_write_cstr(serializer, virt_path);
 }
 
 void serializer_write_object(struct serializer* serializer, struct object* object) {
