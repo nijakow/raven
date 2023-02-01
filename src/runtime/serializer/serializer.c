@@ -108,7 +108,7 @@ void serializer_destroy(struct serializer* serializer) {
     serializer_object_pages_destroy(&serializer->object_pages);
 }
 
-void serializer_write_to_bytebuffer(struct serializer* serializer, struct bytebuffer* buffer) {
+void serializer_setup_write_to_bytebuffer(struct serializer* serializer, struct bytebuffer* buffer) {
     serializer->buffer = buffer;
 }
 
