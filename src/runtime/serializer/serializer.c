@@ -166,16 +166,36 @@ void serializer_write_nil(struct serializer* serializer) {
 }
 
 void serializer_write_string(struct serializer* serializer, struct string* string) {
+    /*
+     * A string is serialized as a sequence of bytes, preceded by a tag
+     * and the number of bytes. The bytes are not null-terminated,
+     * and the encoding is UTF-8 (no NULL bytes are allowed):
+     * 
+     *    TAG_STRING uint  byte  byte  byte  ...
+     */
     serializer_write_tag(serializer, SERIALIZER_TAG_STRING);
     serializer_write_cstr(serializer, string_contents(string));
 }
 
 void serializer_write_symbol(struct serializer* serializer, struct symbol* symbol) {
+    /*
+     * A symbol is serialized as a sequence of bytes, preceded by a tag
+     * and the number of bytes. The bytes are not null-terminated,
+     * and the encoding is UTF-8 (no NULL bytes are allowed):
+     * 
+     *   TAG_SYMBOL uint  byte  byte  byte  ...
+     */
     serializer_write_tag(serializer, SERIALIZER_TAG_SYMBOL);
     serializer_write_cstr(serializer, symbol_name(symbol));
 }
 
 void serializer_write_array(struct serializer* serializer, struct array* array) {
+    /*
+     * An array is serialized as a sequence of values, preceded by a tag
+     * and the number of values:
+     * 
+     *     TAG_ARRAY uint  value  value  value  ...
+     */
     serializer_write_tag(serializer, SERIALIZER_TAG_ARRAY);
     serializer_write_uint(serializer, array_size(array));
     for (size_t i = 0; i < array_size(array); i++) {
@@ -184,6 +204,12 @@ void serializer_write_array(struct serializer* serializer, struct array* array) 
 }
 
 void serializer_write_mapping(struct serializer* serializer, struct mapping* mapping) {
+    /*
+     * A mapping is serialized as a sequence of key-value pairs, preceded
+     * by a tag and the number of pairs:
+     * 
+     *     TAG_MAPPING uint  key  value  key  value  ...
+     */
     serializer_write_tag(serializer, SERIALIZER_TAG_MAPPING);
     serializer_write_uint(serializer, mapping_size(mapping));
     for (size_t i = 0; i < mapping_size(mapping); i++) {
@@ -193,12 +219,22 @@ void serializer_write_mapping(struct serializer* serializer, struct mapping* map
 }
 
 void serializer_write_funcref(struct serializer* serializer, struct funcref* funcref) {
+    /*
+     * A function reference is serialized as a receiver and a message:
+     *
+     *    TAG_FUNCREF  any  symbol
+     */
     serializer_write_tag(serializer, SERIALIZER_TAG_FUNCREF);
     serializer_write_any(serializer, funcref_receiver(funcref));
     serializer_write_symbol(serializer, funcref_message(funcref));
 }
 
 void serializer_write_blueprint(struct serializer* serializer, struct blueprint* blueprint) {
+    /*
+     * A blueprint is serialized as its virtual path:
+     *
+     *   TAG_BLUEPRINT  string
+     */
     const char*  virt_path;
 
     virt_path = blueprint_virt_path(blueprint);
@@ -217,13 +253,39 @@ void serializer_write_object(struct serializer* serializer, struct object* objec
 }
 
 void serializer_write_ptr(struct serializer* serializer, void* obj) {
+    /*
+     * Try to write an atomic value.
+     *
+     * Atomic values are strings and symbols. They can be created from their description alone,
+     * and they have no internal state that needs to be serialized (either since they are immutable,
+     * or since they are singletons that can be looked up by their description).
+     */
+         if (base_obj_is(obj, OBJ_TYPE_STRING))    { serializer_write_string(serializer, obj);               }
+    else if (base_obj_is(obj, OBJ_TYPE_SYMBOL))    { serializer_write_symbol(serializer, obj);               }
+
+    /*
+     * The rest of the objects do have mutable state, so circular references need to be handled.
+     * We do this by attaching a label to each object that gets serialized, and if it appears
+     * again, we write a reference to the label instead of the object.
+     * 
+     * The label is written as a LABEL tag followed by the object's id. A later REF tag refers
+     * back to the object.
+     * 
+     * The serializer_write_ref() function returns true if the object has already been serialized,
+     * causing us to return early (no further serialization is needed as this has already happened).
+     * 
+     * If the object has not been serialized yet, we add it to the object pages, and write a LABEL
+     * tag to the output stream. This is followed by the actual serialization of the object in
+     * the code below.
+     */
     if (serializer_write_ref(serializer, obj)) {
         return;
     }
-
-         if (base_obj_is(obj, OBJ_TYPE_STRING))    { serializer_write_string(serializer, obj);               }
-    else if (base_obj_is(obj, OBJ_TYPE_SYMBOL))    { serializer_write_symbol(serializer, obj);               }
-    else if (base_obj_is(obj, OBJ_TYPE_ARRAY))     { serializer_write_array(serializer, obj);                }
+         
+    /*
+     * The object is not a singleton, so we dispatch to the appropriate serialization function.
+     */
+         if (base_obj_is(obj, OBJ_TYPE_ARRAY))     { serializer_write_array(serializer, obj);                }
     else if (base_obj_is(obj, OBJ_TYPE_MAPPING))   { serializer_write_mapping(serializer, obj);              }
     else if (base_obj_is(obj, OBJ_TYPE_FUNCREF))   { serializer_write_funcref(serializer, obj);              }
     else if (base_obj_is(obj, OBJ_TYPE_BLUEPRINT)) { serializer_write_blueprint(serializer, obj);            }
@@ -231,10 +293,16 @@ void serializer_write_ptr(struct serializer* serializer, void* obj) {
 }
 
 void serializer_write_any(struct serializer* serializer, any any) {
+    /*
+     * An any value could be a pointer to an object, or a primitive value.
+     *
+     * Primitive values are nil, integers and characters. They can be serialized directly.
+     * Pointers to objects are serialized by calling serializer_write_ptr().
+     */
          if (any_is_nil(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_NIL);   }
     else if (any_is_int(any))  { serializer_write_tag(serializer, SERIALIZER_TAG_INT);
                                  serializer_write_int(serializer, any_to_int(any));      }
-    else if (any_is_char(any)) { serializer_write_tag(serializer, SERIALIZER_TAG_CHAR8);
-                                 serializer_write_uint8(serializer, any_to_char(any));   }
+    else if (any_is_char(any)) { serializer_write_tag(serializer, SERIALIZER_TAG_RUNE);
+                                 serializer_write_uint(serializer, any_to_char(any));   }
     else                       { serializer_write_ptr(serializer, any_to_ptr(any));      }
 }
