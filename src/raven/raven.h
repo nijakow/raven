@@ -24,6 +24,8 @@
 
 #include "../extras/git/git.h"
 
+#include "./persistence/persistence.h"
+
 /*
  * All variables of type `any` that are associated with the state of
  * the MUD.
@@ -90,6 +92,7 @@ struct raven {
     struct fs            fs;
     struct git_repo      git;
     struct users         users;
+    struct persistence   persistence;
     struct raven_vars    vars;
     bool                 was_interrupted;
 };
@@ -163,6 +166,10 @@ static inline struct git_repo* raven_git(struct raven* raven) {
 
 static inline struct users* raven_users(struct raven* raven) {
     return &raven->users;
+}
+
+static inline struct persistence* raven_persistence(struct raven* raven) {
+    return &raven->persistence;
 }
 
 static inline struct raven_vars* raven_vars(struct raven* raven) {

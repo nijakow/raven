@@ -48,6 +48,7 @@ void raven_create(struct raven* raven) {
     fs_create(raven_fs(raven), raven);
     git_repo_create(raven_git(raven));
     users_create(raven_users(raven), raven);
+    persistence_create(raven_persistence(raven), raven);
     raven_create_vars(raven_vars(raven));
     raven->was_interrupted = false;
 
@@ -61,6 +62,7 @@ void raven_create(struct raven* raven) {
  * There are exceptions for some subsystems that depend on others.
  */
 void raven_destroy(struct raven* raven) {
+    persistence_destroy(raven_persistence(raven));
     git_repo_destroy(raven_git(raven));
     fs_destroy(raven_fs(raven));
     server_destroy(raven_server(raven));
