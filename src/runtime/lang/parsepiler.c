@@ -1867,6 +1867,32 @@ bool parsepile_return(struct parser* parser, struct compiler* compiler) {
     return false;
 }
 
+/*
+ * Parsepile a `try/catch` statement.
+ *
+ * Try/catch statements look like this:
+ * 
+ *     try {
+ *         <instructions>
+ *     } catch (<type> <name>) {
+ *         <instructions>
+ *     }
+ * 
+ * The `try` block is executed, and if an exception is thrown, the
+ * `catch` block is executed. The exception is stored in the variable
+ * `<name>`, which is of type `<type>`.
+ * 
+ * Internally, this is implemented by a jump label inside of the current
+ * stack frame. The parsepiler will set this label to point to the catch
+ * code before the `try` block gets inserted into the compiler.
+ * 
+ * This will cause the system to jump to the catch block when an exception
+ * is thrown and the stack unwinds.
+ * 
+ * When the `try` block finishes, the label is then set to point back to
+ * the previous catch block (or `nil` if there is none). The compiler
+ * uses a stack to keep track of the nesting of catch blocks.
+ */
 bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
     struct type*      type;
     struct symbol*    name;
