@@ -24,7 +24,7 @@
 
 #include "../extras/git/git.h"
 
-#include "./persistence/persistence.h"
+#include "persistence/persistence.h"
 
 /*
  * All variables of type `any` that are associated with the state of

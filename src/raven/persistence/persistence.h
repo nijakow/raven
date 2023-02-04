@@ -17,4 +17,6 @@ struct persistence {
 void persistence_create(struct persistence* persistence, struct raven* raven);
 void persistence_destroy(struct persistence* persistence);
 
+bool persistence_save(struct persistence* persistence, const char* path);
+
 #endif
