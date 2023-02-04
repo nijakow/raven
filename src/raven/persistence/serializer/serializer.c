@@ -5,16 +5,16 @@
  * See README and LICENSE for further information.
  */
 
-#include "../../util/memory.h"
+#include "../../../util/memory.h"
 
-#include "../core/blueprint.h"
-#include "../core/objects/object/object.h"
+#include "../../../runtime/core/blueprint.h"
+#include "../../../runtime/core/objects/object/object.h"
 
-#include "../core/objects/array.h"
-#include "../core/objects/mapping.h"
-#include "../core/objects/string.h"
-#include "../core/objects/symbol.h"
-#include "../core/objects/funcref.h"
+#include "../../../runtime/core/objects/array.h"
+#include "../../../runtime/core/objects/mapping.h"
+#include "../../../runtime/core/objects/string.h"
+#include "../../../runtime/core/objects/symbol.h"
+#include "../../../runtime/core/objects/funcref.h"
 
 #include "serializer.h"
 
