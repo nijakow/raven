@@ -1914,8 +1914,7 @@ bool parsepile_trycatch(struct parser* parser, struct compiler* compiler) {
     if (parsepile_instruction(parser, &subcompiler)) {
         if (parsepile_expect(parser, TOKEN_TYPE_KW_CATCH)) {
             label = compiler_open_label(&subcompiler);
-            compiler_jump(&subcompiler, label);
-            compiler_place_catch(&subcompiler);
+            compiler_place_catch(&subcompiler, label);
             if (parser_check(parser, TOKEN_TYPE_LPAREN)) {
                 if (!parser_check(parser, TOKEN_TYPE_RPAREN)) {
                     result2 = false;

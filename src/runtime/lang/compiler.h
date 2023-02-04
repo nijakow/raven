@@ -103,6 +103,6 @@ void compiler_break(struct compiler* compiler);
 void compiler_continue(struct compiler* compiler);
 
 bool compiler_open_catch(struct compiler* compiler);
-void compiler_place_catch(struct compiler* compiler);
+void compiler_place_catch(struct compiler* compiler, t_compiler_label jumpto);
 
 #endif
