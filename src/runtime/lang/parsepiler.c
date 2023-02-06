@@ -683,7 +683,7 @@ bool parsepile_op(struct parser*   parser,
     *should_continue = true;
     result          = true;
 
-    if ((pr >= 1 && parser_check(parser, TOKEN_TYPE_ARROW)) || (pr >= 15 && parser_check(parser, TOKEN_TYPE_PARROW))) {
+    if ((pr >= 1 && parser_check(parser, TOKEN_TYPE_DOT))) {
         result = false;
         compiler_push(compiler);
         if (parse_symbol(parser, &symbol)
@@ -692,7 +692,7 @@ bool parsepile_op(struct parser*   parser,
             compiler_send(compiler, symbol, args);
         }
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
-    } else if (pr >= 1 && parser_check(parser, TOKEN_TYPE_DOT)) {
+    } else if (pr >= 1 && parser_check(parser, TOKEN_TYPE_ARROW)) {
         result = false;
         compiler_op(compiler, RAVEN_OP_DEREF);
         compiler_push(compiler);
