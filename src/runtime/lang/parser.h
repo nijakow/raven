@@ -17,6 +17,7 @@
 #include "reader.h"
 
 enum token_type {
+    TOKEN_TYPE_ERROR,
     TOKEN_TYPE_EOF,
 
     TOKEN_TYPE_IDENT,

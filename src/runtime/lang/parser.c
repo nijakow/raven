@@ -16,6 +16,7 @@ static const char* IDENT_CHARS =
 
 const char* token_type_name(enum token_type type) {
     switch (type) {
+    case TOKEN_TYPE_ERROR: return "ERROR";
     case TOKEN_TYPE_EOF: return "EOF";
     case TOKEN_TYPE_IDENT: return "IDENTIFIER";
     case TOKEN_TYPE_INT: return "INT";
@@ -437,7 +438,7 @@ void parser_advance(struct parser* parser) {
         parser_read_symbol(parser);
 
         if (parser_buffer_is_empty(parser)) {
-            parser_set_type(parser, TOKEN_TYPE_EOF);
+            parser_set_type(parser, TOKEN_TYPE_ERROR);
         } else if (parser_buffer_is(parser, "#include")) {
             parser_set_type(parser, TOKEN_TYPE_KW_INCLUDE);
         } else if (parser_buffer_is(parser, "inherit")) {
