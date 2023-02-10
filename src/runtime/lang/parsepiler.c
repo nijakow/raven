@@ -681,7 +681,7 @@ bool parsepile_op(struct parser*   parser,
     bool            result;
 
     *should_continue = true;
-    result          = true;
+    result           = true;
 
     if ((pr >= 1 && parser_check(parser, TOKEN_TYPE_DOT))) {
         result = false;
@@ -703,23 +703,30 @@ bool parsepile_op(struct parser*   parser,
         }
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
     } else if (parser_check(parser, TOKEN_TYPE_LBRACK)) {
+        result = false;
         compiler_push(compiler);
-        parsepile_expression(parser, compiler);
-        if (parser_check(parser, TOKEN_TYPE_RANGE)) {
-            compiler_push(compiler);
-            parsepile_expression(parser, compiler);
-            compiler_op(compiler, RAVEN_OP_RANGE);
-            if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
-                return false;
-        } else {
-            if (!parsepile_expect(parser, TOKEN_TYPE_RBRACK))
-                return false;
-            if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
+        if (parsepile_expression(parser, compiler)) {
+            if (parser_check(parser, TOKEN_TYPE_RANGE)) {
                 compiler_push(compiler);
-                parsepile_expr(parser, compiler, pr);
-                compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);
+                if (parsepile_expression(parser, compiler)) {
+                    compiler_op(compiler, RAVEN_OP_RANGE);
+                    if (parsepile_expect(parser, TOKEN_TYPE_RBRACK)) {
+                        result = true;
+                    }
+                }
             } else {
-                compiler_op(compiler, RAVEN_OP_INDEX);
+                if (parsepile_expect(parser, TOKEN_TYPE_RBRACK)) {
+                    if (parser_check(parser, TOKEN_TYPE_ASSIGNMENT)) {
+                        compiler_push(compiler);
+                        if (parsepile_expr(parser, compiler, pr)) {
+                            compiler_op(compiler, RAVEN_OP_INDEX_ASSIGN);
+                            result = true;
+                        }
+                    } else {
+                        compiler_op(compiler, RAVEN_OP_INDEX);
+                        result = true;
+                    }
+                }
             }
         }
         parser_set_exprtype_to_any(parser); /* TODO: Infer */
