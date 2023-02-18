@@ -455,10 +455,16 @@ void builtin_object_first(struct fiber* fiber, any* arg, unsigned int args) {
 }
 
 void builtin_object_next(struct fiber* fiber, any* arg, unsigned int args) {
+    struct base_obj*  ptr;
+
     if (args != 1 || !any_is_ptr(arg[0]))
         arg_error(fiber);
     else {
-        fiber_set_accu(fiber, any_from_ptr(((struct base_obj*) any_to_ptr(arg[0]))->next));
+        ptr = ((struct base_obj*) any_to_ptr(arg[0]))->next;
+        if (ptr == NULL)
+            fiber_set_accu(fiber, any_nil());
+        else
+            fiber_set_accu(fiber, any_from_ptr(ptr));
     }
 }
 
