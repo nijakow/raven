@@ -26,6 +26,10 @@ struct symbol* object_table_find_symbol(struct object_table* table,
                                         const char* name);
 struct symbol* object_table_gensym(struct object_table* table);
 
+static inline struct base_obj* object_table_first(struct object_table* table) {
+    return table->objects;
+}
+
 static inline struct object** object_table_heartbeats(struct object_table* table) {
     return &table->heartbeats;
 }

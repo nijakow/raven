@@ -89,6 +89,8 @@ void raven_setup_builtins(struct raven* raven) {
     raven_builtin(raven, "$deactivate_heart_beat", builtin_object_unset_hb);
     raven_builtin(raven, "$object_first_heartbeat", builtin_object_fst_hb);
     raven_builtin(raven, "$object_next_heartbeat", builtin_object_next_hb);
+    raven_builtin(raven, "$object_list_first", builtin_object_first);
+    raven_builtin(raven, "$object_list_next", builtin_object_next);
 
     raven_builtin(raven, "$loaded", builtin_loaded);
     raven_builtin(raven, "$outdated", builtin_outdated);

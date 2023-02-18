@@ -446,6 +446,25 @@ void builtin_object_next_hb(struct fiber* fiber, any* arg, unsigned int args) {
     }
 }
 
+void builtin_object_first(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 0)
+        arg_error(fiber);
+    else {
+        fiber_set_accu(fiber, any_from_ptr(object_table_first(raven_objects(fiber_raven(fiber)))));
+    }
+}
+
+void builtin_object_next(struct fiber* fiber, any* arg, unsigned int args) {
+    if (args != 1 || !any_is_ptr(arg[0]))
+        arg_error(fiber);
+    else {
+        fiber_set_accu(fiber, any_from_ptr(((struct base_obj*) any_to_ptr(arg[0]))->next));
+    }
+}
+
+void builtin_object_next(struct fiber* fiber, any* arg, unsigned int args);
+
+
 void builtin_loaded(struct fiber* fiber, any* arg, unsigned int args) {
     struct fs*    fs;
     const  char*  path;
