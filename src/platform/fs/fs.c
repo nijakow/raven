@@ -26,6 +26,10 @@ void fs_create(struct fs* fs, struct raven* raven) {
  */
 void fs_destroy(struct fs* fs) {
     memory_free(fs->anchor);
+
+    while (fs->files != NULL) {
+        file_info_delete(fs->files);
+    }
 }
 
 /*
@@ -366,8 +370,10 @@ static struct file_info* fs_info__by_virt(struct fs* fs, const char* path, bool 
     {
         if (fs_normalize(fs, path, &sb)) {
             for (info = fs->files; info != NULL; info = info->next) {
-                if (file_info_matches_virt(info, stringbuilder_get_const(&sb)))
+                if (file_info_matches_virt(info, stringbuilder_get_const(&sb))) {
+                    stringbuilder_destroy(&sb);
                     return info;
+                }
             }
         }
 
@@ -399,8 +405,10 @@ static struct file_info* fs_info__by_real(struct fs* fs, const char* path, size_
     {
         if (fs_normalize(fs, path, &sb)) {
             for (info = fs->files; info != NULL; info = info->next) {
-                if (file_info_matches_real(info, stringbuilder_get_const(&sb)))
+                if (file_info_matches_real(info, stringbuilder_get_const(&sb))) {
+                    stringbuilder_destroy(&sb);
                     return info;
+                }
             }
         }
 

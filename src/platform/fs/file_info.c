@@ -23,6 +23,7 @@ void file_info_create(struct file_info* info,
                       const char*       virt_path,
                       const char*       real_path) {
     info->fs        = fs;
+    
     info->virt_path = memory_strdup(virt_path);
     info->real_path = memory_strdup(real_path);
 
